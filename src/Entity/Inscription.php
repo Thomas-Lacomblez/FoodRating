@@ -7,6 +7,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\InscriptionRepository")
+ * @ORM\Table(name="utilisateurs")
  */
 class Inscription
 {
@@ -30,16 +31,10 @@ class Inscription
     private $email;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, name="motDePasse")
      * @Assert\Length(min=8, max=255, minMessage="Mot de passe non valide", maxMessage="Mot de passe non valide")
      */
     private $mdp;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @Assert\Length(min=8, max=255, minMessage="Mot de passe non valide", maxMessage="Mot de passe non valide")
-     */
-    private $mdp_confirmation;
 
     public function getId(): ?int
     {
@@ -78,18 +73,6 @@ class Inscription
     public function setMdp(string $mdp): self
     {
         $this->mdp = $mdp;
-
-        return $this;
-    }
-
-    public function getMdpConfirmation(): ?string
-    {
-        return $this->mdp_confirmation;
-    }
-
-    public function setMdpConfirmation(string $mdp_confirmation): self
-    {
-        $this->mdp_confirmation = $mdp_confirmation;
 
         return $this;
     }
