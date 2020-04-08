@@ -1,15 +1,30 @@
 security:
+    encoders: 
+        App\Entity\Utilisateurs:
+            algorithm: bcrypt
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     providers:
-        users_in_memory: { memory: null }
+        in_memory: { memory: ~ }
+        in_database: 
+            entity:
+                class: App\Entity\Utilisateurs
+                property: email
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
-            anonymous: lazy
-            provider: users_in_memory
+            anonymous: true
 
+            provider: in_database
+
+            form_login:
+                login_path: login_security
+                check_path: login_security
+            
+            logout:
+                path: logout_security
+                target: food_rating
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#firewalls-authentication
 
