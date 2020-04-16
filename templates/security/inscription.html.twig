@@ -10,37 +10,26 @@
     </head>
 
     {% block body %}
+        <!--<script>
+            function ChargerPageInscription() {
+                history.pushState({ path: this.path}, '', '/inscription');
+            }
+            function ChargerPageConnexion() {
+                history.pushState({ path: this.path}, '', '/connexion');
+            }-->
+        </script>
         <div style="margin-top:10%;">
             <div class="container">
                 <ul class="nav nav-tabs col-sm-5 m-auto">
                     <li class="nav-item">
-                        <a class="nav-link active" data-toggle="tab" href="#connexion">Connexion</a>
+                        <a class="nav-link"  href="/connexion">Connexion</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#inscription">Inscription</a>
+                        <a class="nav-link active" href="/inscription">Inscription</a>
                     </li>
                 </ul>
                 <div id="myTabContent" class="tab-content">
-                    <div class="col-sm-5 m-auto form-group tab-pane fade active show" id="connexion">
-                        <fieldset>
-                            <form action="{{ path('login_security') }}" method="post">
-                                <legend>Connexion à l'espace personnel !</legend>
-                                <div class="form-group">
-                                    <label>Email</label>
-                                    <input type="text" required name="_username" class="form-control" placeholder="Entrez votre email">
-                                </div>
-                                <div class="form-group">
-                                    <label>Mot de passe</label>
-                                    <input type="password" required name="_password" class="form-control" placeholder="Entrer votre mot de passe">
-                                </div>
-                                <div class="form-group">
-                                    <button type="submit" class="btn btn-success">Connexion</button>
-                                    <a href="/" class="btn btn-info">Retour</a>
-                                </div>
-                            </form>
-                        </fieldset>
-                    </div>
-                    <div class="col-sm-5 m-auto form-group tab-pane fade" id="inscription">
+                    <div class="col-sm-5 m-auto form-group tab-pane fade active show">
                         {% form_theme formInscription 'bootstrap_4_layout.html.twig' %}
                         <fieldset>
                             <legend>Inscription sur FoodRating !</legend>
@@ -54,6 +43,7 @@
                             <div class="form-group">
                                 <button type="submit" class="btn btn-success">S'Inscrire</button>
                                 <a href="/" class="btn btn-info">Retour</a>
+                            </div>
                             {{ form_end(formInscription) }}
                         </fieldset>
                     </div>

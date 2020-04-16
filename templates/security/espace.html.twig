@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    <h1>Salut {{ app.user.username }}</h1>
+
+    <!--<div class="container">
+        <div class="col-sm-5 m-auto form-group">
+            {# form_theme formModification 'bootstrap_4_layout.html.twig' }
+            <fieldset>
+                <legend>Inscription sur FoodRating !</legend>
+                {{ form_start(formModification) }}
+
+                {{ form_row(formModification.username, {'label': "Pseudo", 'value': app.user.username, 'attr': {'placeholder': "Entrez votre pseudo"}}) }}
+                {{ form_row(formModification.email, {'label': "Email", 'attr': {'placeholder': "Entrez votre email"}}) }}
+                {{ form_row(formModification.password, {'label': "Mot de passe", 'attr': {'placeholder': "Entrez votre mot de passe"}}) }}
+                {{ form_row(formModification.password_confirmation, {'label': "Confirmation du mot de passe", 'attr': {'placeholder': "Retapez votre mot de passe"}}) }}
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success">S'Inscrire</button>
+                    <a href="/" class="btn btn-info">Retour</a>
+                </div>
+                {{ form_end(formModification) #}}
+            </fieldset>
+        </div>
+    </div>-->
+
+{% endblock %}
