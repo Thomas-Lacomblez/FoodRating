@@ -1,0 +1,18 @@
+{% extends "base.html.twig" %}
+
+{% block body %}
+
+<section class="produit">
+
+	{% for p in produits %}
+	
+		<article>
+			<p> {{ p.nom }} </p>
+			<a href="{{ path("produit", {"categorie" : p.categorie, "nom" : p.nom}) }}" class="btn btn-primary">Afficher le produit</a>
+		</article>
+	
+	{% endfor %}
+
+</section>
+
+{% endblock %}
