@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -75,6 +77,22 @@ class Produit
      * @ORM\Column(type="string", length=1, nullable=true)
      */
     private $nutriscore;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Commentaires", mappedBy="produit")
+     */
+    private $commentaires;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Notes", mappedBy="produit", orphanRemoval=true)
+     */
+    private $notes;
+
+    public function __construct()
+    {
+        $this->commentaires = new ArrayCollection();
+        $this->notes = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -221,6 +239,68 @@ class Produit
     public function setNutriscore(?string $nutriscore): self
     {
         $this->nutriscore = $nutriscore;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Commentaires[]
+     */
+    public function getCommentaires(): Collection
+    {
+        return $this->commentaires;
+    }
+
+    public function addCommentaire(Commentaires $commentaire): self
+    {
+        if (!$this->commentaires->contains($commentaire)) {
+            $this->commentaires[] = $commentaire;
+            $commentaire->setProduit($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCommentaire(Commentaires $commentaire): self
+    {
+        if ($this->commentaires->contains($commentaire)) {
+            $this->commentaires->removeElement($commentaire);
+            // set the owning side to null (unless already changed)
+            if ($commentaire->getProduit() === $this) {
+                $commentaire->setProduit(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Notes[]
+     */
+    public function getNotes(): Collection
+    {
+        return $this->notes;
+    }
+
+    public function addNote(Notes $note): self
+    {
+        if (!$this->notes->contains($note)) {
+            $this->notes[] = $note;
+            $note->setProduit($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNote(Notes $note): self
+    {
+        if ($this->notes->contains($note)) {
+            $this->notes->removeElement($note);
+            // set the owning side to null (unless already changed)
+            if ($note->getProduit() === $this) {
+                $note->setProduit(null);
+            }
+        }
 
         return $this;
     }
