@@ -1,0 +1,10 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h2>Information sur le compte !</h2>
+
+    Pseudo : {{ app.user.username }} <br>
+    Email : {{ app.user.email }} <br>
+    <a href="{{ path('modifier_donnees') }}" class="btn btn-info">Modifier les données</a>
+
+{% endblock %}

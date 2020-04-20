@@ -12,7 +12,7 @@
         <div class="row col-lg-12">
             {% if app.user %}
                 <a type="button" style="margin-right: 15px; margin-bottom: 5px; margin-top: 5px;" class="btn btn-secondary col-sm-1 ml-auto" href="/deconnexion">Déconnexion</a>
-                <a type="button" style="margin-bottom: 5px; margin-top: 5px;" class="btn btn-warning col-sm-1" href="/connexion">Mon compte</a>
+                <a type="button" style="margin-bottom: 5px; margin-top: 5px;" class="btn btn-warning col-sm-1" href="{{ path('user_show') }}">Mon compte</a>
             {% else %}
                 <a type="button" style="margin-bottom: 5px; margin-top: 5px;" class="btn btn-warning col-sm-1 ml-auto" href="/connexion">Mon compte</a>
             {% endif %}
