@@ -22,8 +22,7 @@
         }
         </script>
         {% if app.user %}
-            <p>Pour accéder au formulaire de l'inscription, veuillez vous déconnecter !</p>
-            <a href="/" class="btn btn-info">Retour</a>
+            <script>window.location.href="{{ path('espace') }}";</script>
         {% else %}
             <div id="formChange">
                 <div style="margin-top:10%;">
