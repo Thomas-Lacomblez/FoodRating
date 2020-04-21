@@ -2,16 +2,43 @@
 
 namespace App\Controller;
 
-use App\Repository\UtilisateursRepository;
+use App\Entity\Produit;
 use App\Entity\Utilisateurs;
 
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use App\Entity\Produit;
+use Doctrine\Common\Persistence\ObjectManager;
 use App\Repository\ProduitRepository;
+use App\Repository\UtilisateursRepository;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class FoodRatingController extends AbstractController
 {
+    /**
+     * @Route("/recherche", name="recherche")
+     */
+    public function recherche(Request $request) {
+        $noms = array();
+        $term = trim(strip_tags($request->get('term')));
+
+        $manager = $this->getDoctrine()->getManager();
+
+        $entities = $manager->getRepository(Produit::class)->CreateQueryBuilder('p')
+            ->where('p.nom LIKE :nom')
+            ->setParameter('nom', '%'.$term.'%')
+            ->getQuery()
+            ->getResult();
+
+        foreach ($entities as $entity) {
+            $noms[] = $entity->getNom();
+        }
+  
+        $resultat = new JsonResponse();
+        $resultat->setData($noms);
+
+        return $resultat;
+    }
     /**
      * @Route("/", name="food_rating")
      */
