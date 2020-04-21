@@ -10,46 +10,51 @@
     </head>
 
     {% block body %}
-        <!--<script>
-            function ChargerPageInscription() {
-                history.pushState({ path: this.path}, '', '/inscription');
-            }
-            function ChargerPageConnexion() {
-                history.pushState({ path: this.path}, '', '/connexion');
-            }-->
+        <script>
+        $(document).ready( function() {
+            $("#connexion").click(function() {
+	            $("#formChange").load("/connexion")
+            });
+	    });
+
+        function ChargerPageConnexion() {
+            history.pushState({ path: this.path}, '', '/connexion');
+        }
         </script>
         {% if app.user %}
             <p>Pour accéder au formulaire de l'inscription, veuillez vous déconnecter !</p>
             <a href="/" class="btn btn-info">Retour</a>
         {% else %}
-            <div style="margin-top:10%;">
-                <div class="container">
-                    <ul class="nav nav-tabs col-sm-5 m-auto">
-                        <li class="nav-item">
-                            <a class="nav-link"  href="/connexion">Connexion</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" href="/inscription">Inscription</a>
-                        </li>
-                    </ul>
-                    <div id="myTabContent" class="tab-content">
-                        <div class="col-sm-5 m-auto form-group tab-pane fade active show">
-                            {% form_theme formInscription 'bootstrap_4_layout.html.twig' %}
-                            <fieldset>
-                                <legend>Inscription sur FoodRating !</legend>
-                                {{ form_start(formInscription) }}
+            <div id="formChange">
+                <div style="margin-top:10%;">
+                    <div class="container">
+                        <ul class="nav nav-tabs col-sm-5 m-auto">
+                            <li class="nav-item">
+                                <button class="nav-link" id="connexion" onclick="ChargerPageConnexion()">Connexion</button>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link active" href="#">Inscription</a>
+                            </li>
+                        </ul>
+                        <div id="myTabContent" class="tab-content">
+                            <div class="col-sm-5 m-auto form-group tab-pane fade active show">
+                                {% form_theme formInscription 'bootstrap_4_layout.html.twig' %}
+                                <fieldset>
+                                    <legend>Inscription sur FoodRating !</legend>
+                                    {{ form_start(formInscription) }}
 
-                                {{ form_row(formInscription.username, {'label': "Pseudo", 'attr': {'placeholder': "Entrez votre pseudo"}}) }}
-                                {{ form_row(formInscription.email, {'label': "Email", 'attr': {'placeholder': "Entrez votre email"}}) }}
-                                {{ form_row(formInscription.password, {'label': "Mot de passe", 'attr': {'placeholder': "Entrez votre mot de passe"}}) }}
-                                {{ form_row(formInscription.password_confirmation, {'label': "Confirmation du mot de passe", 'attr': {'placeholder': "Retapez votre mot de passe"}}) }}
+                                    {{ form_row(formInscription.username, {'label': "Pseudo", 'attr': {'placeholder': "Entrez votre pseudo"}}) }}
+                                    {{ form_row(formInscription.email, {'label': "Email", 'attr': {'placeholder': "Entrez votre email"}}) }}
+                                    {{ form_row(formInscription.password, {'label': "Mot de passe", 'attr': {'placeholder': "Entrez votre mot de passe"}}) }}
+                                    {{ form_row(formInscription.password_confirmation, {'label': "Confirmation du mot de passe", 'attr': {'placeholder': "Retapez votre mot de passe"}}) }}
 
-                                <div class="form-group">
-                                    <button type="submit" class="btn btn-success">S'Inscrire</button>
-                                    <a href="/" class="btn btn-info">Retour</a>
-                                </div>
-                                {{ form_end(formInscription) }}
-                            </fieldset>
+                                    <div class="form-group">
+                                        <button type="submit" class="btn btn-success">S'Inscrire</button>
+                                        <a href="/" class="btn btn-info">Retour</a>
+                                    </div>
+                                    {{ form_end(formInscription) }}
+                                </fieldset>
+                            </div>
                         </div>
                     </div>
                 </div>
