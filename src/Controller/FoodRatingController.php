@@ -6,6 +6,7 @@ use App\Entity\Produit;
 use App\Entity\Utilisateurs;
 
 use Doctrine\Common\Persistence\ObjectManager;
+use Knp\Component\Pager\PaginatorInterface;
 use App\Repository\ProduitRepository;
 use App\Repository\UtilisateursRepository;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,6 +25,7 @@ class FoodRatingController extends AbstractController
 
         $manager = $this->getDoctrine()->getManager();
 
+        // Permet de faire un SELECT dans la table Produit
         $entities = $manager->getRepository(Produit::class)->CreateQueryBuilder('p')
             ->where('p.nom LIKE :nom')
             ->setParameter('nom', '%'.$term.'%')
@@ -39,6 +41,7 @@ class FoodRatingController extends AbstractController
 
         return $resultat;
     }
+    
     /**
      * @Route("/", name="food_rating")
      */
@@ -51,12 +54,21 @@ class FoodRatingController extends AbstractController
      * @Route("/liste_des_produits", name="liste_produit")
      * 
      * Fonction temporaire
+     * Le paramètre Request permet de récupérer le numéro de la page en cours.
      */
-    public function listeProduit(ProduitRepository $repo) {
-    	$produits = $repo->findAll();
+    public function listeProduit(PaginatorInterface $paginator, Request $request, ProduitRepository $repo) {
+    	$donnees = $repo->findAll();
+    	
+    	$produits = $paginator->paginate(
+    			$donnees,
+    			$request->query->getInt("page", 1),
+    			10
+    	);
     	
     	return $this->render("food_rating/liste_produit.html.twig", [
-    			"produits" => $produits
+    			"produits" => $produits,
+    			"nbPage" => round(count($donnees) / 10),
+    			"pageActuelle" => $request->query->getInt("page", 1)
     	]);
     }
     
