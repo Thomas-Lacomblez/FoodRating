@@ -1,7 +1,7 @@
 <?php
 
 namespace App\DataFixtures;
-
+	
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
 use App\Entity\Produit;
@@ -22,12 +22,8 @@ class AppFixtures extends Fixture
     				->setImage("http://placehold.it/250x125")
     				->setIngredient("Bcp de bonnes choses !")
     				->setCategorie("Cat $i")
-    				->setDistributeur([
-    						"Distributeur 1",
-    						"Distributeur 2",
-    						"Distributeur 3"
-    				])
-    				->setKcal($i * 100)
+    				->setDistributeur("Distributeur 1, Distributeur 2 ,Distributeur 3")
+    				->setKcal("$i$i$i")
     				->setNutriscore("c")
     				->setTrace("trace 1, trace 2, trace 3");
     		

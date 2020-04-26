@@ -49,12 +49,12 @@ class Produit
     private $categorie;
 
     /**
-     * @ORM\Column(type="array")
+     * @ORM\Column(type="string", length=255)
      */
     private $distributeur = [];
 
     /**
-     * @ORM\Column(type="array", nullable=true)
+     * @ORM\Column(type="string", length=255)
      */
     private $etiquette = [];
 
@@ -64,12 +64,12 @@ class Produit
     private $image;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="string", length=20)
      */
     private $kcal;
 
     /**
-     * @ORM\Column(type="array", nullable=true)
+     * @ORM\Column(type="string", length=255)
      */
     private $additif = [];
 
@@ -171,24 +171,24 @@ class Produit
         return $this;
     }
 
-    public function getDistributeur(): ?array
+    public function getDistributeur(): ?string
     {
         return $this->distributeur;
     }
 
-    public function setDistributeur(array $distributeur): self
+    public function setDistributeur(string $distributeur): self
     {
         $this->distributeur = $distributeur;
 
         return $this;
     }
 
-    public function getEtiquette(): ?array
+    public function getEtiquette(): ?string
     {
         return $this->etiquette;
     }
 
-    public function setEtiquette(?array $etiquette): self
+    public function setEtiquette(?string $etiquette): self
     {
         $this->etiquette = $etiquette;
 
@@ -207,24 +207,24 @@ class Produit
         return $this;
     }
 
-    public function getKcal(): ?int
+    public function getKcal(): ?string
     {
         return $this->kcal;
     }
 
-    public function setKcal(int $kcal): self
+    public function setKcal(string $kcal): self
     {
         $this->kcal = $kcal;
 
         return $this;
     }
 
-    public function getAdditif(): ?array
+    public function getAdditif(): ?string
     {
         return $this->additif;
     }
 
-    public function setAdditif(?array $additif): self
+    public function setAdditif(?string $additif): self
     {
         $this->additif = $additif;
 
