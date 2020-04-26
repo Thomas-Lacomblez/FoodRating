@@ -25,6 +25,8 @@ class AppFixtures extends Fixture
     				->setDistributeur("Distributeur 1, Distributeur 2 ,Distributeur 3")
     				->setKcal("$i$i$i")
     				->setNutriscore("c")
+    				->setEtiquette("Étiquette 1, étiquette 2, étiquette 3")
+    				->setAdditif("Additif 1, Additif 2")
     				->setTrace("trace 1, trace 2, trace 3");
     		
     		$manager->persist($produit);

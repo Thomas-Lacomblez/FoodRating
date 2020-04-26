@@ -32,7 +32,7 @@
                         <a class="nav-link" href="{{ path("liste_produit") }}">Liste des produits (temporaire)</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">test 2</a>
+                        <a class="nav-link" href="{{ path("liste_categorie") }}">Catégories</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">test 3</a>
@@ -45,7 +45,7 @@
             </div>
         </nav>
         
-        <div class="container pt-5 pb-5">
+        <div class="container py-5">
             {% block body %}{% endblock %}
         </div>
         

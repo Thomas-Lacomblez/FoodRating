@@ -1,0 +1,31 @@
+{% extends "base.html.twig" %}
+
+{% block title %} Liste des catégories {% endblock %}
+
+{% block body %}
+
+<h1>Catégories</h1>
+
+<table class="table table-sm table-striped table-hover mt-5 mx-auto" style="width: 60%;">
+	<thead class="thead-light">
+		<th class="w-50">Nom</th>
+		<th class="w-50">Nombre de produit</th>
+	</thead>
+	<tbody>
+		
+		{% for c in categories %}
+			<tr>
+				<td> {{ c.categorie }} </td>
+				<td>???</td>
+			</tr>
+		{% endfor %}
+		
+	</tbody>
+</table>
+
+	<!-- Plutôt que d'utiliser le sélecteur de pages de KNP, on va utiliser celui de Bootstrap -->
+	<!-- {{ knp_pagination_render(categories) }} -->
+
+{{ include("food_rating/pagination.html.twig") }}
+
+{% endblock %}

@@ -16,31 +16,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class FoodRatingController extends AbstractController
 {
-    /**
-     * @Route("/recherche", name="recherche")
-     */
-    public function recherche(Request $request) {
-        $noms = array();
-        $term = trim(strip_tags($request->get('term')));
-
-        $manager = $this->getDoctrine()->getManager();
-
-        // Permet de faire un SELECT dans la table Produit
-        $entities = $manager->getRepository(Produit::class)->CreateQueryBuilder('p')
-            ->where('p.nom LIKE :nom')
-            ->setParameter('nom', '%'.$term.'%')
-            ->getQuery()
-            ->getResult();
-
-        foreach ($entities as $entity) {
-            $noms[] = $entity->getNom();
-        }
-  
-        $resultat = new JsonResponse();
-        $resultat->setData($noms);
-
-        return $resultat;
-    }
     
     /**
      * @Route("/", name="food_rating")
@@ -68,7 +43,8 @@ class FoodRatingController extends AbstractController
     	return $this->render("food_rating/liste_produit.html.twig", [
     			"produits" => $produits,
     			"nbPage" => round(count($donnees) / 10),
-    			"pageActuelle" => $request->query->getInt("page", 1)
+    			"pageActuelle" => $request->query->getInt("page", 1),
+    			"chemin" => "liste_produit"
     	]);
     }
     
@@ -93,6 +69,56 @@ class FoodRatingController extends AbstractController
      */
     public function show() {
         return $this->render('food_rating/info_compte.html.twig');
+    }
+    
+    /**
+     * @Route("/recherche", name="recherche")
+     */
+    public function recherche(Request $request, ProduitRepository $repo) {
+    	$noms = array();
+    	$term = trim(strip_tags($request->get('term')));
+    	
+    	// Permet de faire un SELECT dans la table Produit
+    	$entities = $repo->CreateQueryBuilder('p')
+    	->where('p.nom LIKE :nom')
+    	->setParameter('nom', '%'.$term.'%')
+    	->getQuery()
+    	->getResult();
+    	
+    	foreach ($entities as $entity) {
+    		$noms[] = $entity->getNom();
+    	}
+    	
+    	$resultat = new JsonResponse();
+    	$resultat->setData($noms);
+    	
+    	return $resultat;
+    }
+    
+    /**
+     * @Route("/liste_des_categories", name="liste_categorie")
+     * @param ProduitRepository $repo
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function categorie(PaginatorInterface $paginator, ProduitRepository $repo, Request $request) {
+    	$donnees = $repo->createQueryBuilder("p")
+    					->select("p.categorie")
+    					->distinct()
+    					->getQuery()
+    					->getResult();
+    	
+    	$categories = $paginator->paginate(
+    			$donnees,
+    			$request->query->getInt("page", 1),
+    			10
+    	);
+    					
+    	return $this->render("food_rating/liste_categorie.html.twig", [
+    			"categories" => $categories,
+    			"nbPage" => round(count($donnees) / 10),
+    			"pageActuelle" => $request->query->getInt("page", 1),
+    			"chemin" => "liste_categorie"
+    	]);
     }
 
 }

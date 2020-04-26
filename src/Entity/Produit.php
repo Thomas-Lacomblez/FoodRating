@@ -51,12 +51,12 @@ class Produit
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $distributeur = [];
+    private $distributeur;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $etiquette = [];
+    private $etiquette;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -71,7 +71,7 @@ class Produit
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $additif = [];
+    private $additif;
 
     /**
      * @ORM\Column(type="string", length=1, nullable=true)

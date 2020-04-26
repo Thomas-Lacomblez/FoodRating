@@ -20,37 +20,6 @@
 
 </section>
 
-<ul class="pagination justify-content-center flex-sm-wrap mt-5">
-    {% if pageActuelle != 1 %}
-		<li class="page-item"><a href="{{ path("liste_produit") }}?page={{ pageActuelle - 1 }}" class="page-link"><i class="fas fa-angle-left"></i></a></li>
-	{% else %}
-	
-		<!-- On est à la page 1 donc on désactive le bouton -->
-		<li class="page-item disabled"><a href="#" class="page-link"><i class="fas fa-angle-left"></i></a></li>
-		
-	{% endif %}
-
-	<!-- Forme utilisé pour faire une boucle avec des int dans Twig -->
-	{% for page in 1..nbPage %}
-	
-		{% if pageActuelle != page %}
-			<li class="page-item"><a href="{{ path("liste_produit") }}?page={{ page }}" class="page-link">{{ page }}</a></li>
-		{% else %}
-		
-			<!-- On est sur la page vue par l'utilisateur, donc on surligne le numéro de page dans le sélecteur -->
-			<li class="page-item active"><a href="{{ path("liste_produit") }}?page={{ page }}" class="page-link">{{ page }}</a></li>
-			
-		{% endif %}
-	{% endfor %}
-
-	{% if pageActuelle != nbPage %}
-		<li class="page-item"><a href="{{ path("liste_produit") }}?page={{ pageActuelle + 1 }}" class="page-link"><i class="fas fa-angle-right"></i></a></li>
-	{% else %}
-	
-		<!-- On est à la dernière page donc on désactive le bouton -->
-		<li class="page-item disabled"><a href="#" class="page-link"><i class="fas fa-angle-right"></i></a></li>
-		
-	{% endif %}
-</ul>
+{{ include("food_rating/pagination.html.twig") }}
 
 {% endblock %}
