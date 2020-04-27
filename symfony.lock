@@ -114,6 +114,9 @@
     "knplabs/knp-paginator-bundle": {
         "version": "v5.1.2"
     },
+    "league/csv": {
+        "version": "9.0.0"
+    },
     "monolog/monolog": {
         "version": "1.25.3"
     },

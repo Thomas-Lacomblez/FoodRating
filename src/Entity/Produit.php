@@ -44,7 +44,7 @@ class Produit
     private $marque;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="text")
      */
     private $categorie;
 
@@ -54,7 +54,7 @@ class Produit
     private $distributeur;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="text")
      */
     private $etiquette;
 
@@ -69,7 +69,7 @@ class Produit
     private $kcal;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="text")
      */
     private $additif;
 

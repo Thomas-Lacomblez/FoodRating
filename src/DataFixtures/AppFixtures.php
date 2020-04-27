@@ -1,38 +1,44 @@
 <?php
 
 namespace App\DataFixtures;
-	
+
+use League\Csv\Reader;
+use App\Entity\Produit;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
-use App\Entity\Produit;
-
+ini_set('memory_limit', '-1');
 class AppFixtures extends Fixture
 {
     public function load(ObjectManager $manager)
     {
-        // $product = new Product();
-        // $manager->persist($product);
-        
-    	for ($i = 1; $i <= 30; $i++) {
-    		$produit = new Produit();
-    		
-    		$produit->setNom("Produit n°$i")
-    				->setMarque("Une marque")
-    				->setCode("$i$i$i$i$i$i$i")
-    				->setImage("http://placehold.it/250x125")
-    				->setIngredient("Bcp de bonnes choses !")
-    				->setCategorie("Cat $i")
-    				->setDistributeur("Distributeur 1, Distributeur 2 ,Distributeur 3")
-    				->setKcal("$i$i$i")
-    				->setNutriscore("c")
-    				->setEtiquette("Étiquette 1, étiquette 2, étiquette 3")
-    				->setAdditif("Additif 1, Additif 2")
-    				->setTrace("trace 1, trace 2, trace 3");
-    		
-    		$manager->persist($produit);
-    		
-    	}
+		$stream = fopen('%kernel.root_dir%/../public/csv/fr.openfoodfacts.org.products_0.csv', 'r');
+		$csv = Reader::createFromStream($stream);
+		$csv->setDelimiter('	');
+		$csv->setHeaderOffset(0);
+		$records = $csv->getRecords();
+		//$resultat = $reader->fetchAssoc();
 
-        $manager->flush();
+		foreach($records as $row) {
+			$produit = new Produit();
+
+			$produit->setNom($row['product_name'])
+					->setMarque($row['brands'])
+					->setCode($row['code'])
+					->setImage($row['image_url'])
+					->setIngredient($row['ingredients_text'])
+					->setCategorie($row['categories'])
+					->setDistributeur($row['stores'])
+					->setKcal($row['energy-kcal_100g'])
+					->setNutriscore($row['nutriscore_grade'])
+					->setTrace($row['traces'])
+					->setEtiquette($row['labels'])
+					->setAdditif($row['additives']);
+
+			$manager->persist($produit);
+		}
+		$manager->flush();
     }
 }
+
+?>
+
