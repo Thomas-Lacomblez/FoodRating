@@ -49,11 +49,11 @@ class FoodRatingController extends AbstractController
     }
     
     /**
-     * @Route("/produit/{categorie}/{nom}", name="produit")
+     * @Route("/produit/{nom}", name="produit")
      */
     public function afficheProduit(Produit $produit) {
     	return $this->render("food_rating/produit.html.twig", [
-    			"produit" => $produit
+				"produit" => $produit
     	]);
     }
     

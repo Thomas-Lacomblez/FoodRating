@@ -3,10 +3,12 @@
     <head>
         <meta charset="UTF-8">
         <title>{% block title %}FoodRating{% endblock %}</title>
-        <link rel="stylesheet" href="https://bootswatch.com/4/minty/bootstrap.min.css">
-        <link rel="stylesheet" href="jquery-ui/jquery-ui.min.css"/>
-        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
-        {% block stylesheets %}{% endblock %}
+        {% block stylesheets %}
+            <link rel="stylesheet" href="https://bootswatch.com/4/minty/bootstrap.min.css">
+            <link rel="stylesheet" href="jquery-ui/jquery-ui.min.css"/>
+            <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+            <style>.ui-autocomplete { max-height: 200px; width: 50px; overflow-y: auto; overflow-x: hidden;}</style>
+        {% endblock %}
     </head>
     <body>
         <div class="row col-lg-12">
