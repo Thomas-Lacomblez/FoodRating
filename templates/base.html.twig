@@ -40,8 +40,8 @@
                         <a class="nav-link" href="#">test 3</a>
                     </li>
                 </ul>
-                <form class="form-inline my-2 my-lg-0">
-                    <input class="form-control mr-sm-2" type="text" id="recherche" placeholder="Recherche">
+                <form class="form-inline my-2 my-lg-0" action="{{ path('resultat') }}" method="get">
+                    <input class="form-control mr-sm-2" type="text" id="recherche" name="recherche" placeholder="Recherche" required>
                     <button class="btn btn-warning my-2 my-sm-0" type="submit">Rechercher</button>
                 </form>
             </div>
