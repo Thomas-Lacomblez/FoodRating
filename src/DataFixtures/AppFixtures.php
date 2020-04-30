@@ -11,7 +11,7 @@ class AppFixtures extends Fixture
 {
     public function load(ObjectManager $manager)
     {
-		$stream = fopen('%kernel.root_dir%/../public/csv/test.csv', 'r');
+		$stream = fopen('%kernel.root_dir%/../public/csv/fr.openfoodfacts.org.products_0.csv', 'r');
 		$csv = Reader::createFromStream($stream);
 		$csv->setDelimiter('	');
 		$csv->setHeaderOffset(0);
@@ -30,7 +30,7 @@ class AppFixtures extends Fixture
 			}
 
 			if (empty($row['brands'])) {
-				$produit->setMarque("Marque non renseigné");
+				$produit->setMarque("Marque non renseignée");
 			}
 			else {
 				$produit->setMarque($row['brands']);
