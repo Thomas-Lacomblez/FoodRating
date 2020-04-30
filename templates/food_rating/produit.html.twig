@@ -1,7 +1,7 @@
 {% extends "base.html.twig" %}
 
 {% block body %}
-
+<script src="https://bootswatch.com/_vendor/jquery/dist/jquery.min.js"></script>
 <div class="media pb-5">
 	<img src="{{ produit.image }}" class="align-self-center mr-3" alt="" />
 	<div class="media-body">
@@ -56,48 +56,41 @@
 </div>
 <h3>Noter</h3>
 <script>
-	var idEtoile = "etoile";		
-	var nbEtoile = 5;
-	var etoileSelectId = idEtoile.lastIndexOf('');
+	$(document).ready(function(){
 
-	function Notation() {
-		for (i = 1; i <= nbEtoile; i++) {
-			var etoile = document.getElementById('etoile' + i);
-			
-			etoile.onclick = function() {};
-			etoile.onmouseover = function() {EtoileSelect(this.id);};
-			etoile.onmouseout = function() {EtoileDefaut(this.id);};
-		}
-	}
-
-	function EtoileSelect(Etoile) {
-		EtoileNb = ExtractId(Etoile);
-		for (i = 1; i <= EtoileNb; i++) {
-			document.getElementById('etoile'+i).className="fas fa-star fa-3x text-warning";
-		}
-	}
-
-	function EtoileDefaut(Etoile) {
-		EtoileNb = ExtractId(Etoile);
-		for (i = 1 ;i <= EtoileNb ; i++) {
-			document.getElementById('etoile'+i).className="fas fa-star fa-3x";
-		}
-	}
-	
-	function ExtractId(Etoile) {
-		EtoileNb = Etoile.slice(etoileSelectId);
-		return(EtoileNb);
-	}
-
-	window.addEventListener("load",function() {
-		Notation();
-	})
+		function ExtractId(id) {
+    		var id=id.split('_');
+    		var id=id[1];
+    		return id;
+  		}
+		  
+		$('.etoile').on('click', function(e){
+			var id = ExtractId($(this).attr('id')); 
+			var nbStars=$('.etoile').length; 
+			var i;
+			for (i = 1; i <= nbStars; i++) {
+				if(i <= id) {
+					$('#etoile_' + i).addClass('text-warning');
+				}	
+				else if(i > id){
+					$('#etoile_' + i).removeClass('text-warning');
+				}
+				if(i==id) {
+					$('#note').attr({value:i});
+				}
+			}
+		});
+	});
 </script>
+
 <div class="row">
-	<i class="fas fa-star fa-3x" id="etoile1"></i>
-	<i class="fas fa-star fa-3x" id="etoile2"></i>
-	<i class="fas fa-star fa-3x" id="etoile3"></i>
-	<i class="fas fa-star fa-3x" id="etoile4"></i>
-	<i class="fas fa-star fa-3x" id="etoile5"></i>
+	<form action="#" method="post">
+		<i class="fas fa-star fa-3x etoile" id="etoile_1"></i>
+		<i class="fas fa-star fa-3x etoile" id="etoile_2"></i>
+		<i class="fas fa-star fa-3x etoile" id="etoile_3"></i>
+		<i class="fas fa-star fa-3x etoile" id="etoile_4"></i>
+		<i class="fas fa-star fa-3x etoile" id="etoile_5"></i>
+		<input type="text" name="note" id="note">
+	</form>
 </div>
 {% endblock %}
