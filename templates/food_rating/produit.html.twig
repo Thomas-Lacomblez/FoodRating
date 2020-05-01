@@ -55,42 +55,52 @@
 	</div>
 </div>
 <h3>Noter</h3>
-<script>
-	$(document).ready(function(){
+{% if app.user %}
+	<script>
+		$(document).ready(function(){
 
-		function ExtractId(id) {
-    		var id=id.split('_');
-    		var id=id[1];
-    		return id;
-  		}
-		  
-		$('.etoile').on('click', function(e){
-			var id = ExtractId($(this).attr('id')); 
-			var nbStars=$('.etoile').length; 
-			var i;
-			for (i = 1; i <= nbStars; i++) {
-				if(i <= id) {
-					$('#etoile_' + i).addClass('text-warning');
-				}	
-				else if(i > id){
-					$('#etoile_' + i).removeClass('text-warning');
-				}
-				if(i==id) {
-					$('#note').attr({value:i});
-				}
+			function ExtractId(id) {
+				var id=id.split('_');
+				var id=id[1];
+				return id;
 			}
+			
+			$('.etoile').on('click', function(e){
+				var id = ExtractId($(this).attr('id')); 
+				var nbStars=$('.etoile').length; 
+				var i;
+				for (i = 1; i <= nbStars; i++) {
+					if(i <= id) {
+						$('#etoile_' + i).addClass('text-warning');
+					}	
+					else if(i > id){
+						$('#etoile_' + i).removeClass('text-warning');
+					}
+					if(i==id) {
+						$('#note').attr({value:i});
+					}
+				}
+			});
 		});
-	});
-</script>
+	</script>
 
-<div class="row">
-	<form action="#" method="post">
-		<i class="fas fa-star fa-3x etoile" id="etoile_1"></i>
-		<i class="fas fa-star fa-3x etoile" id="etoile_2"></i>
-		<i class="fas fa-star fa-3x etoile" id="etoile_3"></i>
-		<i class="fas fa-star fa-3x etoile" id="etoile_4"></i>
-		<i class="fas fa-star fa-3x etoile" id="etoile_5"></i>
-		<input type="text" name="note" id="note">
-	</form>
-</div>
+	<div class="row">
+		<form action="{{ path("notation", {"id" : produit.id}) }}" method="post">
+			<i class="fas fa-star fa-3x etoile" id="etoile_1"></i>
+			<i class="fas fa-star fa-3x etoile" id="etoile_2"></i>
+			<i class="fas fa-star fa-3x etoile" id="etoile_3"></i>
+			<i class="fas fa-star fa-3x etoile" id="etoile_4"></i>
+			<i class="fas fa-star fa-3x etoile" id="etoile_5"></i>
+			<input type="hidden" name="note" id="note" value="">
+			<input type="submit" class="btn btn-primary" value="Noter">
+		</form>
+	</div>
+{% else %}
+	<div class="row">
+		<div class="col">
+			<p>Pour noter un produit, merci de vous connecter !</p>
+			<a type="button" class="btn btn-info" href="/connexion">Mon compte</a>
+		</div>
+	</div>
+{% endif %}
 {% endblock %}

@@ -2,14 +2,15 @@
 
 namespace App\Controller;
 
+use App\Entity\Notes;
 use App\Entity\Produit;
-use App\Entity\Utilisateurs;
 
-use Doctrine\Common\Persistence\ObjectManager;
-use Knp\Component\Pager\PaginatorInterface;
+use App\Entity\Utilisateurs;
 use App\Repository\ProduitRepository;
 use App\Repository\UtilisateursRepository;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -49,12 +50,33 @@ class FoodRatingController extends AbstractController
     }
     
     /**
-     * @Route("/produit/{nom}", name="produit")
+     * @Route("/produit/{id}", name="produit")
      */
     public function afficheProduit(Produit $produit) {
     	return $this->render("food_rating/produit.html.twig", [
 				"produit" => $produit
     	]);
+    }
+
+    /**
+     * @Route("/produit/{id}/notation", name="notation")
+     */
+    public function notationProduit($id, Produit $produit, Request $request) {
+        $note = new Notes();
+        $manager = $this->getDoctrine()->getManager();
+        $noteForm = $request->get('note');
+        $repo = $this->getDoctrine()->getRepository(Produit::class);
+        $produitCourant = $repo->find($id);
+        if (!empty($noteForm)) {
+            $note->setNbEtoiles($noteForm)
+                 ->setUtilisateur($this->getUser())
+                 ->setProduit($produitCourant);
+            $manager->persist($note);
+            $manager->flush();
+        }
+        return $this->render("food_rating/produit.html.twig", [
+                "produit" => $produit
+        ]);
     }
     
     /**

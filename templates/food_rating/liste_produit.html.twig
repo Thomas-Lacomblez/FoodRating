@@ -10,7 +10,7 @@
 	
 		<article>
 			<p> {{ p.nom }} </p>
-			<a href="{{ path("produit", {"nom" : p.nom}) }}" class="btn btn-primary">Afficher le produit</a>
+			<a href="{{ path("produit", {"id" : p.id}) }}" class="btn btn-primary">Afficher le produit</a>
 		</article>
 	
 	{% endfor %}
