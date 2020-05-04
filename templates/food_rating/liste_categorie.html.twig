@@ -23,9 +23,11 @@
 	</tbody>
 </table>
 
-	<!-- Plutôt que d'utiliser le sélecteur de pages de KNP, on va utiliser celui de Bootstrap -->
-	<!-- {{ knp_pagination_render(categories) }} -->
+<div class="flex-sm-wrap mt-5">
 
-{{ include("food_rating/pagination.html.twig") }}
+	<!-- Utilisation du sélecteur de pages de KNP -->
+	{{ knp_pagination_render(categories) }}
+	
+</div>
 
 {% endblock %}

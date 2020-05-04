@@ -3,7 +3,7 @@
 {% block body %}
 <script src="https://bootswatch.com/_vendor/jquery/dist/jquery.min.js"></script>
 <div class="media pb-5">
-	<img src="{{ produit.image }}" class="align-self-center mr-3" alt="" />
+	<img src="{{ produit.image == "Image non disponible pour ce produit" ? "/images/image_vide.png" : produit.image }}" class="align-self-center mr-3" alt="" />
 	<div class="media-body">
 		<p> Nom : {{ produit.nom }} <br> Marque : {{ produit.marque }} <br> Catégorie : {{ produit.categorie }} </p>
 	</div>

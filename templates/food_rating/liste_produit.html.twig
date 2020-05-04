@@ -15,11 +15,13 @@
 	
 	{% endfor %}
 	
-	<!-- Plutôt que d'utiliser le sélecteur de pages de KNP, on va utiliser celui de Bootstrap -->
-	<!-- {{ knp_pagination_render(produits) }} -->
+	<div class="flex-sm-wrap mt-5">
+
+		<!-- Utilisation du sélecteur de pages de KNP -->
+	    {{ knp_pagination_render(produits) }}
+	
+	</div>
 
 </section>
-
-{{ include("food_rating/pagination.html.twig") }}
 
 {% endblock %}

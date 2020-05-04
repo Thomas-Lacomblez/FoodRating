@@ -45,11 +45,21 @@ class SearchController extends AbstractController
     					->setParameter('nom', '%'.$recherche.'%')
     					->getQuery()
 						->getResult();
+		
 		$produits = $paginator->paginate(
 			$donnees,
 			$request->query->getInt("page", 1),
 			10
 		);
+		
+		// On utilise un template basé sur Bootstrap, celui par défaut ne l'est pas
+		$produits->setTemplate('@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig');
+		
+		// On aligne les sélecteurs au centre de la page
+		$produits->setCustomParameters([
+				"align" => "center"
+		]);
+		
     	return $this->render("food_rating/liste_produit.html.twig", [
 			"produits" => $produits,
 			"nbPage" => round(count($donnees) / 10),

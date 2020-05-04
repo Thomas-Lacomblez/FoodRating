@@ -41,6 +41,14 @@ class FoodRatingController extends AbstractController
     			10
     	);
     	
+    	// On utilise un template basé sur Bootstrap, celui par défaut ne l'est pas
+    	$produits->setTemplate('@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig');
+    	    	
+    	// On aligne les sélecteurs au centre de la page
+    	$produits->setCustomParameters([
+    			"align" => "center"
+    	]);
+    	
     	return $this->render("food_rating/liste_produit.html.twig", [
     			"produits" => $produits,
     			"nbPage" => round(count($donnees) / 10),
@@ -67,6 +75,7 @@ class FoodRatingController extends AbstractController
         $noteForm = $request->get('note');
         $repo = $this->getDoctrine()->getRepository(Produit::class);
         $produitCourant = $repo->find($id);
+        
         if (!empty($noteForm)) {
             $note->setNbEtoiles($noteForm)
                  ->setUtilisateur($this->getUser())
@@ -74,6 +83,7 @@ class FoodRatingController extends AbstractController
             $manager->persist($note);
             $manager->flush();
         }
+        
         return $this->render("food_rating/produit.html.twig", [
                 "produit" => $produit
         ]);
@@ -110,6 +120,14 @@ class FoodRatingController extends AbstractController
     			$request->query->getInt("page", 1),
     			10
     	);
+    	
+    	// On utilise un template basé sur Bootstrap, celui par défaut ne l'est pas
+    	$categories->setTemplate('@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig');
+    	
+    	// On aligne les sélecteurs au centre de la page
+    	$categories->setCustomParameters([
+    			"align" => "center"
+    	]);
     					
     	return $this->render("food_rating/liste_categorie.html.twig", [
     			"categories" => $categories,
