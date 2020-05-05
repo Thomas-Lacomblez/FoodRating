@@ -14,6 +14,7 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use OpenFoodFacts\Api;
 
 class FoodRatingController extends AbstractController
 {
@@ -135,6 +136,16 @@ class FoodRatingController extends AbstractController
     			"pageActuelle" => $request->query->getInt("page", 1),
     			"chemin" => "liste_categorie"
     	]);
+    }
+    
+    /**
+     * @Route("/test", name="test")
+     * @param Api $api
+     */
+    public function testWrapper() {
+    	$api = new Api("food", "fr");
+    	$prd = $api->getProduct('3057640385148');
+    	print("<pre>".print_r($prd,true)."</pre>");
     }
 
 }
