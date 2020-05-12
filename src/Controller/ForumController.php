@@ -9,15 +9,30 @@ use App\Repository\DiscussionRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Knp\Component\Pager\PaginatorInterface;
 
 class ForumController extends AbstractController
 {
     /**
      * @Route("/forum", name="forum")
      */
-    public function accueil( DiscussionRepository $repo )
+    public function accueil( DiscussionRepository $repo, PaginatorInterface $paginator, Request $request )
     {
         $derniereDisc = $repo->findAllDesc();
+        
+        $derniereDisc = $paginator->paginate(
+        		$derniereDisc,
+        		$request->query->getInt("page", 1),
+        		10
+        );
+        
+        // On utilise un template basé sur Bootstrap, celui par défaut ne l'est pas
+        $derniereDisc->setTemplate('@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig');
+        
+        // On aligne les sélecteurs au centre de la page
+        $derniereDisc->setCustomParameters([
+        		"align" => "center"
+        ]);
 
         return $this->render('forum/index.html.twig', [
             'discussions' =>  $derniereDisc,

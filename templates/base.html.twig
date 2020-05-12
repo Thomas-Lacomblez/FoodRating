@@ -13,8 +13,8 @@
     <body>
         <div class="row col-lg-12">
             {% if app.user %}
-                <a type="button" style="margin-right: 15px; margin-bottom: 5px; margin-top: 5px;" class="btn btn-secondary col-sm-1 ml-auto" href="/deconnexion">Déconnexion</a>
-                <a type="button" style="margin-bottom: 5px; margin-top: 5px;" class="btn btn-warning col-sm-1" href="{{ path('user_show') }}">Mon compte</a>
+                <a type="button" class="btn btn-secondary my-2 mr-3 col-sm-1 ml-auto" href="{{ path("logout_security") }}">Déconnexion</a>
+                <a class="text-center" data-toggle="tooltip" data-placement="bottom" title="{{ app.user.username }}" href="{{ path('user_show') }}"><i class="fas fa-user-circle fa-3x pt-1"></i></a>
             {% else %}
                 <a type="button" style="margin-bottom: 5px; margin-top: 5px;" class="btn btn-warning col-sm-1 ml-auto" href="/connexion">Mon compte</a>
             {% endif %}
@@ -31,7 +31,7 @@
                         <a class="nav-link" href="/">Accueil <span class="sr-only">(current)</span></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ path("liste_produit") }}">Liste des produits (temporaire)</a>
+                        <a class="nav-link" href="{{ path("forum") }}">Forum</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ path("liste_categorie") }}">Catégories</a>

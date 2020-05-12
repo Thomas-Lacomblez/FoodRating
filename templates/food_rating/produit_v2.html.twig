@@ -1,5 +1,7 @@
 {% extends "base.html.twig" %}
 
+{% block title %} {{ produit.product_name | capitalize }} {% endblock %}
+
 {% block body %}
 <script src="https://bootswatch.com/_vendor/jquery/dist/jquery.min.js"></script>
 <div class="media pb-5">
@@ -9,7 +11,7 @@
 		{# Pour garder la catégorie "principale" #}
 		{% set cat = produit.categories | split(",") %}
 		
-		<p> Nom : {{ produit.product_name }} <br> Marque : {{ produit.brands ?? produit.brands_tag[0] }} <br> Catégorie : {{ cat[0] }} </p>
+		<p> Nom : {{ produit.product_name }} <br> Marque : {{ produit.brands ?? produit.brands_tags[0] }} <br> Catégorie : {{ cat[0] }} </p>
 	</div>
 </div>
 <h3>Ingrédients</h3>

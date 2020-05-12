@@ -121,6 +121,7 @@ class FoodRatingController extends AbstractController
      */
     public function listeCategorie(PaginatorInterface $paginator, CategoriesRepository $repo, Request $request) {
     	$donnees = $repo->createQueryBuilder("c")
+    					// "40" correspond au nombre de caractères avant le dernier slash de l'url inclus
     					->select("c.name, c.products, substring(c.url, 40) as url")
     					->getQuery()
     					->getResult();
