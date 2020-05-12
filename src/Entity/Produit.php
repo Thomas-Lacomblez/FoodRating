@@ -2,97 +2,108 @@
 
 namespace App\Entity;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\ProduitRepository")
+ * Produit
+ *
+ * @ORM\Table(name="produit")
+ * @ORM\Entity
  */
 class Produit
 {
     /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
+     * @var int
+     *
+     * @ORM\Column(name="id", type="integer", nullable=false)
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @var string
+     *
+     * @ORM\Column(name="nom", type="string", length=255, nullable=false)
      */
     private $nom;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @var string
+     *
+     * @ORM\Column(name="code", type="string", length=255, nullable=false)
      */
     private $code;
 
     /**
-     * @ORM\Column(type="text")
+     * @var string
+     *
+     * @ORM\Column(name="ingredient", type="text", length=0, nullable=false)
      */
     private $ingredient;
 
     /**
-     * @ORM\Column(type="text")
+     * @var string
+     *
+     * @ORM\Column(name="trace", type="text", length=0, nullable=false)
      */
     private $trace;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @var string
+     *
+     * @ORM\Column(name="marque", type="string", length=255, nullable=false)
      */
     private $marque;
 
     /**
-     * @ORM\Column(type="text")
+     * @var string
+     *
+     * @ORM\Column(name="categorie", type="text", length=0, nullable=false)
      */
     private $categorie;
 
     /**
-     * @ORM\Column(type="text")
+     * @var string
+     *
+     * @ORM\Column(name="distributeur", type="string", length=255, nullable=false)
      */
     private $distributeur;
 
     /**
-     * @ORM\Column(type="text")
+     * @var string
+     *
+     * @ORM\Column(name="etiquette", type="text", length=0, nullable=false)
      */
     private $etiquette;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @var string
+     *
+     * @ORM\Column(name="image", type="string", length=255, nullable=false)
      */
     private $image;
 
     /**
-     * @ORM\Column(type="string", length=20)
+     * @var string
+     *
+     * @ORM\Column(name="kcal", type="string", length=20, nullable=false)
      */
     private $kcal;
 
     /**
-     * @ORM\Column(type="text")
+     * @var string
+     *
+     * @ORM\Column(name="additif", type="text", length=0, nullable=false)
      */
     private $additif;
 
     /**
-     * @ORM\Column(type="string", length=1, nullable=true)
+     * @var string|null
+     *
+     * @ORM\Column(name="nutriscore", type="string", length=1, nullable=true)
      */
     private $nutriscore;
-
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Commentaires", mappedBy="produit")
-     */
-    private $commentaires;
-
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Notes", mappedBy="produit", orphanRemoval=true)
-     */
-    private $notes;
-
-    public function __construct()
-    {
-        $this->commentaires = new ArrayCollection();
-        $this->notes = new ArrayCollection();
-    }
 
     public function getId(): ?int
     {
@@ -188,7 +199,7 @@ class Produit
         return $this->etiquette;
     }
 
-    public function setEtiquette(?string $etiquette): self
+    public function setEtiquette(string $etiquette): self
     {
         $this->etiquette = $etiquette;
 
@@ -224,7 +235,7 @@ class Produit
         return $this->additif;
     }
 
-    public function setAdditif(?string $additif): self
+    public function setAdditif(string $additif): self
     {
         $this->additif = $additif;
 
@@ -242,7 +253,6 @@ class Produit
 
         return $this;
     }
-
     /**
      * @return Collection|Commentaires[]
      */

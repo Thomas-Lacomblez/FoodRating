@@ -3,11 +3,11 @@
     <head>
         <meta charset="UTF-8">
         <title>{% block title %}FoodRating{% endblock %}</title>
+        <link rel="stylesheet" href="https://bootswatch.com/4/minty/bootstrap.min.css">
+        <!--<link rel="stylesheet" href="jquery-ui/jquery-ui.min.css"/>-->
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+        <style>.ui-autocomplete { max-height: 200px; width: 50px; overflow-y: auto; overflow-x: hidden;}</style>
         {% block stylesheets %}
-            <link rel="stylesheet" href="https://bootswatch.com/4/minty/bootstrap.min.css">
-            <link rel="stylesheet" href="jquery-ui/jquery-ui.min.css"/>
-            <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
-            <style>.ui-autocomplete { max-height: 200px; width: 50px; overflow-y: auto; overflow-x: hidden;}</style>
         {% endblock %}
     </head>
     <body>
@@ -56,18 +56,17 @@
                 <a href="/">FoodRating</a>
             </div>
         </footer>
+        <script src="https://bootswatch.com/_vendor/jquery/dist/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+        <script src="https://bootswatch.com/_vendor/bootstrap/dist/js/bootstrap.min.js"></script>
 
         {% block javascripts %}
-        <script src="https://bootswatch.com/_vendor/jquery/dist/jquery.min.js"></script>
-        <script src="https://bootswatch.com/_vendor/bootstrap/dist/js/bootstrap.min.js"></script>
-        <script src="jquery-ui/jquery-ui.min.js"></script>
-        <script>
-            $("#recherche").autocomplete({
-                source: "{{ path('recherche') }}",
-                minLength: 3
-            })
-        </script>
-        
+            <script>
+                $("#recherche").autocomplete({
+                    source: "{{ path('recherche') }}",
+                    minLength: 3
+                })
+            </script>
         {% endblock %}
     </body>
 </html>
