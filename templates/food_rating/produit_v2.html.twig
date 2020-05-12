@@ -1,0 +1,106 @@
+{% extends "base.html.twig" %}
+
+{% block body %}
+<script src="https://bootswatch.com/_vendor/jquery/dist/jquery.min.js"></script>
+<div class="media pb-5">
+	<img src="{{ produit.image_url }}" class="align-self-center mr-3" alt="" />
+	<div class="media-body">
+		<p> Nom : {{ produit.product_name }} <br> Marque : {{ produit.brands }} <br> Catégorie : {{ produit.pnns_groups_1 }} </p>
+	</div>
+</div>
+<h3>Ingrédients</h3>
+<p> {{ produit.ingredients_text }} </p>
+
+<div class="row pt-5">
+	<div class="col">
+		<h3>Note</h3>
+		<div class="container w-60 float-left">
+			<div class="row">
+				<div class="col">
+					<center><i class="fas fa-star fa-6x text-warning"></i>
+					<p class="font-weight-bold mt-1" style="width:fit-content; font-size:x-large;">Moy. : 8.05</p>
+					<p>(Nombre de votes : ???)</p></center>
+				</div>
+				<div class="col">
+					<i class="fas fa-star text-warning">1</i>
+					<div class="progress" style="background-color: #ebebf5">
+						<div class="progress-bar bg-warning" style="width:60%;"></div>
+					</div>
+					
+					<i class="fas fa-star text-warning mt-2">2</i>
+					<div class="progress" style="background-color: #ebebf5">
+						<div class="progress-bar bg-warning" style="width:20%;"></div>
+					</div>
+					
+					<i class="fas fa-star text-warning mt-2">3</i>
+					<div class="progress" style="background-color: #ebebf5">
+						<div class="progress-bar bg-warning" style="width:50%;"></div>
+					</div>
+					
+					<i class="fas fa-star text-warning mt-2">4</i>
+					<div class="progress" style="background-color: #ebebf5">
+						<div class="progress-bar bg-warning" style="width:10%;"></div>
+					</div>
+					
+					<i class="fas fa-star text-warning mt-2">5</i>
+					<div class="progress" style="background-color: #ebebf5">
+						<div class="progress-bar bg-warning" style="width:15%;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col">
+		<h3>Produits similaires</h3>
+	</div>
+</div>
+<h3>Noter</h3>
+{% if app.user %}
+	<script>
+		$(document).ready(function(){
+
+			function ExtractId(id) {
+				var id=id.split('_');
+				var id=id[1];
+				return id;
+			}
+			
+			$('.etoile').on('click', function(e){
+				var id = ExtractId($(this).attr('id')); 
+				var nbStars=$('.etoile').length; 
+				var i;
+				for (i = 1; i <= nbStars; i++) {
+					if(i <= id) {
+						$('#etoile_' + i).addClass('text-warning');
+					}	
+					else if(i > id){
+						$('#etoile_' + i).removeClass('text-warning');
+					}
+					if(i==id) {
+						$('#note').attr({value:i});
+					}
+				}
+			});
+		});
+	</script>
+
+	<div class="row">
+		<form action="{{ path("notation", {"id" : produit.id}) }}" method="post">
+			<i class="fas fa-star fa-3x etoile" id="etoile_1"></i>
+			<i class="fas fa-star fa-3x etoile" id="etoile_2"></i>
+			<i class="fas fa-star fa-3x etoile" id="etoile_3"></i>
+			<i class="fas fa-star fa-3x etoile" id="etoile_4"></i>
+			<i class="fas fa-star fa-3x etoile" id="etoile_5"></i>
+			<input type="hidden" name="note" id="note" value="">
+			<input type="submit" class="btn btn-primary" value="Noter">
+		</form>
+	</div>
+{% else %}
+	<div class="row">
+		<div class="col">
+			<p>Pour noter un produit, merci de vous connecter !</p>
+			<a type="button" class="btn btn-info" href="/connexion">Mon compte</a>
+		</div>
+	</div>
+{% endif %}
+{% endblock %}

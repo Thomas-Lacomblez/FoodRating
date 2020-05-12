@@ -52,10 +52,7 @@ class FoodRatingController extends AbstractController
     	]);
     	
     	return $this->render("food_rating/liste_produit.html.twig", [
-    			"produits" => $produits,
-    			"nbPage" => round(count($donnees) / 10),
-    			"pageActuelle" => $request->query->getInt("page", 1),
-    			"chemin" => "liste_produit"
+    			"produits" => $produits
     	]);
     }
     
@@ -65,6 +62,17 @@ class FoodRatingController extends AbstractController
     public function afficheProduit(Produit $produit) {
     	return $this->render("food_rating/produit.html.twig", [
 				"produit" => $produit
+    	]);
+    }
+    
+    /**
+     * @Route("/produit_v2/{id}", name="produit_v2")
+     */
+    public function afficheProduitV2($id) {
+    	$api = new Api("food", "fr");
+    	$produit = $api->getProduct($id);
+    	return $this->render("food_rating/produit_v2.html.twig", [
+    			"produit" => $produit
     	]);
     }
 
@@ -132,10 +140,7 @@ class FoodRatingController extends AbstractController
     	]);
     					
     	return $this->render("food_rating/liste_categorie.html.twig", [
-    			"categories" => $categories,
-    			"nbPage" => round(count($donnees) / 10),
-    			"pageActuelle" => $request->query->getInt("page", 1),
-    			"chemin" => "liste_categorie"
+    			"categories" => $categories
     	]);
     }
     
@@ -143,10 +148,38 @@ class FoodRatingController extends AbstractController
      * @Route("/test", name="test")
      * @param Api $api
      */
-    public function testWrapper() {
+    public function testWrapper(PaginatorInterface $paginator, Request $request) {
     	$api = new Api("food", "fr");
-    	$prd = $api->getProduct('3057640385148');
-    	print("<pre>".print_r($prd,true)."</pre>");
+//     	$prd = $api->getProduct('3057640385148');
+//     	print("<pre>".print_r($prd,true)."</pre>");
+
+    	$mot = "chips";
+
+    	$recherche = $api->search($mot);
+    	$result = array();
+    	
+    	foreach ($recherche as $key => $prd) {
+    		$data = $prd->getData();
+    		if (stripos($data["product_name"], $mot) !== false || stripos($data["product_name_fr"], $mot) !== false) {
+    			$result[] = $prd;
+    		}
+    	}
+    	    	
+    	$result = $paginator->paginate(
+    			$result,
+    			$request->query->getInt("page", 1),
+    			10
+    	);
+    	
+    	$result->setTemplate('@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig');
+    	$result->setCustomParameters([
+    			"align" => "center"
+    	]);
+    	
+    	return $this->render("food_rating/liste_produit.html.twig", [
+    			"produits" => $result
+    	]);
+    	
     }
 
 }
