@@ -4,10 +4,11 @@ namespace App\Controller;
 
 use App\Entity\Notes;
 use App\Entity\Produit;
-
 use App\Entity\Utilisateurs;
+
 use App\Repository\ProduitRepository;
 use App\Repository\UtilisateursRepository;
+
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\Common\Persistence\ObjectManager;

@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Création d'une discussion{% endblock %}
+
+{% block stylesheets %}
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.16/dist/summernote.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.16/dist/summernote-bs4.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+    {{ form_start(fromDisc) }}
+        <div class="form-group">
+            {{ form_errors(fromDisc) }}
+            {{ form_row(fromDisc.titre) }}
+            {{ form_widget(fromDisc.titre, { 'label': 'titre' }) }}<br/>
+            {{ form_row(fromDisc.sujet) }}
+            {{ form_widget(fromDisc.sujet, { 'label': 'sujet' }) }}<br/>
+            {{ form_row(fromDisc.message) }}
+            {{ form_widget(fromDisc.message, { 'label': 'message' }) }}
+        </div>
+        {{ form_widget(fromDisc.creer, { 'label': 'créer' }) }}
+    {{ form_end(fromDisc) }}
+{% endblock %}
+{% block javascripts %}  
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.16/dist/summernote.min.js"></script> 
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.16/dist/summernote-bs4.min.js"></script>
+    <script>
+        $('#discussion_message').summernote();
+    </script>
+{% endblock %}

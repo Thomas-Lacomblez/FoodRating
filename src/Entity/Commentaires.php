@@ -5,31 +5,48 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\CommentairesRepository")
+ * Commentaires
+ *
+ * @ORM\Table(name="commentaires", indexes={@ORM\Index(name="IDX_D9BEC0C4F347EFB", columns={"produit_id"}), @ORM\Index(name="IDX_D9BEC0C4FB88E14F", columns={"utilisateur_id"})})
+ * @ORM\Entity
  */
 class Commentaires
 {
     /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
+     * @var int
+     *
+     * @ORM\Column(name="id", type="integer", nullable=false)
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $id;
 
     /**
-     * @ORM\Column(type="text")
+     * @var string
+     *
+     * @ORM\Column(name="message", type="text", length=0, nullable=false)
      */
     private $message;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Utilisateurs", inversedBy="commentaires")
-     */
-    private $utilisateur;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Produit", inversedBy="commentaires")
+     * @var \Produit
+     *
+     * @ORM\ManyToOne(targetEntity="Produit")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="produit_id", referencedColumnName="id")
+     * })
      */
     private $produit;
+
+    /**
+     * @var \Utilisateurs
+     *
+     * @ORM\ManyToOne(targetEntity="Utilisateurs")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="utilisateur_id", referencedColumnName="id")
+     * })
+     */
+    private $utilisateur;
 
     public function getId(): ?int
     {
@@ -48,27 +65,29 @@ class Commentaires
         return $this;
     }
 
-    public function getUtilisateur(): ?utilisateurs
+    public function getProduit(): ?Produit
+    {
+        return $this->produit;
+    }
+
+    public function setProduit(?Produit $produit): self
+    {
+        $this->produit = $produit;
+
+        return $this;
+    }
+
+    public function getUtilisateur(): ?Utilisateurs
     {
         return $this->utilisateur;
     }
 
-    public function setUtilisateur(?utilisateurs $utilisateur): self
+    public function setUtilisateur(?Utilisateurs $utilisateur): self
     {
         $this->utilisateur = $utilisateur;
 
         return $this;
     }
 
-    public function getProduit(): ?produit
-    {
-        return $this->produit;
-    }
 
-    public function setProduit(?produit $produit): self
-    {
-        $this->produit = $produit;
-
-        return $this;
-    }
 }
