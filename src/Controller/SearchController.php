@@ -61,10 +61,7 @@ class SearchController extends AbstractController
 		]);
 		
     	return $this->render("food_rating/liste_produit.html.twig", [
-			"produits" => $produits,
-			"nbPage" => round(count($donnees) / 10),
-			"pageActuelle" => $request->query->getInt("page", 1),
-			"chemin" => "liste_produit"
+			"produits" => $produits
 		]);
 	}
 }

@@ -9,8 +9,8 @@
 	{% for p in produits %}
 	
 		<article>
-			<p> {{ p.nom }} </p>
-			<a href="{{ path("produit", {"id" : p.id}) }}" class="btn btn-primary">Afficher le produit</a>
+			<p> {{ p.product_name | raw }} </p>
+			<a href="{{ path("produit_v2", {"id" : p.id}) }}" class="btn btn-primary">Afficher le produit</a>
 		</article>
 	
 	{% endfor %}
