@@ -15,8 +15,8 @@
 		
 		{% for c in categories %}
 			<tr>
-				<td> {{ c.categorie }} </td>
-				<td>???</td>
+				<td><a href="{{ path("categorie", {"categorie": c.url}) }}">{{ c.name }}</a></td>
+				<td>{{ c.products }}</td>
 			</tr>
 		{% endfor %}
 		

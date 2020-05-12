@@ -5,7 +5,11 @@
 <div class="media pb-5">
 	<img src="{{ produit.image_url }}" class="align-self-center mr-3" alt="" />
 	<div class="media-body">
-		<p> Nom : {{ produit.product_name }} <br> Marque : {{ produit.brands }} <br> Catégorie : {{ produit.pnns_groups_1 }} </p>
+	
+		{# Pour garder la catégorie "principale" #}
+		{% set cat = produit.categories | split(",") %}
+		
+		<p> Nom : {{ produit.product_name }} <br> Marque : {{ produit.brands ?? produit.brands_tag[0] }} <br> Catégorie : {{ cat[0] }} </p>
 	</div>
 </div>
 <h3>Ingrédients</h3>

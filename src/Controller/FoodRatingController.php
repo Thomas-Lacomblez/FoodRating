@@ -15,6 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use OpenFoodFacts\Api;
+use App\Repository\CategoriesRepository;
 
 class FoodRatingController extends AbstractController
 {
@@ -117,10 +118,9 @@ class FoodRatingController extends AbstractController
      * @param ProduitRepository $repo
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function categorie(PaginatorInterface $paginator, ProduitRepository $repo, Request $request) {
-    	$donnees = $repo->createQueryBuilder("p")
-    					->select("p.categorie")
-    					->distinct()
+    public function listeCategorie(PaginatorInterface $paginator, CategoriesRepository $repo, Request $request) {
+    	$donnees = $repo->createQueryBuilder("c")
+    					->select("c.name, c.products, substring(c.url, 40) as url")
     					->getQuery()
     					->getResult();
     	
@@ -140,6 +140,34 @@ class FoodRatingController extends AbstractController
     					
     	return $this->render("food_rating/liste_categorie.html.twig", [
     			"categories" => $categories
+    	]);
+    }
+    
+    /**
+     * @Route("/categorie/{categorie}", name="categorie")
+     */
+    public function pageCategorie($categorie, PaginatorInterface $paginator, Request $request) {
+    	$api = new Api("food", "fr");
+    	
+    	$collection = $api->getByFacets(["category" => $categorie]);
+    	$tab = array();
+    	foreach ($collection as $key => $elt) {
+    		$tab[] = $elt;
+    	}
+    	
+    	$donnees = $paginator->paginate(
+    			$tab,
+    			$request->query->getInt("page", 1),
+    			10
+    	);
+    	
+    	$donnees->setTemplate('@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig');
+    	$donnees->setCustomParameters([
+    			"align" => "center"
+    	]);
+    	
+    	return $this->render("food_rating/liste_produit.html.twig", [
+    			"produits" => $donnees
     	]);
     }
     
