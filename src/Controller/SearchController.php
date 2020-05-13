@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use OpenFoodFacts\Api;
 use App\Repository\ProduitRepository;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,22 +16,24 @@ class SearchController extends AbstractController
      * @Route("/recherche", name="recherche")
      */
     public function recherche(Request $request, ProduitRepository $repo) {
-    	$noms = array();
+    	$api = new Api("food", "fr");
+
+    	$result = array();
     	$term = trim(strip_tags($request->get('term')));
-    	
-    	// Permet de faire un SELECT dans la table Produit
-    	$entities = $repo->CreateQueryBuilder('p')
-    	->where('p.nom LIKE :nom')
-    	->setParameter('nom', '%'.$term.'%')
-    	->getQuery()
-    	->getResult();
-    	
-    	foreach ($entities as $entity) {
-    		$noms[] = $entity->getNom();
+    	$recherche = $api->search($term);
+		
+		foreach ($recherche as $key => $prd) {
+    		$data = $prd->getData();
+    		if (stripos($data["product_name"], $term) !== false) {
+    			$result[] = $data["product_name"];
+			}
+			else if (stripos($data["product_name_fr"], $term) !== false) {
+				$result[] = $data["product_name_fr"];
+			}
     	}
     	
     	$resultat = new JsonResponse();
-    	$resultat->setData($noms);
+    	$resultat->setData($result);
     	
     	return $resultat;
     }
@@ -39,12 +42,19 @@ class SearchController extends AbstractController
 	 * @Route("/resultat", name="resultat")
 	 */
 	public function resultat(Request $request, ProduitRepository $repo, PaginatorInterface $paginator) {
-		$recherche = $request->get('recherche');
-		$donnees = $repo->CreateQueryBuilder('p')
-    					->where('p.nom LIKE :nom')
-    					->setParameter('nom', '%'.$recherche.'%')
-    					->getQuery()
-						->getResult();
+		$api = new Api("food", "fr");
+
+    	$mot = $request->get('recherche');
+
+    	$recherche = $api->search($mot);
+    	$donnees = array();
+    	
+    	foreach ($recherche as $key => $prd) {
+    		$data = $prd->getData();
+    		if (stripos($data["product_name"], $mot) !== false || stripos($data["product_name_fr"], $mot) !== false) {
+    			$donnees[] = $prd;
+    		}
+    	}
 		
 		$produits = $paginator->paginate(
 			$donnees,

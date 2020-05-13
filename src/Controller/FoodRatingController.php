@@ -92,7 +92,10 @@ class FoodRatingController extends AbstractController
                  ->setUtilisateur($this->getUser())
                  ->setProduit($produitCourant);
             $manager->persist($note);
-            $manager->flush();
+			$manager->flush();
+			return $this->redirectToRoute('produit', [
+                "id" => $id
+            ]);
         }
         
         return $this->render("food_rating/produit.html.twig", [
