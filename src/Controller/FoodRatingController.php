@@ -15,6 +15,8 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 use OpenFoodFacts\Api;
 use App\Repository\CategoriesRepository;
 
@@ -185,22 +187,27 @@ class FoodRatingController extends AbstractController
 //     	$prd = $api->getProduct('3057640385148');
 //     	print("<pre>".print_r($prd,true)."</pre>");
 
-    	$mot = "chips";
+    	$mot = "couscous";
 
-    	$recherche = $api->search($mot);
-    	$result = array();
-    	
-    	foreach ($recherche as $key => $prd) {
-    		$data = $prd->getData();
-    		if (stripos($data["product_name"], $mot) !== false || stripos($data["product_name_fr"], $mot) !== false) {
-    			$result[] = $prd;
-    		}
-    	}
+		$recherche = $api->search($mot, $request->query->getInt("page", 1));
+		$compteur = $recherche->searchCount();
+
+		$result = array();
+		
+		dump($recherche);
+		
+		for ($i = 1 ; $i < $compteur/10 + 1 ; $i = $i+1){
+
+			foreach ($recherche as $key => $prd) {
+				$data = $prd->getData();
+				$result[] = $prd;
+			}
+		}
     	    	
     	$result = $paginator->paginate(
     			$result,
     			$request->query->getInt("page", 1),
-    			10
+    			$recherche->pageCount()
     	);
     	
     	$result->setTemplate('@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig');
@@ -212,7 +219,25 @@ class FoodRatingController extends AbstractController
     			"produits" => $result
     	]);
     	
-    }
+	}
+	
+	/**
+     * @Route("/mail", name="mail")
+     */
+	public function testMail(MailerInterface $mailer){
+		$email = (new Email())
+            ->from('zorgthomas92@gmail.com')
+            ->to('thomasmn.martin@gmail.com')
+            //->cc('cc@example.com')
+            //->bcc('bcc@example.com')
+            //->replyTo('fabien@example.com')
+            //->priority(Email::PRIORITY_HIGH)
+            ->subject('Time for Symfony Mailer!')
+            ->text('Sending emails is fun again!')
+            ->html('<p>See Twig integration for better HTML integration!</p>');
+
+        $mailer->send($email);
+	}
 
 }
 
