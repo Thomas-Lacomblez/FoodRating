@@ -175,44 +175,6 @@ class FoodRatingController extends AbstractController
     			"produits" => $donnees
     	]);
     }
-    
-    /**
-     * @Route("/test", name="test")
-     * @param Api $api
-     */
-    public function testWrapper(PaginatorInterface $paginator, Request $request) {
-    	$api = new Api("food", "fr");
-//     	$prd = $api->getProduct('3057640385148');
-//     	print("<pre>".print_r($prd,true)."</pre>");
-
-    	$mot = "chips";
-
-    	$recherche = $api->search($mot);
-    	$result = array();
-    	
-    	foreach ($recherche as $key => $prd) {
-    		$data = $prd->getData();
-    		if (stripos($data["product_name"], $mot) !== false || stripos($data["product_name_fr"], $mot) !== false) {
-    			$result[] = $prd;
-    		}
-    	}
-    	    	
-    	$result = $paginator->paginate(
-    			$result,
-    			$request->query->getInt("page", 1),
-    			10
-    	);
-    	
-    	$result->setTemplate('@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig');
-    	$result->setCustomParameters([
-    			"align" => "center"
-    	]);
-    	
-    	return $this->render("food_rating/liste_produit.html.twig", [
-    			"produits" => $result
-    	]);
-    	
-    }
 
 }
 
