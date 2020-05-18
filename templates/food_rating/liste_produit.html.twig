@@ -12,7 +12,7 @@
         {% if p.categories is defined %}
 			{% set cat = p.categories | split(",") %}
 		{% else %}
-			{% set cat = ["inconnu"] %}
+			{% set cat = ["Non renseignée"] %}
 		{% endif %}
 	
 		<article>

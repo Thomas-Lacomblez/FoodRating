@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use OpenFoodFacts\Api;
-use App\Repository\ProduitRepository;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -43,7 +42,7 @@ class SearchController extends AbstractController
     /**
 	 * @Route("/resultat", name="resultat")
 	 */
-	public function resultat(Request $request, ProduitRepository $repo, PaginatorInterface $paginator) {
+	public function resultat(Request $request, PaginatorInterface $paginator) {
 	
 		$api = new Api("food", "fr");
 

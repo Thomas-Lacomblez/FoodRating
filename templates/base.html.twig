@@ -15,14 +15,6 @@
         {% endblock %}
     </head>
     <body>
-        <div class="row col-lg-12">
-            {% if app.user %}
-                <a type="button" class="btn btn-secondary my-2 mr-3 col-sm-1 ml-auto" href="{{ path("logout_security") }}">Déconnexion</a>
-                <a class="text-center" data-toggle="tooltip" data-placement="bottom" title="{{ app.user.username }}" href="{{ path('user_show') }}"><i class="fas fa-user-circle fa-3x pt-1"></i></a>
-            {% else %}
-                <a type="button" style="margin-bottom: 5px; margin-top: 5px;" class="btn btn-warning col-sm-1 ml-auto" href="/connexion">Mon compte</a>
-            {% endif %}
-        </div>
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
             <a class="navbar-brand" href="/"><img src="/images/logo.png" alt="logo"></a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,13 +33,20 @@
                         <a class="nav-link" href="{{ path("liste_categorie") }}">Catégories</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">test 3</a>
+                        <a class="nav-link" href="{{ path("test") }}">test 3</a>
                     </li>
                 </ul>
                 <form class="form-inline my-2 my-lg-0" action="{{ path('resultat') }}" method="get">
                     <input class="form-control mr-sm-2" type="text" id="recherche" name="recherche" placeholder="Recherche" required>
-                    <button class="btn btn-warning my-2 my-sm-0" type="submit">Rechercher</button>
+                    <button class="btn btn-warning my-2 my-sm-0 mr-2" type="submit">Rechercher</button>
                 </form>
+                
+                {% if app.user %}
+{#                     <a type="button" class="btn btn-secondary" href="{{ path("logout_security") }}">Déconnexion</a>#}
+                    <a class="text-center text-light ml-3" data-toggle="tooltip" data-placement="bottom" title="{{ app.user.username }}" href="{{ path('user_show') }}"><i class="fas fa-user-circle fa-3x pt-1"></i></a>
+                {% else %}
+                    <a type="button" style="margin-bottom: 5px; margin-top: 5px;" class="btn btn-warning" href="/connexion">Mon compte</a>
+                {% endif %}
             </div>
         </nav>
         
@@ -55,7 +54,7 @@
             {% block body %}{% endblock %}
         </div>
         
-        <footer style="background-color: #626262;" class="page-footer">
+        <footer style="background-color: #626262;" class="page-footer fixed-bottom">
             <div class="footer-copyright text-center py-3" style="color: white">© 2020 Copyright:
                 <a href="/">FoodRating</a>
             </div>
@@ -64,21 +63,22 @@
         <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
         <script src="https://bootswatch.com/_vendor/bootstrap/dist/js/bootstrap.min.js"></script>
         <script src="/jquery-ui/jquery-ui.min.js"></script>
+        
+        <script>
+            $("#recherche").autocomplete({
+                source: "{{ path('recherche') }}",
+                minLength: 3
+            });
+            $(function() {
+            	if (location.pathname.split("/")[1] == "") {
+            		$('nav li a[href="/"]').addClass('active');
+                } else {
+                	$('nav li a[href^="/' + location.pathname.split("/")[1] + '"]').addClass('active');
+                }
+        	});
+        </script>
 
         {% block javascripts %}
-            <script>
-                $("#recherche").autocomplete({
-                    source: "{{ path('recherche') }}",
-                    minLength: 3
-                });
-                $(function() {
-                	if (location.pathname.split("/")[1] == "") {
-                		$('nav li a[href="/"]').addClass('active');
-                    } else {
-                    	$('nav li a[href^="/' + location.pathname.split("/")[1] + '"]').addClass('active');
-                    }
-            	});
-            </script>
         {% endblock %}
     </body>
 </html>

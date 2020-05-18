@@ -47,7 +47,7 @@ class SecurityController extends AbstractController
             $user->setPassword($hash);
             $manager->persist($user);
             $manager->flush();
-            return $this->redirectToRoute('food_rating');
+            return $this->redirectToRoute('login_security');
 
         }
         return $this->render('security/inscription.html.twig', [

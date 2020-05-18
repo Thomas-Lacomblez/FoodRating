@@ -1,0 +1,66 @@
+{% extends "base.html.twig" %}
+
+{% block title %} {{ discussion.titre }} {% endblock %}
+
+{% block stylesheets %}
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.16/dist/summernote.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.16/dist/summernote-bs4.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+
+<h1 class="mb-5 border-bottom border-primary"> <span class="font-weight-bold">Sujet</span> : {{ discussion.sujet }} </h1>
+
+<div class="media border border-primary rounded-lg pl-3 pt-3 pr-3">
+	<!-- <img src="img_avatar1.png" class="align-self-center mr-3" style="width:60px"> -->
+	<i class="fas fa-user-circle fa-3x align-self-center"></i>
+	<div class="media-body ml-3">
+		<h4>{{ discussion.id_utilisateur.username }}</h4>
+		<p>{{ discussion.message | raw }}</p>
+		<p class="small text-muted font-italic float-right mt-2">{{ discussion.creation | date("d/m/Y - H:i") }}</p>
+	</div>
+</div>
+
+<hr class="mt-5 border-primary" />
+
+<!-- Button to Open the Modal -->
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+  Répondre
+</button>
+
+<!-- The Modal -->
+<div class="modal fade" id="myModal">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="height: 800px;">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Répondre au sujet</h4>
+      </div>
+
+      <!-- Modal body -->
+      <form action="{{ path("repDisc", {"id": discussion.idDiscussion}) }}" method="post">
+          <div class="modal-body">
+          	<textarea name="reponse" id="reponse"></textarea>
+          </div>
+          <div class="modal-footer">
+          	<button class="btn btn-primary" type="submit">Envoyer</button>
+        	<button class="btn btn-danger" type="reset" data-dismiss="modal">Annuler</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}  
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.16/dist/summernote.min.js"></script> 
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.16/dist/summernote-bs4.min.js"></script>
+    <script>
+        $('#reponse').summernote({
+			height: 200,
+			placeholder: "Écrivez votre réponse..."
+        });
+    </script>
+{% endblock %}

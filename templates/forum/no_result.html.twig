@@ -1,0 +1,11 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Aucun sujet trouvé{% endblock %}
+
+{% block body %}
+
+<h1 class="text-muted mx-auto">Aucun sujet n'a été ouvert.</h1>
+<br />
+<a href="{{ path("createDisc") }}" class="btn btn-primary">Créer un nouveau sujet</a>
+
+{% endblock %}

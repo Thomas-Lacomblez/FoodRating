@@ -12,10 +12,9 @@
 		{% if produit.categories is defined %}
 			{% set cat = produit.categories | split(",") %}
 		{% else %}
-			{% set cat = "Non renseignée" | split(",") %}
+			{% set cat = ["Non renseignée"] %}
 		{% endif %}
 		
-		<p> Nom : {{ produit.product_name ?? produit.generic_name }} <br> Marque : {{ produit.brands ?? produit.brands_tags[0] }} <br> Catégorie : {{ cat[0] }} </p>
 		<p> Nom : {{ produit.product_name }} <br>
 		{% if produit.brands_tags is defined %}
 			Marque : {{ produit.brands ?? produit.brands_tags[0] }} <br>

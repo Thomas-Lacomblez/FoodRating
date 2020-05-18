@@ -41,6 +41,11 @@ class Reponses
      */
     private $message;
 
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $created;
+
     public function getIdReponse(): ?int
     {
         return $this->idReponse;
@@ -78,6 +83,18 @@ class Reponses
     public function setMessage(?string $message): self
     {
         $this->message = $message;
+
+        return $this;
+    }
+
+    public function getCreated(): ?\DateTimeInterface
+    {
+        return $this->created;
+    }
+
+    public function setCreated(\DateTimeInterface $created): self
+    {
+        $this->created = $created;
 
         return $this;
     }

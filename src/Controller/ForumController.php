@@ -10,6 +10,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Knp\Component\Pager\PaginatorInterface;
+use App\Entity\Reponses;
+use App\Repository\ReponseRepository;
+use App\Entity\Utilisateurs;
+use App\Repository\UtilisateursRepository;
 
 class ForumController extends AbstractController
 {
@@ -18,7 +22,11 @@ class ForumController extends AbstractController
      */
     public function accueil( DiscussionRepository $repo, PaginatorInterface $paginator, Request $request )
     {
-        $derniereDisc = $repo->findAllDesc();
+    	if (count($repo->findAll()) == 0) {
+    		return $this->render("forum/no_result.html.twig");
+    	}
+    	
+    	$derniereDisc = $repo->findAllDesc();
         
         $derniereDisc = $paginator->paginate(
         		$derniereDisc,
@@ -60,7 +68,6 @@ class ForumController extends AbstractController
             
             return $this->redirectToRoute('forum');
         }
-
         
             return $this->render('forum/ajout.html.twig', [
                 'fromDisc' =>  $formDiscussion->createview()
@@ -72,9 +79,30 @@ class ForumController extends AbstractController
      * @Route("/forum/{id}", name="readDisc")
      */
     public function afficheDiscussion(Discussion $discussion) {
-        return $this->render('forum/discussion.html.twig', [
+        return $this->render('forum/discussion_v2.html.twig', [
             'discussion' => $discussion
         ]);
+    }
+    
+    /**
+     * @Route("/forum/{id}/reponse", name="repDisc")
+     */
+    public function reponseDiscussion($id, Request $request, EntityManagerInterface $manager, ReponseRepository $repoR, UtilisateursRepository $repoU) {
+    	$reponse = new Reponses();
+    	
+    	$user = $repoU->findOneBy(["username" => $this->getUser()->getUsername()]);
+    	
+    	$message = $request->request->get("reponse");
+    	if ($user != null && ($message != null && $message != "")) {
+    		$reponse->setIdUtilisateur($user->getId());
+    		$reponse->setIdDiscussion($id);
+    		$reponse->setMessage($message);
+    		
+    		$manager->persist($reponse);
+    		$manager->flush();
+    		//dump($message, $user);
+    		return $this->redirectToRoute("readDisc", ["id" => $id]);
+    	}
     }
 
     /**

@@ -62,6 +62,16 @@ class Utilisateurs implements UserInterface
      */
     private $commentaires;
 
+    /**
+     * @ORM\Column(type="blob", nullable=true)
+     */
+    private $image;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $tailleImage;
+
     public function __construct()
     {
         $this->notes = new ArrayCollection();
@@ -179,6 +189,30 @@ class Utilisateurs implements UserInterface
                 $commentaire->setUtilisateur(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getImage()
+    {
+        return $this->image;
+    }
+
+    public function setImage($image): self
+    {
+        $this->image = $image;
+
+        return $this;
+    }
+
+    public function getTailleImage(): ?int
+    {
+        return $this->tailleImage;
+    }
+
+    public function setTailleImage(?int $tailleImage): self
+    {
+        $this->tailleImage = $tailleImage;
 
         return $this;
     }

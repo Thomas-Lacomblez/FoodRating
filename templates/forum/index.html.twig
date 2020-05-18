@@ -4,6 +4,7 @@
 
 {% block body %}
 
+<a href="{{ path("createDisc") }}" class="btn btn-primary float-right">Créer un nouveau sujet</a>
 <h6 class="border-bottom border-gray pb-2 mt-3 mb-0">Recent updates</h6>
 
 <table class="table table-sm table-striped table-hover mt-2">
@@ -19,7 +20,7 @@
     
 		{% for d in discussions %}
         <tr>
-        	<td class="font-weight-bold"> {{ d.titre }} </td>
+        	<td class="font-weight-bold"> <a href="{{ path("readDisc", {"id": d.idDiscussion}) }}">{{ d.titre }}</a> </td>
         	<td> {{ d.id_utilisateur.username }} </td>
         	<td class="text-muted"> {{ d.creation | date("d/m/Y") }} </td>
         </tr>
