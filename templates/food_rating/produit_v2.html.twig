@@ -11,11 +11,13 @@
 		{# Pour garder la catégorie "principale" #}
 		{% set cat = produit.categories | split(",") %}
 		
-		<p> Nom : {{ produit.product_name }} <br> Marque : {{ produit.brands ?? produit.brands_tags[0] }} <br> Catégorie : {{ cat[0] }} </p>
+		<p> Nom : {{ produit.product_name ?? produit.generic_name }} <br> Marque : {{ produit.brands ?? produit.brands_tags[0] }} <br> Catégorie : {{ cat[0] }} </p>
 	</div>
 </div>
 <h3>Ingrédients</h3>
-<p> {{ produit.ingredients_text }} </p>
+<p> {{ produit.ingredients_text_fr matches '/\w/m' ?: produit.ingredients_text }} </p>
+
+<a type="button" target="_blank" class="btn btn-danger" href="{{ path("debug", {"id": produit.id}) }}">Debug <i class="fas fa-exclamation-triangle"></i></a>
 
 <div class="row pt-5">
 	<div class="col">

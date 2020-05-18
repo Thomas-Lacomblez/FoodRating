@@ -69,7 +69,7 @@ class FoodRatingController extends AbstractController
     }
     
     /**
-     * @Route("/produit_v2/{id}", name="produit_v2")
+     * @Route("/categories/{categorie}/produit_v2/{id}", name="produit_v2")
      */
     public function afficheProduitV2($id) {
     	$api = new Api("food", "fr");
@@ -120,7 +120,7 @@ class FoodRatingController extends AbstractController
     }
     
     /**
-     * @Route("/liste_des_categories", name="liste_categorie")
+     * @Route("/categories", name="liste_categorie")
      * @param ProduitRepository $repo
      * @return \Symfony\Component\HttpFoundation\Response
      */
@@ -151,7 +151,7 @@ class FoodRatingController extends AbstractController
     }
     
     /**
-     * @Route("/categorie/{categorie}", name="categorie")
+     * @Route("/categories/{categorie}", name="categorie")
      */
     public function pageCategorie($categorie, PaginatorInterface $paginator, Request $request) {
     	$api = new Api("food", "fr");
@@ -176,6 +176,17 @@ class FoodRatingController extends AbstractController
     	return $this->render("food_rating/liste_produit.html.twig", [
     			"produits" => $donnees
     	]);
+    }
+    
+    /**
+     * @Route("/debug/{id}", name="debug")
+     */
+    public function debugProduit($id) {
+    	$api = new Api("food", "fr");
+    	$prd = $api->getProduct($id);
+    	print("<pre>".print_r($prd,true)."</pre>");
+    	
+    	return null;
     }
     
     /**
