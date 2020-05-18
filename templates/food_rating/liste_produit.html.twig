@@ -9,7 +9,11 @@
 	{% for p in produits %}
 	
 	    {# Pour garder la catégorie "principale" #}
-		{% set cat = p.categories | split(",") %}
+        {% if p.categories is defined %}
+			{% set cat = p.categories | split(",") %}
+		{% else %}
+			{% set cat = ["inconnu"] %}
+		{% endif %}
 	
 		<article>
 			<p> {{ p.product_name | raw }} </p>
