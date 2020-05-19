@@ -2,49 +2,34 @@
 
 namespace App\Entity;
 
+use App\Repository\NotesRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Notes
- *
- * @ORM\Table(name="notes", indexes={@ORM\Index(name="IDX_11BA68CF347EFB", columns={"produit_id"}), @ORM\Index(name="IDX_11BA68CFB88E14F", columns={"utilisateur_id"})})
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass=NotesRepository::class)
  */
 class Notes
 {
     /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @ORM\Id()
+     * @ORM\GeneratedValue()
+     * @ORM\Column(type="integer")
      */
     private $id;
 
     /**
-     * @var int
-     *
-     * @ORM\Column(name="nb_etoiles", type="integer", nullable=false)
+     * @ORM\Column(type="integer")
      */
     private $nbEtoiles;
 
     /**
-     * @var \Produit
-     *
-     * @ORM\ManyToOne(targetEntity="Produit")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="produit_id", referencedColumnName="id")
-     * })
+     * @ORM\Column(type="integer")
      */
-    private $produit;
+    private $produit_id;
 
     /**
-     * @var \Utilisateurs
-     *
-     * @ORM\ManyToOne(targetEntity="Utilisateurs")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="utilisateur_id", referencedColumnName="id")
-     * })
+     * @ORM\ManyToOne(targetEntity=Utilisateurs::class, inversedBy="notes")
+     * @ORM\JoinColumn(nullable=false)
      */
     private $utilisateur;
 
@@ -65,14 +50,14 @@ class Notes
         return $this;
     }
 
-    public function getProduit(): ?Produit
+    public function getProduitId(): ?int
     {
-        return $this->produit;
+        return $this->produit_id;
     }
 
-    public function setProduit(?Produit $produit): self
+    public function setProduitId(int $produit_id): self
     {
-        $this->produit = $produit;
+        $this->produit_id = $produit_id;
 
         return $this;
     }
@@ -88,5 +73,4 @@ class Notes
 
         return $this;
     }
-    
 }

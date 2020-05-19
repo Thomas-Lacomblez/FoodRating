@@ -53,16 +53,6 @@ class Utilisateurs implements UserInterface
     public $password_confirmation;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Notes", mappedBy="utilisateur")
-     */
-    private $notes;
-
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Commentaires", mappedBy="utilisateur")
-     */
-    private $commentaires;
-
-    /**
      * @ORM\Column(type="blob", nullable=true)
      */
     private $image;
@@ -71,6 +61,16 @@ class Utilisateurs implements UserInterface
      * @ORM\Column(type="integer", nullable=true)
      */
     private $tailleImage;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Notes::class, mappedBy="utilisateur")
+     */
+    private $notes;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Commentaires::class, mappedBy="utilisateur")
+     */
+    private $commentaires;
 
     public function __construct()
     {
@@ -131,6 +131,30 @@ class Utilisateurs implements UserInterface
         return ['ROLE_USER'];
     }
 
+    public function getImage()
+    {
+        return $this->image;
+    }
+
+    public function setImage($image): self
+    {
+        $this->image = $image;
+
+        return $this;
+    }
+
+    public function getTailleImage(): ?int
+    {
+        return $this->tailleImage;
+    }
+
+    public function setTailleImage(?int $tailleImage): self
+    {
+        $this->tailleImage = $tailleImage;
+
+        return $this;
+    }
+
     /**
      * @return Collection|Notes[]
      */
@@ -189,30 +213,6 @@ class Utilisateurs implements UserInterface
                 $commentaire->setUtilisateur(null);
             }
         }
-
-        return $this;
-    }
-
-    public function getImage()
-    {
-        return $this->image;
-    }
-
-    public function setImage($image): self
-    {
-        $this->image = $image;
-
-        return $this;
-    }
-
-    public function getTailleImage(): ?int
-    {
-        return $this->tailleImage;
-    }
-
-    public function setTailleImage(?int $tailleImage): self
-    {
-        $this->tailleImage = $tailleImage;
 
         return $this;
     }

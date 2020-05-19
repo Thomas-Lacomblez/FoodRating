@@ -2,49 +2,33 @@
 
 namespace App\Entity;
 
+use App\Repository\CommentairesRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Commentaires
- *
- * @ORM\Table(name="commentaires", indexes={@ORM\Index(name="IDX_D9BEC0C4F347EFB", columns={"produit_id"}), @ORM\Index(name="IDX_D9BEC0C4FB88E14F", columns={"utilisateur_id"})})
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass=CommentairesRepository::class)
  */
 class Commentaires
 {
     /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @ORM\Id()
+     * @ORM\GeneratedValue()
+     * @ORM\Column(type="integer")
      */
     private $id;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="message", type="text", length=0, nullable=false)
+     * @ORM\Column(type="text")
      */
     private $message;
 
     /**
-     * @var \Produit
-     *
-     * @ORM\ManyToOne(targetEntity="Produit")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="produit_id", referencedColumnName="id")
-     * })
+     * @ORM\Column(type="integer")
      */
-    private $produit;
+    private $produit_id;
 
     /**
-     * @var \Utilisateurs
-     *
-     * @ORM\ManyToOne(targetEntity="Utilisateurs")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="utilisateur_id", referencedColumnName="id")
-     * })
+     * @ORM\ManyToOne(targetEntity=Utilisateurs::class, inversedBy="commentaires")
      */
     private $utilisateur;
 
@@ -65,14 +49,14 @@ class Commentaires
         return $this;
     }
 
-    public function getProduit(): ?Produit
+    public function getProduitId(): ?int
     {
-        return $this->produit;
+        return $this->produit_id;
     }
 
-    public function setProduit(?Produit $produit): self
+    public function setProduitId(int $produit_id): self
     {
-        $this->produit = $produit;
+        $this->produit_id = $produit_id;
 
         return $this;
     }
@@ -88,6 +72,4 @@ class Commentaires
 
         return $this;
     }
-
-
 }
