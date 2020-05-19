@@ -40,30 +40,33 @@ class FoodRatingController extends AbstractController
     }
 
     /**
-     * @Route("/produit/{id}/notation", name="notation")
+     * @Route("/categories/{categorie}/produit_v2/{id}/notation", name="notation")
      */
-//     public function notationProduit($id, Produit $produit, Request $request) {
-//         $note = new Notes();
-//         $manager = $this->getDoctrine()->getManager();
-//         $noteForm = $request->get('note');
-//         $repo = $this->getDoctrine()->getRepository(Produit::class);
-//         $produitCourant = $repo->find($id);
-        
-//         if (!empty($noteForm)) {
-//             $note->setNbEtoiles($noteForm)
-//                  ->setUtilisateur($this->getUser())
-//                  ->setProduit($produitCourant);
-//             $manager->persist($note);
-// 			$manager->flush();
-// 			return $this->redirectToRoute('produit', [
-//                 "id" => $id
-//             ]);
-//         }
-        
-//         return $this->render("food_rating/produit.html.twig", [
-//                 "produit" => $produit
-//         ]);
-//     }
+    public function notationProduit($id, Request $request) {
+		$api = new Api("food", "fr");
+		$note = new Notes();
+		$manager = $this->getDoctrine()->getManager();
+		$noteForm = $request->get('note');
+		$produit = $api->getProduct($id);
+		$data = $produit->getData();
+		$categorieProduit = explode(",", $data['categories']);
+	
+		if (!empty($noteForm)) {
+		$note->setNbEtoiles($noteForm)
+				->setUtilisateur($this->getUser())
+				->setProduitId($id);
+		$manager->persist($note);
+		$manager->flush();
+		return $this->redirectToRoute('produit_v2', [
+				"id" => $id,
+				"categorie" => $categorieProduit[0]
+			]);
+		}
+	
+		return $this->render("food_rating/produit.html.twig", [
+				"produit" => $produit
+		]);
+	}
     
     /**
      * @Route("/compte", name="espace")
@@ -152,7 +155,8 @@ class FoodRatingController extends AbstractController
      * @param Api $api
      */
     public function testWrapper(PaginatorInterface $paginator, Request $request) {
-    	$api = new Api("food", "fr");
+		$api = new Api("food", "fr");
+		$produit = $api->getProduct("3242274000059");
 //     	$prd = $api->getProduct('3057640385148');
 //     	print("<pre>".print_r($prd,true)."</pre>");
 
@@ -169,12 +173,11 @@ class FoodRatingController extends AbstractController
 			$data = $prd->getData();
 			$result[] = $prd;
 		}
-		
     	    	
     	$result = $paginator->paginate(
-    			$result,
+				$categorieProduit,
     			$request->query->getInt("page", 1),
-    			$recherche->pageCount()
+    			20
     	);
     	
     	$result->setTemplate('@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig');

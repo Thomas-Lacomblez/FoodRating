@@ -105,9 +105,14 @@
 			});
 		});
 	</script>
+	{% if produit.categories is defined %}
+		{% set cat = produit.categories | split(",") %}
+	{% else %}
+		{% set cat = ["Non renseignée"] %}
+	{% endif %}
 
 	<div class="row">
-		<form action="{{ path("notation", {"id" : produit.id}) }}" method="post">
+		<form action="{{ path("notation", {"id" : produit.id, "categorie" : cat[0] }) }}" method="post">
 			<i class="fas fa-star fa-3x etoile" id="etoile_1"></i>
 			<i class="fas fa-star fa-3x etoile" id="etoile_2"></i>
 			<i class="fas fa-star fa-3x etoile" id="etoile_3"></i>
