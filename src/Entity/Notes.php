@@ -23,7 +23,7 @@ class Notes
     private $nbEtoiles;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="string", length=255)
      */
     private $produit_id;
 
@@ -50,12 +50,12 @@ class Notes
         return $this;
     }
 
-    public function getProduitId(): ?int
+    public function getProduitId(): ?string
     {
         return $this->produit_id;
     }
 
-    public function setProduitId(int $produit_id): self
+    public function setProduitId(string $produit_id): self
     {
         $this->produit_id = $produit_id;
 

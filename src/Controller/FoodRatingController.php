@@ -3,20 +3,22 @@
 namespace App\Controller;
 
 use App\Entity\Notes;
+use OpenFoodFacts\Api;
+
 use App\Entity\Utilisateurs;
 
+use Symfony\Component\Mime\Email;
+use App\Repository\NotesRepository;
+use App\Repository\CategoriesRepository;
 use App\Repository\UtilisateursRepository;
-
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Mailer\MailerInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Email;
-use OpenFoodFacts\Api;
-use App\Repository\CategoriesRepository;
 
 class FoodRatingController extends AbstractController
 {
@@ -31,12 +33,31 @@ class FoodRatingController extends AbstractController
     /**
      * @Route("/categories/{categorie}/produit_v2/{id}", name="produit_v2")
      */
-    public function afficheProduitV2($id) {
+    public function afficheProduitV2($id, ?UserInterface $user) {
     	$api = new Api("food", "fr");
-    	$produit = $api->getProduct($id);
-    	return $this->render("food_rating/produit_v2.html.twig", [
-    			"produit" => $produit
-    	]);
+		$produit = $api->getProduct($id);
+		$data = $produit->getData();
+		if ($user) {
+			$manager = $this->getDoctrine()->getManager();
+			$note = $manager->getRepository(Notes::class)->findBy(['utilisateur' => $user, 'produit_id' => $data['id']]);
+			if (!empty($note[0])) {
+				return $this->render("food_rating/produit_v2.html.twig", [
+					"produit" => $produit,
+					"note" => $note[0]
+				]);
+			}
+			else {
+				return $this->render("food_rating/produit_v2.html.twig", [
+					"produit" => $produit
+				]);
+			}
+		}
+		else {
+			echo "aaa";
+			return $this->render("food_rating/produit_v2.html.twig", [
+					"produit" => $produit
+			]);
+		}
     }
 
     /**
@@ -52,19 +73,64 @@ class FoodRatingController extends AbstractController
 		$categorieProduit = explode(",", $data['categories']);
 	
 		if (!empty($noteForm)) {
-		$note->setNbEtoiles($noteForm)
-				->setUtilisateur($this->getUser())
-				->setProduitId($id);
-		$manager->persist($note);
-		$manager->flush();
-		return $this->redirectToRoute('produit_v2', [
+			$note->setNbEtoiles($noteForm)
+				 ->setUtilisateur($this->getUser())
+				 ->setProduitId($id);
+			$manager->persist($note);
+			$manager->flush();
+			return $this->redirectToRoute('produit_v2', [
 				"id" => $id,
 				"categorie" => $categorieProduit[0]
 			]);
 		}
 	
-		return $this->render("food_rating/produit.html.twig", [
+		return $this->render("food_rating/produit_v2.html.twig", [
 				"produit" => $produit
+		]);
+	}
+
+	/**
+	 * @Route("/categories/{categorie}/produit_v2/{id}/modifier_notation", name="modifier_notation")
+	 */
+	public function modifierNotationProduit($id, Request $request, UserInterface $user) {
+		$api = new Api("food", "fr");
+		$produit = $api->getProduct($id);
+		$data = $produit->getData();
+		$categorieProduit = explode(",", $data['categories']);
+		$manager = $this->getDoctrine()->getManager();
+		$note = $manager->getRepository(Notes::class)->findBy(['utilisateur' => $user, 'produit_id' => $data['id']]);
+		$noteForm = $request->get('note');
+
+		if (!empty($noteForm)) {
+			$note[0]->setNbEtoiles($noteForm);
+			$manager->flush();
+			return $this->redirectToRoute('produit_v2', [
+				"id" => $id,
+				"categorie" => $categorieProduit[0]
+			]);
+		}
+
+		return $this->render("food_rating/produit_v2.html.twig", [
+			"produit" => $produit
+		]);
+	}
+
+	/**
+	 * @Route("/categories/{categorie}/produit_v2/{id}/supprimer_notation", name="supprimer_notation")
+	 */
+	public function supprimerNotationProduit($id, Request $request, UserInterface $user) {
+		$api = new Api("food", "fr");
+		$produit = $api->getProduct($id);
+		$data = $produit->getData();
+		$categorieProduit = explode(",", $data['categories']);
+		$manager = $this->getDoctrine()->getManager();
+		$note = $manager->getRepository(Notes::class)->findBy(['utilisateur' => $user, 'produit_id' => $data['id']]);
+		$manager->remove($note[0]);
+		$manager->flush();
+
+		return $this->redirectToRoute('produit_v2', [
+			"id" => $id,
+			"categorie" => $categorieProduit[0]
 		]);
 	}
     
