@@ -20,17 +20,14 @@ class SearchController extends AbstractController
     	$result = array();
     	$term = trim(strip_tags($request->get('term')));
 
-		$recherche = $api->search($term, $request->query->getInt("page", 1));
+		$recherche = $api->search($term, 1, 30);
 		$compteur = $recherche->searchCount();
 
 		$result = array();
-		
-		for ($i = 1 ; $i < $compteur/10 + 1 ; $i = $i+1){
 
-			foreach ($recherche as $key => $prd) {
-				$data = $prd->getData();
-				$result[] = $data['product_name'];
-			}
+		foreach ($recherche as $key => $prd) {
+			$data = $prd->getData();
+			$result[] = $data['product_name'];
 		}
     	
     	$resultat = new JsonResponse();
@@ -52,7 +49,7 @@ class SearchController extends AbstractController
 		$compteur = $recherche->searchCount();
     	$donnees = array();
     	
-    	for ($i = 1 ; $i < $compteur/10 + 1 ; $i = $i+1){
+    	for ($i = 1 ; $i < $compteur/20 + 1 ; $i++){
 			foreach ($recherche as $key => $prd) {
 				$data = $prd->getData();
 				$donnees[] = $prd;

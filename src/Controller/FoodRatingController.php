@@ -158,20 +158,18 @@ class FoodRatingController extends AbstractController
 
     	$mot = "couscous";
 
-		$recherche = $api->search($mot, $request->query->getInt("page", 1));
+		$recherche = $api->search($mot, 1, 30);
 		$compteur = $recherche->searchCount();
 
 		$result = array();
 		
 		dump($recherche);
-		
-		for ($i = 1 ; $i < $compteur/10 + 1 ; $i = $i+1){
 
-			foreach ($recherche as $key => $prd) {
-				$data = $prd->getData();
-				$result[] = $prd;
-			}
+		foreach ($recherche as $key => $prd) {
+			$data = $prd->getData();
+			$result[] = $prd;
 		}
+		
     	    	
     	$result = $paginator->paginate(
     			$result,
