@@ -37,25 +37,90 @@ class FoodRatingController extends AbstractController
     	$api = new Api("food", "fr");
 		$produit = $api->getProduct($id);
 		$data = $produit->getData();
+		$manager = $this->getDoctrine()->getManager();
+		$noteProduit = $manager->getRepository(Notes::class)->findBy(['produit_id' => $data['id']]);
+		$saveNote = array();
+		if (!empty($noteProduit[0])) {
+			for ($i = 0; $i < sizeof($noteProduit); $i++) {
+				$saveNote[] = $noteProduit[$i]->getNbEtoiles();
+			}
+
+			$moyenneNote = round((array_sum($saveNote)/count($saveNote)), 2);
+			$nombreVote = count($saveNote);
+			$nombreEtoile1 = count(array_keys($saveNote, 1));
+			$nombreEtoile2 = count(array_keys($saveNote, 2));
+			$nombreEtoile3 = count(array_keys($saveNote, 3));
+			$nombreEtoile4 = count(array_keys($saveNote, 4));
+			$nombreEtoile5 = count(array_keys($saveNote, 5));
+			$pourcentageEtoile1 = 0;
+			$pourcentageEtoile2 = 0;
+			$pourcentageEtoile3 = 0;
+			$pourcentageEtoile4 = 0;
+			$pourcentageEtoile5 = 0;
+
+			if ($nombreEtoile1 != 0) {
+				$pourcentageEtoile1 = (100*$nombreEtoile1)/count($saveNote);
+			}
+			if ($nombreEtoile2 != 0) {
+				$pourcentageEtoile2 = (100*$nombreEtoile2)/count($saveNote);
+			}
+			if ($nombreEtoile3 != 0) {
+				$pourcentageEtoile3 = (100*$nombreEtoile3)/count($saveNote);
+			}
+			if ($nombreEtoile4 != 0) {
+				$pourcentageEtoile4 = (100*$nombreEtoile4)/count($saveNote);
+			}
+			if ($nombreEtoile5 != 0) {
+				$pourcentageEtoile5 = (100*$nombreEtoile5)/count($saveNote);
+			}
+		}
+		else {
+			$moyenneNote = 0;
+			$nombreVote = 0;
+			$pourcentageEtoile1 = 0;
+			$pourcentageEtoile2 = 0;
+			$pourcentageEtoile3 = 0;
+			$pourcentageEtoile4 = 0;
+			$pourcentageEtoile5 = 0;
+		}
 		if ($user) {
-			$manager = $this->getDoctrine()->getManager();
 			$note = $manager->getRepository(Notes::class)->findBy(['utilisateur' => $user, 'produit_id' => $data['id']]);
 			if (!empty($note[0])) {
 				return $this->render("food_rating/produit_v2.html.twig", [
 					"produit" => $produit,
-					"note" => $note[0]
+					"note" => $note[0],
+					"moyenneNote" => $moyenneNote,
+					"nombreVote" => $nombreVote,
+					"pourcentageEtoile1" => $pourcentageEtoile1,
+					"pourcentageEtoile2" => $pourcentageEtoile2,
+					"pourcentageEtoile3" => $pourcentageEtoile3,
+					"pourcentageEtoile4" => $pourcentageEtoile4,
+					"pourcentageEtoile5" => $pourcentageEtoile5
 				]);
 			}
 			else {
 				return $this->render("food_rating/produit_v2.html.twig", [
-					"produit" => $produit
+					"produit" => $produit,
+					"moyenneNote" => $moyenneNote,
+					"nombreVote" => $nombreVote,
+					"pourcentageEtoile1" => $pourcentageEtoile1,
+					"pourcentageEtoile2" => $pourcentageEtoile2,
+					"pourcentageEtoile3" => $pourcentageEtoile3,
+					"pourcentageEtoile4" => $pourcentageEtoile4,
+					"pourcentageEtoile5" => $pourcentageEtoile5
 				]);
 			}
 		}
 		else {
-			echo "aaa";
 			return $this->render("food_rating/produit_v2.html.twig", [
-					"produit" => $produit
+					"produit" => $produit,
+					"moyenneNote" => $moyenneNote,
+					"nombreVote" => $nombreVote,
+					"pourcentageEtoile1" => $pourcentageEtoile1,
+					"pourcentageEtoile2" => $pourcentageEtoile2,
+					"pourcentageEtoile3" => $pourcentageEtoile3,
+					"pourcentageEtoile4" => $pourcentageEtoile4,
+					"pourcentageEtoile5" => $pourcentageEtoile5
 			]);
 		}
     }
@@ -230,7 +295,7 @@ class FoodRatingController extends AbstractController
 
 		$recherche = $api->search($mot, 1, 30);
 		$compteur = $recherche->searchCount();
-
+		echo $compteur;
 		$result = array();
 		
 		dump($recherche);
@@ -241,7 +306,7 @@ class FoodRatingController extends AbstractController
 		}
     	    	
     	$result = $paginator->paginate(
-				$categorieProduit,
+				$result,
     			$request->query->getInt("page", 1),
     			20
     	);

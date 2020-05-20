@@ -22,7 +22,6 @@ class SearchController extends AbstractController
 
 		$recherche = $api->search($term, 1, 30);
 		$compteur = $recherche->searchCount();
-
 		$result = array();
 
 		foreach ($recherche as $key => $prd) {
