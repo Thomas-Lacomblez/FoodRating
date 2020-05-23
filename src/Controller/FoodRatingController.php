@@ -5,8 +5,9 @@ namespace App\Controller;
 use App\Entity\Notes;
 use OpenFoodFacts\Api;
 
-use App\Entity\Utilisateurs;
+use App\Entity\Commentaires;
 
+use App\Entity\Utilisateurs;
 use Symfony\Component\Mime\Email;
 use App\Repository\NotesRepository;
 use App\Repository\CategoriesRepository;
@@ -27,6 +28,13 @@ class FoodRatingController extends AbstractController
      * @Route("/", name="food_rating")
      */
     public function home() {
+		/*$api = new Api("food", "fr");
+		$manager = $this->getDoctrine()->getManager();
+		$noteProduit = $manager->getRepository(Notes::class)->findAll();
+		dump($noteProduit);
+		if (!empty($noteProduit[0])) {
+			
+		}*/
         return $this->render('food_rating/accueil.html.twig');
     }
     
@@ -85,7 +93,22 @@ class FoodRatingController extends AbstractController
 		}
 		if ($user) {
 			$note = $manager->getRepository(Notes::class)->findBy(['utilisateur' => $user, 'produit_id' => $data['id']]);
+			$commentaire = $manager->getRepository(Commentaires::class)->findBy(['utilisateur' => $user, 'produit_id' => $data['id']]);
 			if (!empty($note[0])) {
+				if(!empty($commentaire[0])) {
+					return $this->render("food_rating/produit_v2.html.twig", [
+						"produit" => $produit,
+						"note" => $note[0],
+						"commentaire" => $commentaire[0],
+						"moyenneNote" => $moyenneNote,
+						"nombreVote" => $nombreVote,
+						"pourcentageEtoile1" => $pourcentageEtoile1,
+						"pourcentageEtoile2" => $pourcentageEtoile2,
+						"pourcentageEtoile3" => $pourcentageEtoile3,
+						"pourcentageEtoile4" => $pourcentageEtoile4,
+						"pourcentageEtoile5" => $pourcentageEtoile5
+					]);
+				}
 				return $this->render("food_rating/produit_v2.html.twig", [
 					"produit" => $produit,
 					"note" => $note[0],
@@ -128,75 +151,165 @@ class FoodRatingController extends AbstractController
     /**
      * @Route("/categories/{categorie}/produit_v2/{id}/notation", name="notation")
      */
-    public function notationProduit($id, Request $request) {
+    public function notationProduit($id, Request $request, ?UserInterface $user) {
 		$api = new Api("food", "fr");
-		$note = new Notes();
-		$manager = $this->getDoctrine()->getManager();
-		$noteForm = $request->get('note');
 		$produit = $api->getProduct($id);
 		$data = $produit->getData();
 		$categorieProduit = explode(",", $data['categories']);
-	
-		if (!empty($noteForm)) {
-			$note->setNbEtoiles($noteForm)
-				 ->setUtilisateur($this->getUser())
-				 ->setProduitId($id);
-			$manager->persist($note);
-			$manager->flush();
+
+		if($user) {
+			$note = new Notes();
+			$manager = $this->getDoctrine()->getManager();
+			$noteForm = $request->get('note');
+			$commentaireForm = $request->get('commentaire');
+
+			if (!empty($noteForm)) {
+				$note->setNbEtoiles($noteForm)
+					->setUtilisateur($this->getUser())
+					->setProduitId($id);
+				$manager->persist($note);
+				$manager->flush();
+				if (!empty($commentaireForm)) {
+					$commentaire = new Commentaires();
+					$commentaire->setMessage($commentaireForm)
+								->setUtilisateur($this->getUser())
+								->setProduitId($id);
+					$manager->persist($commentaire);
+					$manager->flush();
+				}
+				return $this->redirectToRoute('produit_v2', [
+					"id" => $id,
+					"categorie" => $categorieProduit[0]
+				]);
+			}
+		
 			return $this->redirectToRoute('produit_v2', [
 				"id" => $id,
 				"categorie" => $categorieProduit[0]
 			]);
 		}
-	
-		return $this->render("food_rating/produit_v2.html.twig", [
-				"produit" => $produit
-		]);
+		else {
+			return $this->redirectToRoute('produit_v2', [
+				"id" => $id,
+				"categorie" => $categorieProduit[0]
+			]);
+		}
 	}
 
 	/**
 	 * @Route("/categories/{categorie}/produit_v2/{id}/modifier_notation", name="modifier_notation")
 	 */
-	public function modifierNotationProduit($id, Request $request, UserInterface $user) {
+	public function modifierNotationProduit($id, Request $request, ?UserInterface $user) {
 		$api = new Api("food", "fr");
 		$produit = $api->getProduct($id);
 		$data = $produit->getData();
 		$categorieProduit = explode(",", $data['categories']);
-		$manager = $this->getDoctrine()->getManager();
-		$note = $manager->getRepository(Notes::class)->findBy(['utilisateur' => $user, 'produit_id' => $data['id']]);
-		$noteForm = $request->get('note');
+		if($user) {
+			$manager = $this->getDoctrine()->getManager();
+			$note = $manager->getRepository(Notes::class)->findBy(['utilisateur' => $user, 'produit_id' => $data['id']]);
+			$noteForm = $request->get('note');
+			$commentaire = $manager->getRepository(Commentaires::class)->findBy(['utilisateur' => $user, 'produit_id' => $data['id']]);
+			$commentaireForm = $request->get('commentaire');
 
-		if (!empty($noteForm)) {
-			$note[0]->setNbEtoiles($noteForm);
-			$manager->flush();
+			if (!empty($noteForm)) {
+				$note[0]->setNbEtoiles($noteForm);
+				$manager->flush();
+				if((!empty($commentaireForm) && ctype_space($commentaireForm) == false) && $commentaire != null) {
+					$commentaire[0]->setMessage($commentaireForm);
+					$manager->flush();
+				}
+				else if((empty($commentaireForm) || ctype_space($commentaireForm) == true) && $commentaire != null) {
+					$manager->remove($commentaire[0]);
+					$manager->flush();
+				}
+				else if($commentaire != null) {
+					$commentaire[0]->setMessage($commentaire[0]->getMessage());
+					$manager->flush();
+				}
+				else if((!empty($commentaireForm) && ctype_space($commentaireForm) == false) && $commentaire == null) {
+					$newCommentaire = new Commentaires();
+					$newCommentaire->setMessage($commentaireForm)
+								   ->setUtilisateur($this->getUser())
+								   ->setProduitId($id);
+					$manager->persist($newCommentaire);
+					$manager->flush();
+				}
+				return $this->redirectToRoute('produit_v2', [
+					"id" => $id,
+					"categorie" => $categorieProduit[0]
+				]);
+			}
+			else if(!empty($note[0]->getNbEtoiles())) {
+				$note[0]->setNbEtoiles($note[0]->getNbEtoiles());
+				$manager->flush();
+				if((!empty($commentaireForm) && ctype_space($commentaireForm) == false) && $commentaire != null) {
+					$commentaire[0]->setMessage($commentaireForm);
+					$manager->flush();
+				}
+				else if((empty($commentaireForm) || ctype_space($commentaireForm) == true) && $commentaire != null) {
+					$manager->remove($commentaire[0]);
+					$manager->flush();
+				}
+				else if($commentaire != null) {
+					$commentaire[0]->setMessage($commentaire[0]->getMessage());
+					$manager->flush();
+				}
+				else if((!empty($commentaireForm) && ctype_space($commentaireForm) == false) && $commentaire == null) {
+					$newCommentaire = new Commentaires();
+					$newCommentaire->setMessage($commentaireForm)
+								   ->setUtilisateur($this->getUser())
+								   ->setProduitId($id);
+					$manager->persist($newCommentaire);
+					$manager->flush();
+				}
+				return $this->redirectToRoute('produit_v2', [
+					"id" => $id,
+					"categorie" => $categorieProduit[0]
+				]);
+			}
+
 			return $this->redirectToRoute('produit_v2', [
 				"id" => $id,
 				"categorie" => $categorieProduit[0]
 			]);
 		}
-
-		return $this->render("food_rating/produit_v2.html.twig", [
-			"produit" => $produit
-		]);
+		else {
+			return $this->redirectToRoute('produit_v2', [
+				"id" => $id,
+				"categorie" => $categorieProduit[0]
+			]);
+		}
 	}
 
 	/**
 	 * @Route("/categories/{categorie}/produit_v2/{id}/supprimer_notation", name="supprimer_notation")
 	 */
-	public function supprimerNotationProduit($id, Request $request, UserInterface $user) {
+	public function supprimerNotationProduit($id, Request $request, ?UserInterface $user) {
 		$api = new Api("food", "fr");
 		$produit = $api->getProduct($id);
 		$data = $produit->getData();
 		$categorieProduit = explode(",", $data['categories']);
-		$manager = $this->getDoctrine()->getManager();
-		$note = $manager->getRepository(Notes::class)->findBy(['utilisateur' => $user, 'produit_id' => $data['id']]);
-		$manager->remove($note[0]);
-		$manager->flush();
+		if($user) {
+			$manager = $this->getDoctrine()->getManager();
+			$note = $manager->getRepository(Notes::class)->findBy(['utilisateur' => $user, 'produit_id' => $data['id']]);
+			$commentaire = $manager->getRepository(Commentaires::class)->findBy(['utilisateur' => $user, 'produit_id' => $data['id']]);
+			$manager->remove($note[0]);
+			if($commentaire != null) {
+				$manager->remove($commentaire[0]);
+			}
+			$manager->flush();
 
-		return $this->redirectToRoute('produit_v2', [
-			"id" => $id,
-			"categorie" => $categorieProduit[0]
-		]);
+			return $this->redirectToRoute('produit_v2', [
+				"id" => $id,
+				"categorie" => $categorieProduit[0]
+			]);
+		}
+		else {
+			return $this->redirectToRoute('produit_v2', [
+				"id" => $id,
+				"categorie" => $categorieProduit[0]
+			]);
+		}
 	}
     
     /**
@@ -295,15 +408,16 @@ class FoodRatingController extends AbstractController
 
 		$recherche = $api->search($mot, 1, 30);
 		$compteur = $recherche->searchCount();
-		echo $compteur;
 		$result = array();
 		
 		dump($recherche);
-
+		$i = 0;
 		foreach ($recherche as $key => $prd) {
+			$i = $i +1;
 			$data = $prd->getData();
 			$result[] = $prd;
 		}
+		echo $i;
     	    	
     	$result = $paginator->paginate(
 				$result,
@@ -321,24 +435,7 @@ class FoodRatingController extends AbstractController
     	]);
     	
 	}
-	
-	/**
-     * @Route("/mail", name="mail")
-     */
-	public function testMail(MailerInterface $mailer){
-		$email = (new Email())
-            ->from('zorgthomas92@gmail.com')
-            ->to('thomasmn.martin@gmail.com')
-            //->cc('cc@example.com')
-            //->bcc('bcc@example.com')
-            //->replyTo('fabien@example.com')
-            //->priority(Email::PRIORITY_HIGH)
-            ->subject('Time for Symfony Mailer!')
-            ->text('Sending emails is fun again!')
-            ->html('<p>See Twig integration for better HTML integration!</p>');
 
-        $mailer->send($email);
-	}
 
 }
 

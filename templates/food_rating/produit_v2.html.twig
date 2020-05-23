@@ -128,28 +128,49 @@
 	<div class="row">
 		{% if note is defined and app.user.id == note.utilisateur.id %}
 			<form action="{{ path("modifier_notation", {"id" : produit.id, "categorie" : cat[0] }) }}" method="post">
-				<i class="fas fa-star fa-3x etoile" id="etoile_1"></i>
-				<i class="fas fa-star fa-3x etoile" id="etoile_2"></i>
-				<i class="fas fa-star fa-3x etoile" id="etoile_3"></i>
-				<i class="fas fa-star fa-3x etoile" id="etoile_4"></i>
-				<i class="fas fa-star fa-3x etoile" id="etoile_5"></i>
-				<input type="hidden" name="note" id="note" value="">
-				<input type="submit" class="btn btn-info" value="Modifier Note">
-				<a type="button" href="{{ path("supprimer_notation", {"id" : produit.id, "categorie" : cat[0] }) }}" class= "btn btn-danger">Supprimer</a>
+				<div class="form-group">
+					<label>Note : </label>
+					<i class="fas fa-star fa-3x etoile" id="etoile_1" title="Pas du tout satisfait" style="cursor: pointer;"></i>
+					<i class="fas fa-star fa-3x etoile" id="etoile_2" title="Pas satisfait" style="cursor: pointer;"></i>
+					<i class="fas fa-star fa-3x etoile" id="etoile_3"title="Moyennement satisfait" style="cursor: pointer;"></i>
+					<i class="fas fa-star fa-3x etoile" id="etoile_4"title="Satisfait" style="cursor: pointer;"></i>
+					<i class="fas fa-star fa-3x etoile" id="etoile_5" title="Très satisfait" style="cursor: pointer;"></i><br>
+					<input type="hidden" name="note" id="note" value="">
+				</div>
+				<div class="form-group">
+					<label for="commentaire">Commentaire</label>
+					{% if commentaire is defined %}
+						<textarea class="form-control" name="commentaire" id="commentaire" rows="3">{{ commentaire.message }}</textarea>
+					{% else %}
+						<textarea class="form-control" name="commentaire" id="commentaire" rows="3"></textarea>
+					{% endif %}
+				</div>
+				<div class="form-group">
+					<input type="submit" class="btn btn-info" value="Modifier">
+					<a type="button" href="{{ path("supprimer_notation", {"id" : produit.id, "categorie" : cat[0] }) }}" class= "btn btn-danger">Supprimer</a>
+				</div>
 			</form>
 		{% else %}
 			<form action="{{ path("notation", {"id" : produit.id, "categorie" : cat[0] }) }}" method="post">
-				<i class="fas fa-star fa-3x etoile" id="etoile_1"></i>
-				<i class="fas fa-star fa-3x etoile" id="etoile_2"></i>
-				<i class="fas fa-star fa-3x etoile" id="etoile_3"></i>
-				<i class="fas fa-star fa-3x etoile" id="etoile_4"></i>
-				<i class="fas fa-star fa-3x etoile" id="etoile_5"></i>
-				<input type="hidden" name="note" id="note" value="">
-				<input type="submit" class="btn btn-primary" value="Noter">
+				<div class="form-group">
+					<label>Note : </label>
+					<i class="fas fa-star fa-3x etoile" id="etoile_1" title="Pas du tout satisfait" style="cursor: pointer;"></i>
+					<i class="fas fa-star fa-3x etoile" id="etoile_2" title="Pas satisfait" style="cursor: pointer;"></i>
+					<i class="fas fa-star fa-3x etoile" id="etoile_3"title="Moyennement satisfait" style="cursor: pointer;"></i>
+					<i class="fas fa-star fa-3x etoile" id="etoile_4"title="Satisfait" style="cursor: pointer;"></i>
+					<i class="fas fa-star fa-3x etoile" id="etoile_5" title="Très satisfait" style="cursor: pointer;"></i>
+					<input type="hidden" name="note" id="note" value="">
+				</div>
+				<div class="form-group">
+					<label for="commentaire">Commentaire</label>
+					<textarea class="form-control" name="commentaire" id="commentaire" rows="3"></textarea>
+				</div>
+				<div class="form-group">
+					<input type="submit" class="btn btn-primary" value="Noter">
+				</div>
 			</form>
 		{% endif %}
 	</div>
-	Note : {#note.nbEtoiles #}
 {% else %}
 	<div class="row">
 		<div class="col">

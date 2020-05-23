@@ -45,6 +45,13 @@ class Categories
         return $this->id;
     }
 
+    public function setId(string $id): self
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
     public function getKnown(): ?bool
     {
         return $this->known;
