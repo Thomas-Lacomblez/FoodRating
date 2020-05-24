@@ -47,6 +47,7 @@ class FoodRatingController extends AbstractController
 		$data = $produit->getData();
 		$manager = $this->getDoctrine()->getManager();
 		$noteProduit = $manager->getRepository(Notes::class)->findBy(['produit_id' => $data['id']]);
+		$commentaireProduit = $manager->getRepository(Commentaires::class)->findBy(['produit_id' => $data['id']]);
 		$saveNote = array();
 		if (!empty($noteProduit[0])) {
 			for ($i = 0; $i < sizeof($noteProduit); $i++) {
@@ -99,7 +100,9 @@ class FoodRatingController extends AbstractController
 					return $this->render("food_rating/produit_v2.html.twig", [
 						"produit" => $produit,
 						"note" => $note[0],
+						"notesProduit" =>$noteProduit,
 						"commentaire" => $commentaire[0],
+						"commentairesProduit" => $commentaireProduit,
 						"moyenneNote" => $moyenneNote,
 						"nombreVote" => $nombreVote,
 						"pourcentageEtoile1" => $pourcentageEtoile1,
@@ -112,6 +115,8 @@ class FoodRatingController extends AbstractController
 				return $this->render("food_rating/produit_v2.html.twig", [
 					"produit" => $produit,
 					"note" => $note[0],
+					"notesProduit" =>$noteProduit,
+					"commentairesProduit" => $commentaireProduit,
 					"moyenneNote" => $moyenneNote,
 					"nombreVote" => $nombreVote,
 					"pourcentageEtoile1" => $pourcentageEtoile1,
@@ -124,6 +129,8 @@ class FoodRatingController extends AbstractController
 			else {
 				return $this->render("food_rating/produit_v2.html.twig", [
 					"produit" => $produit,
+					"notesProduit" =>$noteProduit,
+					"commentairesProduit" => $commentaireProduit,
 					"moyenneNote" => $moyenneNote,
 					"nombreVote" => $nombreVote,
 					"pourcentageEtoile1" => $pourcentageEtoile1,
@@ -137,6 +144,8 @@ class FoodRatingController extends AbstractController
 		else {
 			return $this->render("food_rating/produit_v2.html.twig", [
 					"produit" => $produit,
+					"notesProduit" =>$noteProduit,
+					"commentairesProduit" => $commentaireProduit,
 					"moyenneNote" => $moyenneNote,
 					"nombreVote" => $nombreVote,
 					"pourcentageEtoile1" => $pourcentageEtoile1,
