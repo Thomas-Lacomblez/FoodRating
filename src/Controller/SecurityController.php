@@ -40,7 +40,6 @@ class SecurityController extends AbstractController
         $manager = $this->getDoctrine()->getManager();
         $form = $this->createForm(InscriptionType::class, $user);
         $form->handleRequest($request);
-
         if ($form->isSubmitted() && $form->isValid()) {
             $hash = $encoder->encodePassword($user, $user->getPassword());
 
