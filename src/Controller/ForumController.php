@@ -6,14 +6,14 @@ use App\Entity\Discussion;
 use App\Form\DiscussionType;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\DiscussionRepository;
+use App\Repository\ReponseRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Knp\Component\Pager\PaginatorInterface;
-use App\Entity\Reponses;
-use App\Repository\ReponseRepository;
 use App\Entity\Utilisateurs;
 use App\Repository\UtilisateursRepository;
+use App\Entity\Reponse;
 
 class ForumController extends AbstractController
 {
@@ -78,25 +78,48 @@ class ForumController extends AbstractController
     /**
      * @Route("/forum/{id}", name="readDisc")
      */
-    public function afficheDiscussion(Discussion $discussion) {
+    public function afficheDiscussion(Request $request, Discussion $discussion, ReponseRepository $repo, PaginatorInterface $paginator) {
+    	$reponses = $repo->findBy(
+    			['idDiscussion' => $discussion->getIdDiscussion()],
+    			['createdAt' => 'asc']
+    	);
+    	
+    	$contenu = array_merge(array($discussion), (array) $reponses);
+    	$contenu = $paginator->paginate(
+    			$contenu,
+    			$request->query->getInt("page", 1),
+    			10
+    	);
+    	
+    	// On utilise un template basé sur Bootstrap, celui par défaut ne l'est pas
+    	$contenu->setTemplate('@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig');
+    	
+    	// On aligne les sélecteurs au centre de la page
+    	$contenu->setCustomParameters([
+    			"align" => "center"
+    	]);
+    	    	
         return $this->render('forum/discussion_v2.html.twig', [
-            'discussion' => $discussion
+        	'discussion' => $discussion,
+            'contenu' => $contenu
         ]);
     }
     
     /**
      * @Route("/forum/{id}/reponse", name="repDisc")
      */
-    public function reponseDiscussion($id, Request $request, EntityManagerInterface $manager, ReponseRepository $repoR, UtilisateursRepository $repoU) {
-    	$reponse = new Reponses();
+    public function reponseDiscussion($id, Request $request, EntityManagerInterface $manager, ReponseRepository $repoR, UtilisateursRepository $repoU, DiscussionRepository $repoD) {
+    	$reponse = new Reponse();
     	
     	$user = $repoU->findOneBy(["username" => $this->getUser()->getUsername()]);
+    	$disc = $repoD->find($id);
     	
     	$message = $request->request->get("reponse");
     	if ($user != null && ($message != null && $message != "")) {
-    		$reponse->setIdUtilisateur($user->getId());
-    		$reponse->setIdDiscussion($id);
+    		$reponse->setIdUtilisateur($user);
+    		$reponse->setIdDiscussion($disc);
     		$reponse->setMessage($message);
+    		$reponse->setCreatedAt(new \DateTime());	
     		
     		$manager->persist($reponse);
     		$manager->flush();

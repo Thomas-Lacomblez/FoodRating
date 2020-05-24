@@ -72,10 +72,16 @@ class Utilisateurs implements UserInterface
      */
     private $commentaires;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Reponse::class, mappedBy="idUtilisateur", orphanRemoval=true)
+     */
+    private $reponses;
+
     public function __construct()
     {
         $this->notes = new ArrayCollection();
         $this->commentaires = new ArrayCollection();
+        $this->reponses = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -211,6 +217,37 @@ class Utilisateurs implements UserInterface
             // set the owning side to null (unless already changed)
             if ($commentaire->getUtilisateur() === $this) {
                 $commentaire->setUtilisateur(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Reponse[]
+     */
+    public function getReponses(): Collection
+    {
+        return $this->reponses;
+    }
+
+    public function addReponse(Reponse $reponse): self
+    {
+        if (!$this->reponses->contains($reponse)) {
+            $this->reponses[] = $reponse;
+            $reponse->setIdUtilisateur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReponse(Reponse $reponse): self
+    {
+        if ($this->reponses->contains($reponse)) {
+            $this->reponses->removeElement($reponse);
+            // set the owning side to null (unless already changed)
+            if ($reponse->getIdUtilisateur() === $this) {
+                $reponse->setIdUtilisateur(null);
             }
         }
 

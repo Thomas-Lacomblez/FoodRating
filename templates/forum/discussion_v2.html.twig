@@ -11,15 +11,33 @@
 
 <h1 class="mb-5 border-bottom border-primary"> <span class="font-weight-bold">Sujet</span> : {{ discussion.sujet }} </h1>
 
-<div class="media border border-primary rounded-lg pl-3 pt-3 pr-3">
-	<!-- <img src="img_avatar1.png" class="align-self-center mr-3" style="width:60px"> -->
-	<i class="fas fa-user-circle fa-3x align-self-center"></i>
-	<div class="media-body ml-3">
-		<h4>{{ discussion.id_utilisateur.username }}</h4>
-		<p>{{ discussion.message | raw }}</p>
-		<p class="small text-muted font-italic float-right mt-2">{{ discussion.creation | date("d/m/Y - H:i") }}</p>
+{% for c in contenu %}
+
+	{% if c.sujet is defined %}
+		<div class="media border border-primary rounded-lg pl-3 pt-3 pr-3 my-2">
+        	<!-- <img src="img_avatar1.png" class="align-self-center mr-3" style="width:60px"> -->
+        	<i class="fas fa-user-circle fa-3x align-self-center"></i>
+        	<div class="media-body ml-3">
+        		<h4>{{ c.id_utilisateur.username }}</h4>
+        		<p>{{ c.message | raw }}</p>
+        		<p class="small text-muted font-italic float-right mt-2">{{ c.creation | date("d/m/Y - H:i") }}</p>
+        	</div>
+        </div>
+	{% else %}
+	
+	<div class="media border border-secondary rounded-lg pl-3 pt-3 pr-3 my-2">
+		<i class="fas fa-user-circle fa-3x align-self-center"></i>
+		<div class="media-body ml-3">
+    		<h4>{{ c.idUtilisateur.username }}</h4>
+    		<p>{{ c.message | raw }}</p>
+    		<p class="small text-muted font-italic float-right mt-2">{{ c.createdAt | date("d/m/Y - H:i") }}</p>
+    	</div>
 	</div>
-</div>
+	
+	{% endif %}
+{% endfor %}
+
+<div class="mt-3">{{ knp_pagination_render(contenu) }}</div>
 
 <hr class="mt-5 border-primary" />
 

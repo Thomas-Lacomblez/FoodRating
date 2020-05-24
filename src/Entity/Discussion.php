@@ -56,6 +56,16 @@ class Discussion
      */
     private $creation;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Reponse::class, mappedBy="idDiscussion", orphanRemoval=true)
+     */
+    private $reponses;
+
+    public function __construct()
+    {
+        $this->reponses = new ArrayCollection();
+    }
+
     public function getIdDiscussion(): ?int
     {
         return $this->idDiscussion;
@@ -117,6 +127,37 @@ class Discussion
     public function setCreation(?\DateTimeInterface $creation): self
     {
         $this->creation = $creation;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Reponse[]
+     */
+    public function getReponses(): Collection
+    {
+        return $this->reponses;
+    }
+
+    public function addReponse(Reponse $reponse): self
+    {
+        if (!$this->reponses->contains($reponse)) {
+            $this->reponses[] = $reponse;
+            $reponse->setIdDiscussion($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReponse(Reponse $reponse): self
+    {
+        if ($this->reponses->contains($reponse)) {
+            $this->reponses->removeElement($reponse);
+            // set the owning side to null (unless already changed)
+            if ($reponse->getIdDiscussion() === $this) {
+                $reponse->setIdDiscussion(null);
+            }
+        }
 
         return $this;
     }
