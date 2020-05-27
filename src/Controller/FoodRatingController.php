@@ -46,8 +46,8 @@ class FoodRatingController extends AbstractController
 		$produit = $api->getProduct($id);
 		$data = $produit->getData();
 		$manager = $this->getDoctrine()->getManager();
-		$noteProduit = $manager->getRepository(Notes::class)->findBy(['produit_id' => $data['id']]);
-		$commentaireProduit = $manager->getRepository(Commentaires::class)->findBy(['produit_id' => $data['id']]);
+		$noteProduit = $manager->getRepository(Notes::class)->findBy(['produit_id' => $data['id'] ?? $data['code']]);
+		$commentaireProduit = $manager->getRepository(Commentaires::class)->findBy(['produit_id' => $data['id'] ?? $data['code']]);
 		$saveNote = array();
 		if (!empty($noteProduit[0])) {
 			for ($i = 0; $i < sizeof($noteProduit); $i++) {
@@ -93,8 +93,8 @@ class FoodRatingController extends AbstractController
 			$pourcentageEtoile5 = 0;
 		}
 		if ($user) {
-			$note = $manager->getRepository(Notes::class)->findBy(['utilisateur' => $user, 'produit_id' => $data['id']]);
-			$commentaire = $manager->getRepository(Commentaires::class)->findBy(['utilisateur' => $user, 'produit_id' => $data['id']]);
+			$note = $manager->getRepository(Notes::class)->findBy(['utilisateur' => $user, 'produit_id' => $data['id'] ?? $data['code']]);
+			$commentaire = $manager->getRepository(Commentaires::class)->findBy(['utilisateur' => $user, 'produit_id' => $data['id'] ?? $data['code']]);
 			if (!empty($note[0])) {
 				if(!empty($commentaire[0])) {
 					return $this->render("food_rating/produit_v2.html.twig", [
@@ -348,7 +348,7 @@ class FoodRatingController extends AbstractController
     	$categories = $paginator->paginate(
     			$donnees,
     			$request->query->getInt("page", 1),
-    			10
+    			40
     	);
     	
     	// On utilise un template basé sur Bootstrap, celui par défaut ne l'est pas
@@ -379,7 +379,7 @@ class FoodRatingController extends AbstractController
     	$donnees = $paginator->paginate(
     			$tab,
     			$request->query->getInt("page", 1),
-    			10
+    			30
     	);
     	
     	$donnees->setTemplate('@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig');
@@ -431,7 +431,7 @@ class FoodRatingController extends AbstractController
     	$result = $paginator->paginate(
 				$result,
     			$request->query->getInt("page", 1),
-    			20
+    			30
     	);
     	
     	$result->setTemplate('@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig');

@@ -31,7 +31,7 @@
 	<p>Non renseignés</p>
 {% endif %}
 
-<a type="button" target="_blank" class="btn btn-danger" href="{{ path("debug", {"id": produit.id}) }}">Debug <i class="fas fa-exclamation-triangle"></i></a>
+<a type="button" target="_blank" class="btn btn-danger" href="{{ path("debug", {"id": produit.id ?? produit.code}) }}">Debug <i class="fas fa-exclamation-triangle"></i></a>
 
 <div class="row pt-5">
 	<div class="col">
@@ -39,7 +39,7 @@
 		<div class="container w-60 float-left">
 			<div class="row">
 				<div class="col">
-					<center><i class="fas fa-star fa-6x text-warning"></i>
+					<center style="padding-top: 22%;"><i class="fas fa-star fa-6x text-warning"></i>
 					<p class="font-weight-bold mt-1" style="width:fit-content; font-size:x-large;">
 					{% if moyenneNote != 0 %}
 						Moyenne : {{ moyenneNote }}</p>
@@ -49,27 +49,42 @@
 					<p>(Nombre de votes : {{ nombreVote }})</p></center>
 				</div>
 				<div class="col">
-					<i class="fas fa-star text-warning">1</i>
+					<span class="fa-stack my-1">
+						<i class="fas fa-star fa-stack-2x text-warning"></i>
+						<span class="fa-stack-1x font-weight-bold">1</span>
+					</span>
 					<div class="progress" style="background-color: #ebebf5">
 						<div class="progress-bar bg-warning" style="width: {{ pourcentageEtoile1 }}%;"></div>
 					</div>
 					
-					<i class="fas fa-star text-warning mt-2">2</i>
+					<span class="fa-stack my-1">
+						<i class="fas fa-star fa-stack-2x text-warning"></i>
+						<span class="fa-stack-1x font-weight-bold">2</span>
+					</span>
 					<div class="progress" style="background-color: #ebebf5">
 						<div class="progress-bar bg-warning" style="width: {{ pourcentageEtoile2 }}%;"></div>
 					</div>
 					
-					<i class="fas fa-star text-warning mt-2">3</i>
+					<span class="fa-stack my-1">
+						<i class="fas fa-star fa-stack-2x text-warning"></i>
+						<span class="fa-stack-1x font-weight-bold">3</span>
+					</span>
 					<div class="progress" style="background-color: #ebebf5">
 						<div class="progress-bar bg-warning" style="width: {{ pourcentageEtoile3 }}%;"></div>
 					</div>
 					
-					<i class="fas fa-star text-warning mt-2">4</i>
+					<span class="fa-stack my-1">
+						<i class="fas fa-star fa-stack-2x text-warning"></i>
+						<span class="fa-stack-1x font-weight-bold">4</span>
+					</span>
 					<div class="progress" style="background-color: #ebebf5">
 						<div class="progress-bar bg-warning" style="width: {{ pourcentageEtoile4 }}%;"></div>
 					</div>
 					
-					<i class="fas fa-star text-warning mt-2">5</i>
+					<span class="fa-stack my-1">
+						<i class="fas fa-star fa-stack-2x text-warning"></i>
+						<span class="fa-stack-1x font-weight-bold">5</span>
+					</span>
 					<div class="progress" style="background-color: #ebebf5">
 						<div class="progress-bar bg-warning" style="width: {{ pourcentageEtoile5 }}%;"></div>
 					</div>
@@ -127,7 +142,7 @@
 
 	<div class="row">
 		{% if note is defined and app.user.id == note.utilisateur.id %}
-			<form id="formulaire" action="{{ path("modifier_notation", {"id" : produit.id, "categorie" : cat[0] }) }}" method="post">
+			<form id="formulaire" action="{{ path("modifier_notation", {"id" : produit.id ?? produit.code, "categorie" : cat[0] }) }}" method="post">
 				<div class="form-group">
 					<label>Note : </label>
 					<i class="fas fa-star fa-3x etoile" id="etoile_1" title="Pas du tout satisfait" style="cursor: pointer;"></i>
@@ -147,12 +162,12 @@
 				</div>
 				<div class="form-group">
 					<input type="submit" class="btn btn-info" value="Modifier">
-					<a type="button" href="{{ path("supprimer_notation", {"id" : produit.id, "categorie" : cat[0] }) }}" class= "btn btn-danger">Supprimer</a>
+					<a type="button" href="{{ path("supprimer_notation", {"id" : produit.id ?? produit.code, "categorie" : cat[0] }) }}" class= "btn btn-danger">Supprimer</a>
 				</div>
 			</form>
 			<!--<div id="loader"></div>-->
 		{% else %}
-			<form id="formulaire" action="{{ path("notation", {"id" : produit.id, "categorie" : cat[0] }) }}" method="post">
+			<form id="formulaire" action="{{ path("notation", {"id" : produit.id ?? produit.code, "categorie" : cat[0] }) }}" method="post">
 				<div class="form-group">
 					<label>Note : </label>
 					<i class="fas fa-star fa-3x etoile" id="etoile_1" title="Pas du tout satisfait" style="cursor: pointer;"></i>

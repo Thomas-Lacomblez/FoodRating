@@ -69,6 +69,15 @@ class SearchController extends AbstractController
 				"align" => "center"
 		]);
 		
+		dump($produits);
+		
+		if (count($produits) == 1) {
+			return $this->redirectToRoute('produit_v2', [
+					"id" => $produits[0]->getData()["id"] ?? $produits[0]->getData()["code"],
+					"categorie" => explode(",", $produits[0]->getData()["categories"])[0]
+			]);
+		}
+		
     	return $this->render("food_rating/liste_produit.html.twig", [
 			"produits" => $produits
 		]);

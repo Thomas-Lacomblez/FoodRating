@@ -6,7 +6,18 @@
 
 <h1>Catégories</h1>
 
-<table class="table table-sm table-striped table-hover mt-5 mx-auto" style="width: 60%;">
+<div class="form-group mx-auto">
+  <input type="text" class="form-control mx-auto" id="myInput" style="width: 60%;" placeholder="Rechercher dans le tableau...">
+</div>
+
+<div class="flex-sm-wrap mt-5">
+
+	<!-- Utilisation du sélecteur de pages de KNP -->
+	{{ knp_pagination_render(categories) }}
+	
+</div>
+
+<table class="table table-sm table-striped table-hover mt-5 mx-auto" style="width: 60%; " id="tableCategorie">
 	<thead class="thead-light">
 		<th class="w-50">Nom</th>
 		<th class="w-50">Nombre de produit</th>
@@ -23,11 +34,21 @@
 	</tbody>
 </table>
 
-<div class="flex-sm-wrap mt-5">
+<br />
 
-	<!-- Utilisation du sélecteur de pages de KNP -->
-	{{ knp_pagination_render(categories) }}
-	
-</div>
+{% block javascripts %}
+
+<script>
+$(document).ready(function(){
+  $("#myInput").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("#tableCategorie tr").filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+  });
+});
+</script>
+
+{% endblock %}
 
 {% endblock %}
