@@ -2,11 +2,13 @@
 
 namespace App\Controller;
 
+use App\Entity\Notes;
 use OpenFoodFacts\Api;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class SearchController extends AbstractController
@@ -41,13 +43,14 @@ class SearchController extends AbstractController
 	public function resultat(Request $request, PaginatorInterface $paginator) {
 	
 		$api = new Api("food", "fr");
-
     	$mot = $request->get('recherche');
 
 		$recherche = $api->search($mot, $request->query->getInt("page", 1));
 		$compteur = $recherche->searchCount();
-    	$donnees = array();
-    	
+		$donnees = array();
+		$manager = $this->getDoctrine()->getManager();
+		$notesProduits = $manager->getRepository(Notes::class)->findAll();
+		
     	for ($i = 1 ; $i < $compteur/20 + 1 ; $i++){
 			foreach ($recherche as $key => $prd) {
 				$data = $prd->getData();
@@ -70,7 +73,8 @@ class SearchController extends AbstractController
 		]);
 		
     	return $this->render("food_rating/liste_produit.html.twig", [
-			"produits" => $produits
+			"produits" => $produits,
+			"notes" => $notesProduits
 		]);
 	}
 }

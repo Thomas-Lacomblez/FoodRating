@@ -5,22 +5,33 @@
 {% block body %}
 
 <section class="produit">
+	<div class="card-columns">
+		{% for p in produits %}
+		
+			{# Pour garder la catégorie "principale" #}
+			{% if p.categories is defined %}
+				{% set cat = p.categories | split(",") %}
+			{% else %}
+				{% set cat = ["Non renseignée"] %}
+			{% endif %}
 
-	{% for p in produits %}
-	
-	    {# Pour garder la catégorie "principale" #}
-        {% if p.categories is defined %}
-			{% set cat = p.categories | split(",") %}
-		{% else %}
-			{% set cat = ["Non renseignée"] %}
-		{% endif %}
-	
-		<article>
-			<p> {{ p.product_name | raw }} </p>
-			<a href="{{ path("produit_v2", {"id" : p.id, "categorie": cat[0]}) }}" class="btn btn-primary">Afficher le produit</a>
-		</article>
-	
-	{% endfor %}
+				<a href="{{ path("produit_v2", {"id" : p.id, "categorie": cat[0]}) }}" class="text-info" style="text-decoration: none;">
+					<div class="card border-info mb-3" style="max-width: 20rem; max-height: 30rem;">
+						<div class="card-header">{{ p.product_name | u.truncate(37, '...') }}</div>
+						<div class="card-body">
+							<p class="card-title">
+								<img src="{{ p.image_url }}" style="max-width:200px; max-height:200px; height:150px;" alt="Image produit"/>
+							</p>
+
+							{% if p.brands_tags is defined %}
+								<p class="card-text">{{ p.brands ?? p.brands_tags[0] }}</p>
+							{% endif %}
+						</div>
+					</div>
+				</a>
+				
+		{% endfor %}
+	</div>
 	
 	<div class="flex-sm-wrap mt-5">
 
