@@ -235,44 +235,51 @@
 		</div>
 	</div>
 {% endif %}
+
 <hr class="my-5 border-primary" />
 <h3 class="mb-3">Commentaires et Notes</h3>
 
 {% if notesProduit is defined %}
 	<div class="card-columns">
-	{% for n in notesProduit %}
-		<script>
-			$(document).ready(function() {
-				var nbStars=$('.etoile_affichage').length;
-				var i;
-				for (i = 1; i <= {{ n.nbEtoiles }}; i++) { $('#etoileAffichage{{ n.id }}_' + i).addClass('text-warning'); }
-			});
-		</script>
-		
-		<div class="card border-primary mb-3" style="max-width: 20rem;">
-			<div class="card-header">{{ n.utilisateur.username }}</div>
-			<div class="card-body">
-				<p class="card-title">
-					<i class="fas fa-star fa-2x etoile_affichage" id="etoileAffichage{{ n.id }}_1"></i>
-					<i class="fas fa-star fa-2x etoile_affichage" id="etoileAffichage{{ n.id }}_2"></i>
-					<i class="fas fa-star fa-2x etoile_affichage" id="etoileAffichage{{ n.id }}_3"></i>
-					<i class="fas fa-star fa-2x etoile_affichage" id="etoileAffichage{{ n.id }}_4"></i>
-					<i class="fas fa-star fa-2x etoile_affichage" id="etoileAffichage{{ n.id }}_5"></i>
-				</p>
-				
-				{% for c in commentairesProduit %}
-					{% if c.utilisateur.id == n.utilisateur.id %}
-						<p class="card-text">{{ c.message }}</p>
-					{% endif %}
-				{% endfor %}
+		{% for n in notesProduit %}
+			<script>
+				$(document).ready(function() {
+					var nbStars=$('.etoile_affichage').length;
+					var i;
+					for (i = 1; i <= {{ n.nbEtoiles }}; i++) { $('#etoileAffichage{{ n.id }}_' + i).addClass('text-warning'); }
+				});
+			</script>
+			
+			<div class="card border-primary mb-3" style="max-width: 20rem;">
+				<div class="card-header">{{ n.utilisateur.username }}</div>
+				<div class="card-body">
+					<p class="card-title">
+						<i class="fas fa-star fa-2x etoile_affichage" id="etoileAffichage{{ n.id }}_1"></i>
+						<i class="fas fa-star fa-2x etoile_affichage" id="etoileAffichage{{ n.id }}_2"></i>
+						<i class="fas fa-star fa-2x etoile_affichage" id="etoileAffichage{{ n.id }}_3"></i>
+						<i class="fas fa-star fa-2x etoile_affichage" id="etoileAffichage{{ n.id }}_4"></i>
+						<i class="fas fa-star fa-2x etoile_affichage" id="etoileAffichage{{ n.id }}_5"></i>
+					</p>
+					
+					{% for c in commentairesProduit %}
+						{% if c.utilisateur.id == n.utilisateur.id %}
+							<p class="card-text">{{ c.message }}</p>
+						{% endif %}
+					{% endfor %}
+				</div>
 			</div>
-		</div>
-	
-	{% endfor %}
+
+		{% endfor %}
 	</div>
 	
 {% else %}
 	<p>Pas de commentaires pour ce produit.</p>
 {% endif %}
+<div class="flex-sm-wrap mt-5">
+
+	<!-- Utilisation du sélecteur de pages de KNP -->
+	{{ knp_pagination_render(notesProduit) }}
+	
+</div>
 
 {% endblock %}

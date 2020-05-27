@@ -41,7 +41,7 @@ class FoodRatingController extends AbstractController
     /**
      * @Route("/categories/{categorie}/produit_v2/{id}", name="produit_v2")
      */
-    public function afficheProduitV2($id, ?UserInterface $user) {
+    public function afficheProduitV2($id, ?UserInterface $user, PaginatorInterface $paginator, Request $request) {
     	$api = new Api("food", "fr");
 		$produit = $api->getProduct($id);
 		$data = $produit->getData();
@@ -49,9 +49,9 @@ class FoodRatingController extends AbstractController
 		$noteProduit = $manager->getRepository(Notes::class)->findBy(['produit_id' => $data['id'] ?? $data['code']]);
 		$commentaireProduit = $manager->getRepository(Commentaires::class)->findBy(['produit_id' => $data['id'] ?? $data['code']]);
 		$saveNote = array();
-		if (!empty($noteProduit[0])) {
-			for ($i = 0; $i < sizeof($noteProduit); $i++) {
-				$saveNote[] = $noteProduit[$i]->getNbEtoiles();
+		if (!empty($notesProduit[0])) {
+			for ($i = 0; $i < sizeof($notesProduit); $i++) {
+				$saveNote[] = $notesProduit[$i]->getNbEtoiles();
 			}
 
 			$moyenneNote = round((array_sum($saveNote)/count($saveNote)), 2);
@@ -97,6 +97,16 @@ class FoodRatingController extends AbstractController
 			$commentaire = $manager->getRepository(Commentaires::class)->findBy(['utilisateur' => $user, 'produit_id' => $data['id'] ?? $data['code']]);
 			if (!empty($note[0])) {
 				if(!empty($commentaire[0])) {
+					$noteProduit = $paginator->paginate(
+						$notesProduit,
+						$request->query->getInt("page", 1),
+						9
+					);
+				
+					$noteProduit->setTemplate('@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig');
+					$noteProduit->setCustomParameters([
+						"align" => "center"
+					]);
 					return $this->render("food_rating/produit_v2.html.twig", [
 						"produit" => $produit,
 						"note" => $note[0],
@@ -112,6 +122,16 @@ class FoodRatingController extends AbstractController
 						"pourcentageEtoile5" => $pourcentageEtoile5
 					]);
 				}
+				$noteProduit = $paginator->paginate(
+					$notesProduit,
+					$request->query->getInt("page", 1),
+					9
+				);
+			
+				$noteProduit->setTemplate('@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig');
+				$noteProduit->setCustomParameters([
+					"align" => "center"
+				]);
 				return $this->render("food_rating/produit_v2.html.twig", [
 					"produit" => $produit,
 					"note" => $note[0],
@@ -127,6 +147,16 @@ class FoodRatingController extends AbstractController
 				]);
 			}
 			else {
+				$noteProduit = $paginator->paginate(
+					$notesProduit,
+					$request->query->getInt("page", 1),
+					9
+				);
+			
+				$noteProduit->setTemplate('@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig');
+				$noteProduit->setCustomParameters([
+					"align" => "center"
+				]);
 				return $this->render("food_rating/produit_v2.html.twig", [
 					"produit" => $produit,
 					"notesProduit" =>$noteProduit,
@@ -142,6 +172,16 @@ class FoodRatingController extends AbstractController
 			}
 		}
 		else {
+			$noteProduit = $paginator->paginate(
+				$notesProduit,
+				$request->query->getInt("page", 1),
+				9
+			);
+		
+			$noteProduit->setTemplate('@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig');
+			$noteProduit->setCustomParameters([
+				"align" => "center"
+			]);
 			return $this->render("food_rating/produit_v2.html.twig", [
 					"produit" => $produit,
 					"notesProduit" =>$noteProduit,
@@ -368,7 +408,8 @@ class FoodRatingController extends AbstractController
      * @Route("/categories/{categorie}", name="categorie")
      */
     public function pageCategorie($categorie, PaginatorInterface $paginator, Request $request) {
-    	$api = new Api("food", "fr");
+		$api = new Api("food", "fr");
+		$notesProduits = $manager->getRepository(Notes::class)->findAll();
     	
     	$collection = $api->getByFacets(["category" => $categorie]);
     	$tab = array();
@@ -388,7 +429,8 @@ class FoodRatingController extends AbstractController
     	]);
     	
     	return $this->render("food_rating/liste_produit.html.twig", [
-    			"produits" => $donnees
+				"produits" => $donnees,
+				"notes" => $notesProduits
     	]);
     }
     
