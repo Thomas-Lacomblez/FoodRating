@@ -41,7 +41,7 @@ class FoodRatingController extends AbstractController
     /**
      * @Route("/categories/{categorie}/produit_v2/{id}", name="produit_v2")
      */
-    public function afficheProduitV2($id, ?UserInterface $user, PaginatorInterface $paginator, Request $request) {
+    public function afficheProduitV2($id, $categorie, ?UserInterface $user, PaginatorInterface $paginator, Request $request) {
     	$api = new Api("food", "fr");
 		$produit = $api->getProduct($id);
 		$data = $produit->getData();
@@ -49,6 +49,16 @@ class FoodRatingController extends AbstractController
 		$noteProduit = $manager->getRepository(Notes::class)->findBy(['produit_id' => $data['id'] ?? $data['code']]);
 		$commentaireProduit = $manager->getRepository(Commentaires::class)->findBy(['produit_id' => $data['id'] ?? $data['code']]);
 		$saveNote = array();
+		
+		$collection = $api->getByFacets(["categorie" => $categorie, "brand" => $data["brands"]]);
+		$similaires = array();
+		
+		foreach ($collection as $key => $elt) {
+			$similaires[] = $elt->getData();
+		}
+		
+		shuffle($similaires);
+				
 		if (!empty($notesProduit[0])) {
 			for ($i = 0; $i < sizeof($notesProduit); $i++) {
 				$saveNote[] = $notesProduit[$i]->getNbEtoiles();
@@ -119,7 +129,8 @@ class FoodRatingController extends AbstractController
 						"pourcentageEtoile2" => $pourcentageEtoile2,
 						"pourcentageEtoile3" => $pourcentageEtoile3,
 						"pourcentageEtoile4" => $pourcentageEtoile4,
-						"pourcentageEtoile5" => $pourcentageEtoile5
+						"pourcentageEtoile5" => $pourcentageEtoile5,
+						"similaires" => $similaires
 					]);
 				}
 				$noteProduit = $paginator->paginate(
@@ -143,7 +154,8 @@ class FoodRatingController extends AbstractController
 					"pourcentageEtoile2" => $pourcentageEtoile2,
 					"pourcentageEtoile3" => $pourcentageEtoile3,
 					"pourcentageEtoile4" => $pourcentageEtoile4,
-					"pourcentageEtoile5" => $pourcentageEtoile5
+					"pourcentageEtoile5" => $pourcentageEtoile5,
+					"similaires" => $similaires
 				]);
 			}
 			else {
@@ -167,13 +179,14 @@ class FoodRatingController extends AbstractController
 					"pourcentageEtoile2" => $pourcentageEtoile2,
 					"pourcentageEtoile3" => $pourcentageEtoile3,
 					"pourcentageEtoile4" => $pourcentageEtoile4,
-					"pourcentageEtoile5" => $pourcentageEtoile5
+					"pourcentageEtoile5" => $pourcentageEtoile5,
+					"similaires" => $similaires
 				]);
 			}
 		}
 		else {
 			$noteProduit = $paginator->paginate(
-				$notesProduit,
+				$noteProduit,
 				$request->query->getInt("page", 1),
 				9
 			);
@@ -192,7 +205,8 @@ class FoodRatingController extends AbstractController
 					"pourcentageEtoile2" => $pourcentageEtoile2,
 					"pourcentageEtoile3" => $pourcentageEtoile3,
 					"pourcentageEtoile4" => $pourcentageEtoile4,
-					"pourcentageEtoile5" => $pourcentageEtoile5
+					"pourcentageEtoile5" => $pourcentageEtoile5,
+					"similaires" => $similaires
 			]);
 		}
     }

@@ -5,7 +5,7 @@
 {% block body %}
 <script src="https://bootswatch.com/_vendor/jquery/dist/jquery.min.js"></script>
 <div class="media pb-5">
-	<img src="{{ produit.image_url }}" class="align-self-center mr-3" alt="" />
+	<img src="{{ produit.image_url ?? produit.image_front_url ?? produit.selected_images.front.display.fr ?? "/images/image_vide.png" }}" class="align-self-center mr-3" alt="" />
 	<div class="media-body">
 	
 		{# Pour garder la catégorie "principale" #}
@@ -15,7 +15,7 @@
 			{% set cat = ["Non renseignée"] %}
 		{% endif %}
 		
-		<p> Nom : {{ produit.product_name }} <br>
+		<p> Nom : {{ produit.product_name | capitalize }} <br>
 		{% if produit.brands_tags is defined %}
 			Marque : {{ produit.brands ?? produit.brands_tags[0] }} <br>
 		{% else %}
@@ -94,6 +94,56 @@
 	</div>
 	<div class="col">
 		<h3>Produits similaires</h3>
+		<div id="similaire" class="carousel slide" data-ride="carousel">
+        
+          <!-- Indicators -->
+          <ul class="carousel-indicators">
+          	{% for s in similaires | slice(0,10) %}
+          		{% if loop.first %}
+          			<li class="bg-primary" data-target="#similaire" data-slide-to="0" class="active"></li>
+          		{% else %}
+          			<li class="bg-primary" data-target="#similaire" data-slide-to="{{ loop.index0 }}"></li>
+          		{% endif %}
+          	{% endfor %}
+          </ul>
+          
+          <div class="carousel-inner w-75 mx-auto" style="height: 310px;">
+          {% for s in similaires | slice(0,10) %}
+          
+            {# Pour garder la catégorie "principale" #}
+            {% if s.categories is defined %}
+    			{% set catSimilaire = s.categories | split(",") %}
+    		{% else %}
+    			{% set catSimilaire = ["Non renseignée"] %}
+    		{% endif %}
+          
+          	{% if loop.first %}
+          		<div class="carousel-item active">
+          	{% else %}
+          		<div class="carousel-item">
+          	{% endif %}
+          	
+              	<a href="{{ path("produit_v2", {"id" : s.id ?? s.code, "categorie": catSimilaire[0]}) }}">
+              		<img class="d-block mx-auto img-thumbnail" style="height: 200px;" src="{{ s.image_url ?? s.image_front_url ?? s.selected_images.front.display.fr ?? "/images/image_vide.png" }}" alt="Image du produit : {{ s.product_name }}" />
+              	</a>
+              	<div class="carousel-caption d-none d-md-block" style="position: initial;">
+                	<h5>{{ s.brands ?? s.brands_tags[0] }}</h5>
+                	<a href="{{ path("produit_v2", {"id" : s.id ?? s.code, "categorie": catSimilaire[0]}) }}">{{ s.product_name | capitalize }}</a>
+                </div>
+          	</div>
+          
+          {% endfor %}
+          </div>
+       
+          <!-- Left and right controls -->
+          <a class="carousel-control-prev" href="#similaire" role="button" data-slide="prev">
+            <i class="fas fa-angle-left fa-3x text-primary"></i>
+          </a>
+          <a class="carousel-control-next" href="#similaire" role="button" data-slide="next">
+            <i class="fas fa-angle-right fa-3x text-primary"></i>
+          </a>
+        
+        </div>
 	</div>
 </div>
 <h3 class="my-4">Noter</h3>
