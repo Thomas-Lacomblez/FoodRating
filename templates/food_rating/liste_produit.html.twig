@@ -34,7 +34,7 @@
     		{% endif %}
     		<tr>
     			<td class="align-middle"><img src="{{ p.image_thumb_url ?? p.selected_images.front.thumb.fr }}" alt="Image du produit : {{ p.product_name | raw }}" /></td>
-    			<td class="align-middle"><a href="{{ path("produit_v2", {"id" : p.id ?? p.code, "categorie": cat[0]}) }}">{{ p.product_name | raw }}</a></td>
+    			<td class="align-middle"><a href="{{ path("produit_v2", {"id" : p.id ?? p.code, "categorie": from_search is defined ? p.categorie_url : categorie}) }}">{{ p.product_name | raw }}</a></td>
     			<td class="align-middle">{{ cat[0] }}</td>
     		</tr>
 

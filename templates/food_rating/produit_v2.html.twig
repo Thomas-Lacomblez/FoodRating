@@ -123,12 +123,12 @@
           		<div class="carousel-item">
           	{% endif %}
           	
-              	<a href="{{ path("produit_v2", {"id" : s.id ?? s.code, "categorie": catSimilaire[0]}) }}">
+              	<a href="{{ path("produit_v2", {"id" : s.id ?? s.code, "categorie": categorie}) }}">
               		<img class="d-block mx-auto img-thumbnail" style="height: 200px;" src="{{ s.image_url ?? s.image_front_url ?? s.selected_images.front.display.fr ?? "/images/image_vide.png" }}" alt="Image du produit : {{ s.product_name }}" />
               	</a>
               	<div class="carousel-caption d-none d-md-block" style="position: initial;">
-                	<h5>{{ s.brands ?? s.brands_tags[0] }}</h5>
-                	<a href="{{ path("produit_v2", {"id" : s.id ?? s.code, "categorie": catSimilaire[0]}) }}">{{ s.product_name | capitalize }}</a>
+                	<h5>{{ s.brands ?? s.brands_tags[0] ?? "Non renseigné" }}</h5>
+                	<a href="{{ path("produit_v2", {"id" : s.id ?? s.code, "categorie": categorie}) }}">{{ s.product_name | capitalize }}</a>
                 </div>
           	</div>
           
