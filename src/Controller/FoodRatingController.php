@@ -8,11 +8,13 @@ use OpenFoodFacts\Api;
 use App\Entity\Commentaires;
 
 use App\Entity\Utilisateurs;
+use App\Entity\MoyenneProduits;
 use Symfony\Component\Mime\Email;
 use App\Repository\NotesRepository;
 use App\Repository\CategoriesRepository;
 use App\Repository\UtilisateursRepository;
 use Knp\Component\Pager\PaginatorInterface;
+use App\Repository\MoyenneProduitsRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mailer\MailerInterface;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -27,15 +29,40 @@ class FoodRatingController extends AbstractController
     /**
      * @Route("/", name="food_rating")
      */
-    public function home() {
-		/*$api = new Api("food", "fr");
+    public function home(MoyenneProduitsRepository $repo) {
+		$api = new Api("food", "fr");
 		$manager = $this->getDoctrine()->getManager();
-		$noteProduit = $manager->getRepository(Notes::class)->findAll();
-		dump($noteProduit);
-		if (!empty($noteProduit[0])) {
+		$moyenneProduits = $repo->findAll();
+		if($moyenneProduits != null) {
+			$idProduits = array();
+			$produits = array();
+			$notes = array();
+			$meilleursProduit = array();
+			$categorieProduit = array();
+			for ($i = 0; $i < sizeof($moyenneProduits); $i++) {
+				$produits[$moyenneProduits[$i]->getProduitId()] = array($moyenneProduits[$i]->getMoyenne(), $moyenneProduits[$i]->getCategorieProduit());
+			}
+			$idProduits = array_keys($produits);
+			arsort($produits);
+			$notes = array_slice($produits, 0, 5);
+		
+			$idProduits = array_keys($produits);
 			
-		}*/
-        return $this->render('food_rating/accueil.html.twig');
+			for ($i = 0; $i < sizeof($notes); $i++) {
+				$produit = $api->getProduct($idProduits[$i]);
+				$categorieProduit [] = $produits[$idProduits[$i]][1];
+				$meilleursProduit [] = $produit; 
+			}
+			dump($categorieProduit);
+
+			return $this->render('food_rating/accueil.html.twig', [
+				"meilleursProduit" => $meilleursProduit,
+				"categorieProduit" => $categorieProduit
+			]);
+		}
+		else {
+			return $this->render('food_rating/accueil.html.twig');
+		}
     }
     
     /**
@@ -46,7 +73,7 @@ class FoodRatingController extends AbstractController
 		$produit = $api->getProduct($id);
 		$data = $produit->getData();
 		$manager = $this->getDoctrine()->getManager();
-		$noteProduit = $manager->getRepository(Notes::class)->findBy(['produit_id' => $data['id'] ?? $data['code']]);
+		$notesProduit = $manager->getRepository(Notes::class)->findBy(['produit_id' => $data['id'] ?? $data['code']]);
 		$commentaireProduit = $manager->getRepository(Commentaires::class)->findBy(['produit_id' => $data['id'] ?? $data['code']]);
 		$saveNote = array();
 		
@@ -58,8 +85,9 @@ class FoodRatingController extends AbstractController
 			// On veut éviter de voir le produit de la page dans les "similaires"
 			if ($dataSim["id"] == $id || $dataSim["code"] == $id)
 				continue;
-			
-			if (isset($data["brands_tags"], $dataSim["brands_tags"]) && array_search($dataSim["brands_tags"][0], $data["brands_tags"]) !== false) {
+			if (!isset($dataSim["brands_tags"][0]))
+				continue;
+			else if (isset($data["brands_tags"], $dataSim["brands_tags"]) && array_search($dataSim["brands_tags"][0], $data["brands_tags"]) !== false) {
 				$similaires[] = $dataSim;
 			} else {
 				if (array_search($data["categories_tags"][1], $dataSim["categories_tags"]) !== false) {
@@ -229,24 +257,60 @@ class FoodRatingController extends AbstractController
     /**
      * @Route("/categories/{categorie}/produit_v2/{id}/notation", name="notation")
      */
-    public function notationProduit($id, Request $request, ?UserInterface $user) {
+    public function notationProduit($id, $categorie, Request $request, ?UserInterface $user) {
 		$api = new Api("food", "fr");
 		$produit = $api->getProduct($id);
 		$data = $produit->getData();
-		$categorieProduit = explode(",", $data['categories']);
+		//$categorieProduit = explode(",", $data['categories']);
 
 		if($user) {
 			$note = new Notes();
 			$manager = $this->getDoctrine()->getManager();
 			$noteForm = $request->get('note');
 			$commentaireForm = $request->get('commentaire');
+			$notesProduit = $manager->getRepository(Notes::class)->findBy(['produit_id' => $data['id'] ?? $data['code']]);
+			$moyenne = $manager->getRepository(MoyenneProduits::class)->findBy(['produit_id' => $data['id'] ?? $data['code']]);
 
 			if (!empty($noteForm)) {
 				$note->setNbEtoiles($noteForm)
 					->setUtilisateur($this->getUser())
-					->setProduitId($id);
+					->setProduitId($id)
+					->setCreatedAt(new \DateTime());
 				$manager->persist($note);
 				$manager->flush();
+
+				if($moyenne == null) {
+					$moyenneProduits = new MoyenneProduits();
+					$moyenneProduits->setMoyenne($noteForm)
+									->setProduitId($id)
+									->setCategorieProduit($categorie);
+					$manager->persist($moyenneProduits);
+					$manager->flush();
+				}
+				else {
+					for($i = 0; $i < sizeof($notesProduit); $i++) {
+						for($j = 0; $j < sizeof($moyenne); $j++) {
+							if($notesProduit[$i]->getProduitId() != $moyenne[$j]->getProduitId()) {
+								$moyenneProduits = new MoyenneProduits();
+								$moyenneProduits->setMoyenne($noteForm)
+												->setProduitId($id)
+												->setCategorieProduit($categorie);
+								$manager->persist($moyenneProduits);
+								$manager->flush();
+							}
+							else {
+								$notesProduit = $manager->getRepository(Notes::class)->findBy(['produit_id' => $data['id'] ?? $data['code']]);
+								$saveNote = array();
+								for ($i = 0; $i < sizeof($notesProduit); $i++) {
+									$saveNote[] = $notesProduit[$i]->getNbEtoiles();
+								}
+								$moyenneNote = round((array_sum($saveNote)/count($saveNote)), 2);
+								$moyenne[$j]->setMoyenne($moyenneNote);
+								$manager->flush();
+							}
+						}
+					}
+				}
 				if (!empty($commentaireForm)) {
 					$commentaire = new Commentaires();
 					$commentaire->setMessage($commentaireForm)
@@ -257,19 +321,19 @@ class FoodRatingController extends AbstractController
 				}
 				return $this->redirectToRoute('produit_v2', [
 					"id" => $id,
-					"categorie" => $categorieProduit[0]
+					"categorie" => $categorie
 				]);
 			}
 		
 			return $this->redirectToRoute('produit_v2', [
 				"id" => $id,
-				"categorie" => $categorieProduit[0]
+				"categorie" => $categorie
 			]);
 		}
 		else {
 			return $this->redirectToRoute('produit_v2', [
 				"id" => $id,
-				"categorie" => $categorieProduit[0]
+				"categorie" => $categorie
 			]);
 		}
 	}
@@ -277,21 +341,40 @@ class FoodRatingController extends AbstractController
 	/**
 	 * @Route("/categories/{categorie}/produit_v2/{id}/modifier_notation", name="modifier_notation")
 	 */
-	public function modifierNotationProduit($id, Request $request, ?UserInterface $user) {
+	public function modifierNotationProduit($id, $categorie, Request $request, ?UserInterface $user) {
 		$api = new Api("food", "fr");
 		$produit = $api->getProduct($id);
 		$data = $produit->getData();
-		$categorieProduit = explode(",", $data['categories']);
+		// $categorieProduit = explode(",", $data['categories']);
 		if($user) {
 			$manager = $this->getDoctrine()->getManager();
-			$note = $manager->getRepository(Notes::class)->findBy(['utilisateur' => $user, 'produit_id' => $data['id']]);
+			$note = $manager->getRepository(Notes::class)->findBy(['utilisateur' => $user, 'produit_id' => $data['id'] ?? $data['code']]);
 			$noteForm = $request->get('note');
-			$commentaire = $manager->getRepository(Commentaires::class)->findBy(['utilisateur' => $user, 'produit_id' => $data['id']]);
+			$commentaire = $manager->getRepository(Commentaires::class)->findBy(['utilisateur' => $user, 'produit_id' => $data['id'] ?? $data['code']]);
 			$commentaireForm = $request->get('commentaire');
+			$notesProduit = $manager->getRepository(Notes::class)->findBy(['produit_id' => $data['id'] ?? $data['code']]);
+			$moyenne = $manager->getRepository(MoyenneProduits::class)->findBy(['produit_id' => $data['id'] ?? $data['code']]);
 
 			if (!empty($noteForm)) {
-				$note[0]->setNbEtoiles($noteForm);
+				$note[0]->setNbEtoiles($noteForm)
+						->setCreatedAt(new \DateTime());
 				$manager->flush();
+
+				for($i = 0; $i < sizeof($notesProduit); $i++) {
+					for($j = 0; $j < sizeof($moyenne); $j++) {
+						if($notesProduit[$i]->getProduitId() == $moyenne[$j]->getProduitId()) {
+							$notesProduit = $manager->getRepository(Notes::class)->findBy(['produit_id' => $data['id'] ?? $data['code']]);
+							$saveNote = array();
+							for ($i = 0; $i < sizeof($notesProduit); $i++) {
+								$saveNote[] = $notesProduit[$i]->getNbEtoiles();
+							}
+							$moyenneNote = round((array_sum($saveNote)/count($saveNote)), 2);
+							$moyenne[$j]->setMoyenne($moyenneNote);
+							$manager->flush();
+						}
+					}
+				}
+		
 				if((!empty($commentaireForm) && ctype_space($commentaireForm) == false) && $commentaire != null) {
 					$commentaire[0]->setMessage($commentaireForm);
 					$manager->flush();
@@ -314,12 +397,29 @@ class FoodRatingController extends AbstractController
 				}
 				return $this->redirectToRoute('produit_v2', [
 					"id" => $id,
-					"categorie" => $categorieProduit[0]
+					"categorie" => $categorie
 				]);
 			}
 			else if(!empty($note[0]->getNbEtoiles())) {
-				$note[0]->setNbEtoiles($note[0]->getNbEtoiles());
+				$note[0]->setNbEtoiles($note[0]->getNbEtoiles())
+						->setCreatedAt(new \DateTime());
 				$manager->flush();
+
+				for($i = 0; $i < sizeof($notesProduit); $i++) {
+					for($j = 0; $j < sizeof($moyenne); $j++) {
+						if($notesProduit[$i]->getProduitId() == $moyenne[$j]->getProduitId()) {
+							$notesProduit = $manager->getRepository(Notes::class)->findBy(['produit_id' => $data['id'] ?? $data['code']]);
+							$saveNote = array();
+							for ($i = 0; $i < sizeof($notesProduit); $i++) {
+								$saveNote[] = $notesProduit[$i]->getNbEtoiles();
+							}
+							$moyenneNote = round((array_sum($saveNote)/count($saveNote)), 2);
+							$moyenne[$j]->setMoyenne($moyenneNote);
+							$manager->flush();
+						}
+					}
+				}
+
 				if((!empty($commentaireForm) && ctype_space($commentaireForm) == false) && $commentaire != null) {
 					$commentaire[0]->setMessage($commentaireForm);
 					$manager->flush();
@@ -342,19 +442,19 @@ class FoodRatingController extends AbstractController
 				}
 				return $this->redirectToRoute('produit_v2', [
 					"id" => $id,
-					"categorie" => $categorieProduit[0]
+					"categorie" => $categorie
 				]);
 			}
 
 			return $this->redirectToRoute('produit_v2', [
 				"id" => $id,
-				"categorie" => $categorieProduit[0]
+				"categorie" => $categorie
 			]);
 		}
 		else {
 			return $this->redirectToRoute('produit_v2', [
 				"id" => $id,
-				"categorie" => $categorieProduit[0]
+				"categorie" => $categorie
 			]);
 		}
 	}
@@ -362,30 +462,51 @@ class FoodRatingController extends AbstractController
 	/**
 	 * @Route("/categories/{categorie}/produit_v2/{id}/supprimer_notation", name="supprimer_notation")
 	 */
-	public function supprimerNotationProduit($id, Request $request, ?UserInterface $user) {
+	public function supprimerNotationProduit($id, $categorie, Request $request, ?UserInterface $user) {
 		$api = new Api("food", "fr");
 		$produit = $api->getProduct($id);
 		$data = $produit->getData();
-		$categorieProduit = explode(",", $data['categories']);
+		// $categorieProduit = explode(",", $data['categories']);
 		if($user) {
 			$manager = $this->getDoctrine()->getManager();
 			$note = $manager->getRepository(Notes::class)->findBy(['utilisateur' => $user, 'produit_id' => $data['id']]);
 			$commentaire = $manager->getRepository(Commentaires::class)->findBy(['utilisateur' => $user, 'produit_id' => $data['id']]);
 			$manager->remove($note[0]);
+
 			if($commentaire != null) {
 				$manager->remove($commentaire[0]);
 			}
+
+			for($i = 0; $i < sizeof($notesProduit); $i++) {
+				for($j = 0; $j < sizeof($moyenne); $j++) {
+					if($notesProduit[$i]->getProduitId() == $moyenne[$j]->getProduitId()) {
+						if(sizeof($notesProduit) == 1) {
+							$manager->remove($moyenne[$j]);
+						}
+						else {
+							$notesProduit = $manager->getRepository(Notes::class)->findBy(['produit_id' => $data['id']]);
+							$saveNote = array();
+							for ($i = 0; $i < sizeof($notesProduit); $i++) {
+								$saveNote[] = $notesProduit[$i]->getNbEtoiles();
+							}
+							$moyenneNote = round((array_sum($saveNote)/count($saveNote)), 2);
+							$moyenne[$j]->setMoyenne($moyenneNote);
+						}
+					}
+				}
+			}
+
 			$manager->flush();
 
 			return $this->redirectToRoute('produit_v2', [
 				"id" => $id,
-				"categorie" => $categorieProduit[0]
+				"categorie" => $categorie
 			]);
 		}
 		else {
 			return $this->redirectToRoute('produit_v2', [
 				"id" => $id,
-				"categorie" => $categorieProduit[0]
+				"categorie" => $categorie
 			]);
 		}
 	}

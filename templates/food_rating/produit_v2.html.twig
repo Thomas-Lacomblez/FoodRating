@@ -192,7 +192,7 @@
 
 	<div class="row">
 		{% if note is defined and app.user.id == note.utilisateur.id %}
-			<form id="formulaire" action="{{ path("modifier_notation", {"id" : produit.id ?? produit.code, "categorie" : cat[0] }) }}" method="post">
+			<form id="formulaire" action="{{ path("modifier_notation", {"id" : produit.id ?? produit.code, "categorie" : categorie }) }}" method="post">
 				<div class="form-group">
 					<label>Note : </label>
 					<i class="fas fa-star fa-3x etoile" id="etoile_1" title="Pas du tout satisfait" style="cursor: pointer;"></i>
@@ -212,12 +212,12 @@
 				</div>
 				<div class="form-group">
 					<input type="submit" class="btn btn-info" value="Modifier">
-					<a type="button" href="{{ path("supprimer_notation", {"id" : produit.id ?? produit.code, "categorie" : cat[0] }) }}" class= "btn btn-danger">Supprimer</a>
+					<a type="button" href="{{ path("supprimer_notation", {"id" : produit.id ?? produit.code, "categorie" : categorie }) }}" class= "btn btn-danger">Supprimer</a>
 				</div>
 			</form>
 			<!--<div id="loader"></div>-->
 		{% else %}
-			<form id="formulaire" action="{{ path("notation", {"id" : produit.id ?? produit.code, "categorie" : cat[0] }) }}" method="post">
+			<form id="formulaire" action="{{ path("notation", {"id" : produit.id ?? produit.code, "categorie" : categorie }) }}" method="post">
 				<div class="form-group">
 					<label>Note : </label>
 					<i class="fas fa-star fa-3x etoile" id="etoile_1" title="Pas du tout satisfait" style="cursor: pointer;"></i>
@@ -317,6 +317,7 @@
 						{% endif %}
 					{% endfor %}
 				</div>
+				<div class="card-footer">{{ n.createdAt | date("d/m/Y - H:i") }}</div>
 			</div>
 
 		{% endfor %}
