@@ -29,10 +29,36 @@ class FoodRatingController extends AbstractController
     /**
      * @Route("/", name="food_rating")
      */
-    public function home(MoyenneProduitsRepository $repo) {
+    public function home(MoyenneProduitsRepository $repo, CategoriesRepository $repoC) {
 		$api = new Api("food", "fr");
 		$manager = $this->getDoctrine()->getManager();
 		$moyenneProduits = $repo->findAll();
+		$categories = $repoC->createQueryBuilder('c')
+							->select("c.name")
+							->where("c.name not like '%:%' and c.products >= 4")
+							->getQuery()
+							->getResult();
+		$tabCategories = array();
+		$tabCategoriesRandom = array();
+		$tab = array();
+		$tabPrdRandom = array();
+		for ($i = 0; $i < sizeof($categories); $i++) {
+			$tabCategories [] = $categories[$i]["name"];
+		}
+		for($random = 0; $random < 3; $random++) {
+			$tabCategoriesRandom [] = $tabCategories[rand(0, sizeof($tabCategories))];
+		}
+
+		for ($prd = 0; $prd < sizeof($tabCategoriesRandom); $prd++) {
+			$recherche = $api->search($tabCategoriesRandom[$prd]);
+			foreach ($recherche as $key => $elt) {
+				$tab[] = $elt;
+			}
+		}
+		for ($prdRandom = 0; $prdRandom < 3; $prdRandom++) {
+			$tabPrdRandom [] = $tab[rand(0, sizeof($tab))];
+		}
+
 		if($moyenneProduits != null) {
 			$idProduits = array();
 			$produits = array();
@@ -57,11 +83,18 @@ class FoodRatingController extends AbstractController
 
 			return $this->render('food_rating/accueil.html.twig', [
 				"meilleursProduit" => $meilleursProduit,
-				"categorieProduit" => $categorieProduit
+				"categorieProduit" => $categorieProduit,
+				"produitRandom1" => $tabPrdRandom[0],
+				"produitRandom2" => $tabPrdRandom[1],
+				"produitRandom3" => $tabPrdRandom[2]
 			]);
 		}
 		else {
-			return $this->render('food_rating/accueil.html.twig');
+			return $this->render('food_rating/accueil.html.twig', [
+				"produitRandom1" => $tabPrdRandom[0],
+				"produitRandom2" => $tabPrdRandom[1],
+				"produitRandom3" => $tabPrdRandom[2]
+			]);
 		}
     }
     
@@ -584,11 +617,14 @@ class FoodRatingController extends AbstractController
     public function pageCategorie($categorie, PaginatorInterface $paginator, Request $request) {
 		$api = new Api("food", "fr");
     	
-    	$collection = $api->getByFacets(["category" => $categorie], $request->query->getInt("page", 1));
-    	$tab = array();
-    	foreach ($collection as $key => $elt) {
-    		$tab[] = $elt;
-    	}
+		$collection = $api->getByFacets(["category" => $categorie], $request->query->getInt("page", 1));
+		$compteur = $collection->searchCount();
+		$tab = array();
+		for ($i = 0; $i < $compteur/20; $i++){
+    		foreach ($collection as $key => $elt) {
+    			$tab[] = $elt;
+			}
+		}
     	
     	$donnees = $paginator->paginate(
     			$tab,
