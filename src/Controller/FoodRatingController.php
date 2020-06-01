@@ -614,12 +614,15 @@ class FoodRatingController extends AbstractController
     /**
      * @Route("/categories/{categorie}", name="categorie")
      */
-    public function pageCategorie($categorie, PaginatorInterface $paginator, Request $request) {
+    public function pageCategorie($categorie, PaginatorInterface $paginator, Request $request, MoyenneProduitsRepository $repo) {
 		$api = new Api("food", "fr");
     	
 		$collection = $api->getByFacets(["category" => $categorie], $request->query->getInt("page", 1));
 		$compteur = $collection->searchCount();
 		$tab = array();
+
+		$moyennesProduits = $repo->findAll();
+
 		for ($i = 0; $i < $compteur/20; $i++){
     		foreach ($collection as $key => $elt) {
     			$tab[] = $elt;
@@ -636,11 +639,20 @@ class FoodRatingController extends AbstractController
     	$donnees->setCustomParameters([
     			"align" => "center"
     	]);
-    	
-    	return $this->render("food_rating/liste_produit.html.twig", [
+		dump($moyennesProduits);
+		if ($moyennesProduits != null) {
+			return $this->render("food_rating/liste_produit.html.twig", [
+					"produits" => $donnees,
+					"categorie" => $categorie,
+					"moyennesProduits" => $moyennesProduits
+			]);
+		}
+		else {
+			return $this->render("food_rating/liste_produit.html.twig", [
 				"produits" => $donnees,
-    			"categorie" => $categorie
-    	]);
+				"categorie" => $categorie
+			]);
+		}
     }
     
     /**
