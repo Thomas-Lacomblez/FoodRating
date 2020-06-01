@@ -31,6 +31,26 @@ class SecurityController extends AbstractController
     }
 
     /**
+     * @Route("/inscription_admin", name="inscription_admin")
+     * A utiliser une fois
+     */
+
+    public function formInscriptionAdmin(Request $request, UserPasswordEncoderInterface $encoder) {
+
+        $admin = new Utilisateurs();
+        $manager = $this->getDoctrine()->getManager();
+        $password = "admin";
+        $hash = $encoder->encodePassword($admin, $password);
+        $admin->setUsername("admin")
+              ->setEmail("admin@foodrating.fr")
+              ->setPassword($hash)
+              ->setRoles(['ROLE_ADMIN']);
+        $manager->persist($admin);
+        $manager->flush();
+
+        return $this->render('food_rating/accueil.html.twig');
+    }
+    /**
      * @Route("/inscription", name="inscription")
      */
 
@@ -43,7 +63,8 @@ class SecurityController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $hash = $encoder->encodePassword($user, $user->getPassword());
 
-            $user->setPassword($hash);
+            $user->setPassword($hash)
+                 ->setRoles(['ROLE_USER']);
             $manager->persist($user);
             $manager->flush();
             return $this->redirectToRoute('login_security');

@@ -512,11 +512,35 @@ class FoodRatingController extends AbstractController
 	}
     
     /**
-     * @Route("/compte", name="espace")
+     * @Route("/espace", name="espace")
      */
-    public function espaceClient() {
-        return $this->render('food_rating/espace.html.twig');
-    }
+    public function espace( ?UserInterface $user) {
+		if ($user) {
+			if ($this->container->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
+				return $this->redirectToRoute('compte_admin');
+			}
+			else {
+				return $this->redirectToRoute('compte_client');
+			}
+		}
+		else {
+			return $this->render('food_rating/accueil.html.twig');
+		}
+	}
+	
+	/**
+	 * @Route("/client", name="compte_client")
+	 */
+	public function compteClient() {
+		return $this->render('food_rating/espace.html.twig');
+	}
+
+	/**
+	 * @Route("/admin", name="compte_admin")
+	 */
+	public function compteAdmin() {
+		return $this->render('food_rating/espace_admin.html.twig');
+	}
 
     /**
      * @Route("/compte/info_compte", name="user_show")
@@ -560,7 +584,7 @@ class FoodRatingController extends AbstractController
     public function pageCategorie($categorie, PaginatorInterface $paginator, Request $request) {
 		$api = new Api("food", "fr");
     	
-    	$collection = $api->getByFacets(["category" => $categorie]);
+    	$collection = $api->getByFacets(["category" => $categorie], $request->query->getInt("page", 1));
     	$tab = array();
     	foreach ($collection as $key => $elt) {
     		$tab[] = $elt;
@@ -569,7 +593,7 @@ class FoodRatingController extends AbstractController
     	$donnees = $paginator->paginate(
     			$tab,
     			$request->query->getInt("page", 1),
-    			30
+    			$collection->pageCount()
     	);
     	
     	$donnees->setTemplate('@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig');
