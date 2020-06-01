@@ -27,13 +27,13 @@
 		{% for p in produits %}
 	
     	    {# Pour garder la catégorie "principale" #}
-            {% if p.categories is defined %}
+            {% if p.categories is defined and p.categories is not empty %}
     			{% set cat = p.categories | split(",") %}
     		{% else %}
     			{% set cat = ["Non renseignée"] %}
     		{% endif %}
     		<tr>
-    			<td class="align-middle"><img src="{{ p.image_thumb_url ?? p.selected_images.front.thumb.fr }}" alt="Image du produit : {{ p.product_name | raw }}" /></td>
+    			<td class="align-middle"><img src="{{ p.image_thumb_url ?? p.selected_images.front.thumb.fr ?? "/images/image_vide.png" }}" alt="Image du produit : {{ p.product_name | raw }}" style="max-height: 105px;" /></td>
     			<td class="align-middle"><a href="{{ path("produit_v2", {"id" : p.id ?? p.code, "categorie": from_search is defined ? p.categorie_url : categorie}) }}">{{ p.product_name | raw }}</a></td>
     			<td class="align-middle">{{ cat[0] }}</td>
     		</tr>

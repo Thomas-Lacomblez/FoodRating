@@ -228,7 +228,7 @@ class FoodRatingController extends AbstractController
 		}
 		else {
 			$noteProduit = $paginator->paginate(
-				$noteProduit,
+				$notesProduit,
 				$request->query->getInt("page", 1),
 				9
 			);

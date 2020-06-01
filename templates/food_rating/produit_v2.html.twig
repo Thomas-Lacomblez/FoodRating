@@ -9,7 +9,7 @@
 	<div class="media-body">
 	
 		{# Pour garder la catégorie "principale" #}
-		{% if produit.categories is defined %}
+		{% if produit.categories is defined and produit.categories is not empty %}
 			{% set cat = produit.categories | split(",") %}
 		{% else %}
 			{% set cat = ["Non renseignée"] %}
@@ -94,6 +94,8 @@
 	</div>
 	<div class="col">
 		<h3>Produits similaires</h3>
+		{% if similaires is not empty %}
+		
 		<div id="similaire" class="carousel slide" data-ride="carousel">
         
           <!-- Indicators -->
@@ -109,13 +111,6 @@
           
           <div class="carousel-inner w-75 mx-auto" style="height: 310px;">
           {% for s in similaires | slice(0,10) %}
-          
-            {# Pour garder la catégorie "principale" #}
-            {% if s.categories is defined %}
-    			{% set catSimilaire = s.categories | split(",") %}
-    		{% else %}
-    			{% set catSimilaire = ["Non renseignée"] %}
-    		{% endif %}
           
           	{% if loop.first %}
           		<div class="carousel-item active">
@@ -145,7 +140,14 @@
         
         </div>
 	</div>
+	{% else %}
+		<p>Aucun produit similaire.</p>
+	{% endif %}
+	</div>
 </div>
+
+<div class="row">
+<div class="col">
 <h3 class="my-4">Noter</h3>
 {% if app.user %}
 	<script>
@@ -184,7 +186,7 @@
 			});
 		{% endif %}
 	</script>
-	{% if produit.categories is defined %}
+	{% if produit.categories is defined and produit.categories is not empty %}
 		{% set cat = produit.categories | split(",") %}
 	{% else %}
 		{% set cat = ["Non renseignée"] %}
@@ -285,6 +287,8 @@
 		</div>
 	</div>
 {% endif %}
+	</div>
+</div>
 
 <hr class="my-5 border-primary" />
 <h3 class="mb-3">Commentaires et Notes</h3>

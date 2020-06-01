@@ -51,16 +51,23 @@ class SearchController extends AbstractController
 		$donnees = array();
 		$manager = $this->getDoctrine()->getManager();
 		$notesProduits = $manager->getRepository(Notes::class)->findAll();
-				
+		
     	for ($i = 1 ; $i < $compteur/20 + 1 ; $i++){
 			foreach ($recherche as $key => $prd) {
 				$data = $prd->getData();
-				$categorie = explode(",", $data["categories"])[0];
 				
-				if (strpos($data["categories_tags"][0], "en:") !== false && strpos($categorie, ":") === false) {
-					$categorie = $this->transfoCategorieURL($categorie);
+				if (empty($data["categories"]) || empty($data["categories_tags"][0])) {
+					$categorie = "unknown";
 				} else {
-					$categorie = substr($repoC->find($data["categories_tags"][0])->getUrl(), 40);
+					$categorie = explode(",", $data["categories"])[0];
+					
+					if (strpos($data["categories_tags"][0], "en:") !== false && strpos($categorie, ":") === false) {
+						$categorie = $this->transfoCategorieURL($categorie);
+					} else {
+						$row = $repoC->find($data["categories_tags"][0]);
+						if (! is_null($row))
+							$categorie = substr($row->getUrl(), 40);
+					}
 				}
 				
 				$data["categorie_url"] = $categorie;
