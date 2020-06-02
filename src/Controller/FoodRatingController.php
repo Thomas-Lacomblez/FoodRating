@@ -34,29 +34,36 @@ class FoodRatingController extends AbstractController
 		$manager = $this->getDoctrine()->getManager();
 		$moyenneProduits = $repo->findAll();
 		$categories = $repoC->createQueryBuilder('c')
-							->select("c.name")
+							->select("c.name, c.url")
 							->where("c.name not like '%:%' and c.products >= 4")
 							->getQuery()
 							->getResult();
+		
 		$tabCategories = array();
 		$tabCategoriesRandom = array();
 		$tab = array();
 		$tabPrdRandom = array();
 		for ($i = 0; $i < sizeof($categories); $i++) {
-			$tabCategories [] = $categories[$i]["name"];
+			$tabCategories [] = [
+					"name" => $categories[$i]["name"],
+					"categorie_url" => substr($categories[$i]["url"], 39)
+			];
 		}
 		for($random = 0; $random < 3; $random++) {
 			$tabCategoriesRandom [] = $tabCategories[rand(0, sizeof($tabCategories))];
 		}
-
+		
 		for ($prd = 0; $prd < sizeof($tabCategoriesRandom); $prd++) {
-			$recherche = $api->search($tabCategoriesRandom[$prd]);
+			$recherche = $api->search($tabCategoriesRandom[$prd]["name"]);
 			foreach ($recherche as $key => $elt) {
-				$tab[] = $elt;
+				$data = $elt->getData();
+				$data["categorie_url"] = $tabCategoriesRandom[$prd]["categorie_url"];
+				$tab[] = $data ;
 			}
 		}
+				
 		for ($prdRandom = 0; $prdRandom < 3; $prdRandom++) {
-			$tabPrdRandom [] = $tab[rand(0, sizeof($tab))];
+			$tabPrdRandom [] = $tab[rand(0, sizeof($tab) - 1)];
 		}
 
 		if($moyenneProduits != null) {
@@ -79,21 +86,16 @@ class FoodRatingController extends AbstractController
 				$categorieProduit [] = $produits[$idProduits[$i]][1];
 				$meilleursProduit [] = $produit; 
 			}
-			dump($categorieProduit);
 
 			return $this->render('food_rating/accueil.html.twig', [
 				"meilleursProduit" => $meilleursProduit,
 				"categorieProduit" => $categorieProduit,
-				"produitRandom1" => $tabPrdRandom[0],
-				"produitRandom2" => $tabPrdRandom[1],
-				"produitRandom3" => $tabPrdRandom[2]
+				"produit_carousel" => $tabPrdRandom
 			]);
 		}
 		else {
 			return $this->render('food_rating/accueil.html.twig', [
-				"produitRandom1" => $tabPrdRandom[0],
-				"produitRandom2" => $tabPrdRandom[1],
-				"produitRandom3" => $tabPrdRandom[2]
+				"produit_carousel" => $tabPrdRandom
 			]);
 		}
     }
@@ -553,7 +555,7 @@ class FoodRatingController extends AbstractController
 				return $this->redirectToRoute('compte_admin');
 			}
 			else {
-				return $this->redirectToRoute('compte_client');
+				return $this->redirectToRoute('user_show');
 			}
 		}
 		else {
