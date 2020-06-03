@@ -4,6 +4,27 @@
 
     <h1>Salut {{ app.user.username }}</h1>
     <br />
+    {% for message in app.flashes('notice') %}
+       {{ message }}
+	{% endfor %}
+	<table class="table table-sm table-striped table-hover mt-5 mx-auto" style="width: 60%">
+	<thead class="thead-light">
+		<th class="w-25">Pseudo</th>
+		<th class="w-50">E-Mail</th>
+        <th class="w=25"></th>
+	</thead>
+	<tbody class="text-center">
+		{% for u in utilisateurs %}
+    		<tr>
+    			<td class="align-middle">{{ u.username }}</td>
+    			<td class="align-middle">{{ u.email }}</td>
+                <td class="align-middle"><a href="{{ path("suppression_user", {"uas" : u.email} ) }}" class="btn btn-secondary">Supprimer</a></td>
+    		</tr>
+
+    	{% endfor %}
+	</tbody>
+    </table>
+    <br />
 	<a href="{{ path("logout_security") }}" class="btn btn-danger" type="button">Déconnexion</a>
 
 {% endblock %}
