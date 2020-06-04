@@ -2,16 +2,19 @@
 
 namespace App\Controller;
 
+use App\Entity\Aime;
 use App\Entity\Notes;
+
 use OpenFoodFacts\Api;
 
 use App\Entity\Commentaires;
-
 use App\Entity\Utilisateurs;
 use App\Entity\MoyenneProduits;
 use Symfony\Component\Mime\Email;
+use App\Repository\AimeRepository;
 use App\Repository\NotesRepository;
 use App\Repository\CategoriesRepository;
+use App\Repository\CommentairesRepository;
 use App\Repository\UtilisateursRepository;
 use Knp\Component\Pager\PaginatorInterface;
 use App\Repository\MoyenneProduitsRepository;
@@ -111,6 +114,7 @@ class FoodRatingController extends AbstractController
 		$notesProduit = $manager->getRepository(Notes::class)->findBy(['produit_id' => $data['id'] ?? $data['code']]);
 		$commentaireProduit = $manager->getRepository(Commentaires::class)->findBy(['produit_id' => $data['id'] ?? $data['code']]);
 		$saveNote = array();
+		$aimeCommentaire = $manager->getRepository(Aime::class)->findAll();
 		
 		$collection = $api->getByFacets(["categorie" => $categorie]);
 		$similaires = array();
@@ -176,7 +180,7 @@ class FoodRatingController extends AbstractController
 			$pourcentageEtoile4 = 0;
 			$pourcentageEtoile5 = 0;
 		}
-		if ($user) {
+		if ($user && !$this->container->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
 			$note = $manager->getRepository(Notes::class)->findBy(['utilisateur' => $user, 'produit_id' => $data['id'] ?? $data['code']]);
 			$commentaire = $manager->getRepository(Commentaires::class)->findBy(['utilisateur' => $user, 'produit_id' => $data['id'] ?? $data['code']]);
 			if (!empty($note[0])) {
@@ -205,7 +209,8 @@ class FoodRatingController extends AbstractController
 						"pourcentageEtoile4" => $pourcentageEtoile4,
 						"pourcentageEtoile5" => $pourcentageEtoile5,
 						"similaires" => $similaires,
-						"categorie" => $categorie
+						"categorie" => $categorie,
+						"aimeCommentaire" => $aimeCommentaire
 					]);
 				}
 				$noteProduit = $paginator->paginate(
@@ -231,7 +236,8 @@ class FoodRatingController extends AbstractController
 					"pourcentageEtoile4" => $pourcentageEtoile4,
 					"pourcentageEtoile5" => $pourcentageEtoile5,
 					"similaires" => $similaires,
-					"categorie" => $categorie
+					"categorie" => $categorie,
+					"aimeCommentaire" => $aimeCommentaire
 				]);
 			}
 			else {
@@ -257,7 +263,8 @@ class FoodRatingController extends AbstractController
 					"pourcentageEtoile4" => $pourcentageEtoile4,
 					"pourcentageEtoile5" => $pourcentageEtoile5,
 					"similaires" => $similaires,
-					"categorie" => $categorie
+					"categorie" => $categorie,
+					"aimeCommentaire" => $aimeCommentaire
 				]);
 			}
 		}
@@ -284,7 +291,8 @@ class FoodRatingController extends AbstractController
 					"pourcentageEtoile4" => $pourcentageEtoile4,
 					"pourcentageEtoile5" => $pourcentageEtoile5,
 					"similaires" => $similaires,
-					"categorie" => $categorie
+					"categorie" => $categorie,
+					"aimeCommentaire" => $aimeCommentaire
 			]);
 		}
     }
@@ -298,7 +306,7 @@ class FoodRatingController extends AbstractController
 		$data = $produit->getData();
 		//$categorieProduit = explode(",", $data['categories']);
 
-		if($user) {
+		if($user && !$this->container->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
 			$note = new Notes();
 			$manager = $this->getDoctrine()->getManager();
 			$noteForm = $request->get('note');
@@ -350,7 +358,8 @@ class FoodRatingController extends AbstractController
 					$commentaire = new Commentaires();
 					$commentaire->setMessage($commentaireForm)
 								->setUtilisateur($this->getUser())
-								->setProduitId($id);
+								->setProduitId($id)
+								->setUtile(0);
 					$manager->persist($commentaire);
 					$manager->flush();
 				}
@@ -381,7 +390,7 @@ class FoodRatingController extends AbstractController
 		$produit = $api->getProduct($id);
 		$data = $produit->getData();
 		// $categorieProduit = explode(",", $data['categories']);
-		if($user) {
+		if($user && !$this->container->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
 			$manager = $this->getDoctrine()->getManager();
 			$note = $manager->getRepository(Notes::class)->findBy(['utilisateur' => $user, 'produit_id' => $data['id'] ?? $data['code']]);
 			$noteForm = $request->get('note');
@@ -426,7 +435,8 @@ class FoodRatingController extends AbstractController
 					$newCommentaire = new Commentaires();
 					$newCommentaire->setMessage($commentaireForm)
 								   ->setUtilisateur($this->getUser())
-								   ->setProduitId($id);
+								   ->setProduitId($id)
+								   ->setUtile(0);
 					$manager->persist($newCommentaire);
 					$manager->flush();
 				}
@@ -471,7 +481,8 @@ class FoodRatingController extends AbstractController
 					$newCommentaire = new Commentaires();
 					$newCommentaire->setMessage($commentaireForm)
 								   ->setUtilisateur($this->getUser())
-								   ->setProduitId($id);
+								   ->setProduitId($id)
+								   ->setUtile(0);
 					$manager->persist($newCommentaire);
 					$manager->flush();
 				}
@@ -502,7 +513,7 @@ class FoodRatingController extends AbstractController
 		$produit = $api->getProduct($id);
 		$data = $produit->getData();
 		// $categorieProduit = explode(",", $data['categories']);
-		if($user) {
+		if($user && !$this->container->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
 			$manager = $this->getDoctrine()->getManager();
 			$note = $manager->getRepository(Notes::class)->findBy(['utilisateur' => $user, 'produit_id' => $data['id']]);
 			$commentaire = $manager->getRepository(Commentaires::class)->findBy(['utilisateur' => $user, 'produit_id' => $data['id']]);
@@ -532,6 +543,77 @@ class FoodRatingController extends AbstractController
 			}
 
 			$manager->flush();
+
+			return $this->redirectToRoute('produit_v2', [
+				"id" => $id,
+				"categorie" => $categorie
+			]);
+		}
+		else {
+			return $this->redirectToRoute('produit_v2', [
+				"id" => $id,
+				"categorie" => $categorie
+			]);
+		}
+	}
+
+	/**
+	 * @Route("/categories/{categorie}/produit_v2/{id}/{utile}", name="commentaire_utile")
+	 */
+	public function commentaireUtile($id, $categorie, $utile, ?UserInterface $user, CommentairesRepository $repo) {
+		if($user && !$this->container->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
+			$manager = $this->getDoctrine()->getManager();
+			$commentaires = $repo->findBy(['id' => $utile]);
+			if ($commentaires[0]->getUtile() == null || $commentaires[0]->getUtile() == 0) {
+				$commentaires[0]->setUtile(1);
+				$manager->flush();
+				$aime = new Aime();
+				$aime->setUtilisateur($user->getId())
+					 ->setCommentaire($commentaires[0]->getId());
+				$manager->persist($aime);
+				$manager->flush();
+			}
+			else {
+				$commentaires[0]->setUtile($commentaires[0]->getUtile() + 1);
+				$manager->flush();
+				$aime = new Aime();
+				$aime->setUtilisateur($user->getId())
+					 ->setCommentaire($commentaires[0]->getId());
+				$manager->persist($aime);
+				$manager->flush();
+			}
+
+			return $this->redirectToRoute('produit_v2', [
+				"id" => $id,
+				"categorie" => $categorie
+			]);
+		}
+		else {
+			return $this->redirectToRoute('produit_v2', [
+				"id" => $id,
+				"categorie" => $categorie
+			]);
+		}
+	}
+	
+	/**
+	 * @Route("/categories/{categorie}/produit_v2/{id}/{utile}/suppresion", name="supprimer_vote")
+	 */
+	public function supprimerVote($id, $categorie, $utile, ?UserInterface $user, CommentairesRepository $repo, AimeRepository $repoAime) {
+		if($user && !$this->container->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
+			$manager = $this->getDoctrine()->getManager();
+			$commentaires = $repo->findBy(['id' => $utile]);
+			$aimeUser = $repoAime->findBy(['utilisateur' => $user->getId(), 'commentaire' => $commentaires[0]->getId()]);
+			if ($commentaires[0]->getUtile() == 0) {
+				$commentaires[0]->setUtile(0);
+				$manager->remove($aimeUser[0]);
+				$manager->flush();
+			}
+			else {
+				$commentaires[0]->setUtile($commentaires[0]->getUtile() - 1);
+				$manager->remove($aimeUser[0]);
+				$manager->flush();
+			}
 
 			return $this->redirectToRoute('produit_v2', [
 				"id" => $id,

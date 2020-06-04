@@ -32,6 +32,11 @@ class Commentaires
      */
     private $utilisateur;
 
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $utile;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -69,6 +74,18 @@ class Commentaires
     public function setUtilisateur(?Utilisateurs $utilisateur): self
     {
         $this->utilisateur = $utilisateur;
+
+        return $this;
+    }
+
+    public function getUtile(): ?int
+    {
+        return $this->utile;
+    }
+
+    public function setUtile(?int $utile): self
+    {
+        $this->utile = $utile;
 
         return $this;
     }
