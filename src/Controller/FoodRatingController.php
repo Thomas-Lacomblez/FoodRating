@@ -140,41 +140,23 @@ class FoodRatingController extends AbstractController
 
 			$moyenneNote = round((array_sum($saveNote)/count($saveNote)), 2);
 			$nombreVote = count($saveNote);
-			$nombreEtoile1 = count(array_keys($saveNote, 1));
-			$nombreEtoile2 = count(array_keys($saveNote, 2));
-			$nombreEtoile3 = count(array_keys($saveNote, 3));
-			$nombreEtoile4 = count(array_keys($saveNote, 4));
-			$nombreEtoile5 = count(array_keys($saveNote, 5));
-			$pourcentageEtoile1 = 0;
-			$pourcentageEtoile2 = 0;
-			$pourcentageEtoile3 = 0;
-			$pourcentageEtoile4 = 0;
-			$pourcentageEtoile5 = 0;
-
-			if ($nombreEtoile1 != 0) {
-				$pourcentageEtoile1 = (100*$nombreEtoile1)/count($saveNote);
-			}
-			if ($nombreEtoile2 != 0) {
-				$pourcentageEtoile2 = (100*$nombreEtoile2)/count($saveNote);
-			}
-			if ($nombreEtoile3 != 0) {
-				$pourcentageEtoile3 = (100*$nombreEtoile3)/count($saveNote);
-			}
-			if ($nombreEtoile4 != 0) {
-				$pourcentageEtoile4 = (100*$nombreEtoile4)/count($saveNote);
-			}
-			if ($nombreEtoile5 != 0) {
-				$pourcentageEtoile5 = (100*$nombreEtoile5)/count($saveNote);
+			
+			$nombreEtoiles = array();
+			$pourcentageEtoiles = array();
+			
+			for ($i = 0; $i < 5; $i++) {
+				$nombreEtoiles [] = count(array_keys($saveNote, $i + 1));
+				
+				if ($nombreEtoiles[$i] != 0)
+					$pourcentageEtoiles [] = (100 * $nombreEtoiles[$i]) / count($saveNote);
+				else
+					$pourcentageEtoiles [] = 0;
 			}
 		}
 		else {
 			$moyenneNote = 0;
 			$nombreVote = 0;
-			$pourcentageEtoile1 = 0;
-			$pourcentageEtoile2 = 0;
-			$pourcentageEtoile3 = 0;
-			$pourcentageEtoile4 = 0;
-			$pourcentageEtoile5 = 0;
+			$pourcentageEtoiles = array(0,0,0,0,0);
 		}
 		if ($user) {
 			$note = $manager->getRepository(Notes::class)->findBy(['utilisateur' => $user, 'produit_id' => $data['id'] ?? $data['code']]);
@@ -199,11 +181,7 @@ class FoodRatingController extends AbstractController
 						"commentairesProduit" => $commentaireProduit,
 						"moyenneNote" => $moyenneNote,
 						"nombreVote" => $nombreVote,
-						"pourcentageEtoile1" => $pourcentageEtoile1,
-						"pourcentageEtoile2" => $pourcentageEtoile2,
-						"pourcentageEtoile3" => $pourcentageEtoile3,
-						"pourcentageEtoile4" => $pourcentageEtoile4,
-						"pourcentageEtoile5" => $pourcentageEtoile5,
+						"pourcentageEtoiles" => $pourcentageEtoiles,
 						"similaires" => $similaires,
 						"categorie" => $categorie
 					]);
@@ -225,11 +203,7 @@ class FoodRatingController extends AbstractController
 					"commentairesProduit" => $commentaireProduit,
 					"moyenneNote" => $moyenneNote,
 					"nombreVote" => $nombreVote,
-					"pourcentageEtoile1" => $pourcentageEtoile1,
-					"pourcentageEtoile2" => $pourcentageEtoile2,
-					"pourcentageEtoile3" => $pourcentageEtoile3,
-					"pourcentageEtoile4" => $pourcentageEtoile4,
-					"pourcentageEtoile5" => $pourcentageEtoile5,
+					"pourcentageEtoiles" => $pourcentageEtoiles,
 					"similaires" => $similaires,
 					"categorie" => $categorie
 				]);
@@ -251,11 +225,7 @@ class FoodRatingController extends AbstractController
 					"commentairesProduit" => $commentaireProduit,
 					"moyenneNote" => $moyenneNote,
 					"nombreVote" => $nombreVote,
-					"pourcentageEtoile1" => $pourcentageEtoile1,
-					"pourcentageEtoile2" => $pourcentageEtoile2,
-					"pourcentageEtoile3" => $pourcentageEtoile3,
-					"pourcentageEtoile4" => $pourcentageEtoile4,
-					"pourcentageEtoile5" => $pourcentageEtoile5,
+					"pourcentageEtoiles" => $pourcentageEtoiles,
 					"similaires" => $similaires,
 					"categorie" => $categorie
 				]);
@@ -278,11 +248,7 @@ class FoodRatingController extends AbstractController
 					"commentairesProduit" => $commentaireProduit,
 					"moyenneNote" => $moyenneNote,
 					"nombreVote" => $nombreVote,
-					"pourcentageEtoile1" => $pourcentageEtoile1,
-					"pourcentageEtoile2" => $pourcentageEtoile2,
-					"pourcentageEtoile3" => $pourcentageEtoile3,
-					"pourcentageEtoile4" => $pourcentageEtoile4,
-					"pourcentageEtoile5" => $pourcentageEtoile5,
+					"pourcentageEtoiles" => $pourcentageEtoiles,
 					"similaires" => $similaires,
 					"categorie" => $categorie
 			]);
