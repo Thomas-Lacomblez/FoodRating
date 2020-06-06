@@ -5,12 +5,14 @@ namespace App\Controller;
 use App\Entity\Utilisateurs;
 use App\Form\InscriptionType;
 use App\Form\DonneesModifType;
-use App\Repository\UtilisateursRepository;
+use App\Form\MotDePasseModifType;
 
+use App\Repository\UtilisateursRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
@@ -76,10 +78,9 @@ class SecurityController extends AbstractController
     }
 
     /**
-     * @Route("/compte/info_compte/modifier_donnees", name="modifier_donnees")
+     * @Route("/client/info_compte/modifier_donnees", name="modifier_donnees")
      */
-
-    public function formModifierDonnees(Request $request, UserPasswordEncoderInterface $encoder) {
+    public function formModifierDonnees(Request $request) {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
         $user = $this->getUser();
@@ -91,22 +92,65 @@ class SecurityController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $hash = $encoder->encodePassword($userModif, $userModif->getPassword());
-
-            $user->setPassword($hash);
+            $imageTest = $form->get('imagebase64')->getData();
+            if($imageTest) {
+                $blob = fopen($imageTest, 'rb');
+                $user->setImageBase64(base64_encode(stream_get_contents($blob)));
+            }
             $manager->flush();
-            return $this->redirectToRoute('espace');
+            return $this->redirectToRoute('user_show');
 
         }
         return $this->render('security/modifier_donnees.html.twig', [
             'formModifierDonnees' => $form->createView()
         ]);
     }
+    /**
+     * @Route("/client/info_compte/modifier_donnees/modifier_mdp", name="modifier_mdp")
+     */
+    public function modifierMotDePasse(Request $request, UserPasswordEncoderInterface $encoder) {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        $user = $this->getUser();
+
+        $manager = $this->getDoctrine()->getManager();
+        $userModif = $manager->getRepository(Utilisateurs::class)->find($user->getId());
+
+        $form = $this->createForm(MotDePasseModifType::class, $userModif);
+        $form->handleRequest($request);
+        
+        if ($form->isSubmitted() && $form->isValid()) {
+            $hash = $encoder->encodePassword($user, $user->getPassword());
+            $user->setPassword($hash);
+            $manager->flush();
+            return $this->redirectToRoute('modifier_donnees');
+        }
+        return $this->render('security/modifier_mdp.html.twig', [
+            'formModifierMdp' => $form->createView(),
+        ]);
+    }
 
     /**
-     * @Route("/compte/info_compte/modifier_donnees/desinscription", name="desinscription")
+     * @Route("/client/info_compte/modifier_donnees/supprimer_photo", name="supprimer_photo")
      */
+    public function supprimerPhoto(Request $request) {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
+        $user = $this->getUser();
+
+        $manager = $this->getDoctrine()->getManager();
+        $userModif = $manager->getRepository(Utilisateurs::class)->find($user->getId());
+
+        if($userModif->getImageBase64() != null) {
+            $user->setImageBase64(null);
+            $manager->flush();
+        }
+        return $this->redirectToRoute('modifier_donnees');
+    }
+
+    /**
+     * @Route("/client/info_compte/modifier_donnees/desinscription", name="desinscription")
+     */
      public function desinscription() {
 
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');

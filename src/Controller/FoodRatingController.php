@@ -666,9 +666,15 @@ class FoodRatingController extends AbstractController
 	}
 
     /**
-     * @Route("/compte/info_compte", name="user_show")
+     * @Route("/client/info_compte", name="user_show")
      */
-    public function show() {
+	public function show(UtilisateursRepository $repo, ?UserInterface $user) {
+		$utilisateur = $repo->findBy(["id" => $user->getId()]);
+		if ($utilisateur[0]->getImageBase64() != null) {
+			return $this->render('food_rating/info_compte.html.twig', [
+				"image" => $utilisateur[0]->getImageBase64()
+			]);
+		}
         return $this->render('food_rating/info_compte.html.twig');
     }
     

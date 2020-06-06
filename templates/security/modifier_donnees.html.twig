@@ -20,13 +20,17 @@
 
                         {{ form_row(formModifierDonnees.username, {'label': "Pseudo", 'value': app.user.username, 'attr': {'placeholder': "Entrez votre pseudo"}}) }}
                         {{ form_row(formModifierDonnees.email, {'label': "Email", 'value': app.user.email, 'attr': {'placeholder': "Entrez votre email"}}) }}
-                        {{ form_row(formModifierDonnees.password, {'label': "Mot de passe", 'value': app.user.password, 'attr': {'placeholder': "Entrez votre mot de passe"}}) }}
-                        {{ form_row(formModifierDonnees.password_confirmation, {'label': "Confirmation du mot de passe", 'value': app.user.password, 'attr': {'placeholder': "Retapez votre mot de passe"}}) }}
-
+                        {% if app.user.imagebase64 is not null %}
+                            {{ form_row(formModifierDonnees.imagebase64, {'attr': {'placeholder': "Modifier votre photo", 'accept': ".png, .jpg, .jpeg, .gif"}}) }}
+                            <img src="data:image/png;image/jpg;image/gif;base64,{{ app.user.imagebase64 }}" alt="photo de profil" style="max-width: 200px; max-height: 200px;">
+                            <a href="{{ path('supprimer_photo') }}" class="btn btn-danger">Supprimer</a>
+                        {% else %}
+                            {{ form_row(formModifierDonnees.imagebase64, {'attr': {'placeholder': "Ajouter votre photo", 'accept': ".png, .jpg, .jpeg, .gif"}}) }}
+                        {% endif %}
                         <div class="form-group">
                             <button type="submit" class="btn btn-success">Modifier</button>
-                            <a href="{{ path('desinscription') }}" class="btn btn-danger">Se désinscrire</a>
-                            <a href="/compte" class="btn btn-info">Retour</a>
+                            <a href="{{ path('modifier_mdp') }}" class="btn btn-secondary">Modifier le mot de passe</a>
+                            <a href="{{ path('user_show') }}" class="btn btn-info">Retour</a>
                         </div>
                         {{ form_end(formModifierDonnees) }}
                     </fieldset>

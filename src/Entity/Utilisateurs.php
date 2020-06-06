@@ -53,16 +53,6 @@ class Utilisateurs implements UserInterface
     public $password_confirmation;
 
     /**
-     * @ORM\Column(type="blob", nullable=true)
-     */
-    private $image;
-
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
-    private $tailleImage;
-
-    /**
      * @ORM\OneToMany(targetEntity=Notes::class, mappedBy="utilisateur")
      */
     private $notes;
@@ -81,6 +71,11 @@ class Utilisateurs implements UserInterface
      * @ORM\Column(type="array")
      */
     private $roles = [];
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $image_base64;
 
     public function __construct()
     {
@@ -145,30 +140,6 @@ class Utilisateurs implements UserInterface
     public function setRoles(array $roles): self
     {
         $this->roles = $roles;
-
-        return $this;
-    }
-
-    public function getImage()
-    {
-        return $this->image;
-    }
-
-    public function setImage($image): self
-    {
-        $this->image = $image;
-
-        return $this;
-    }
-
-    public function getTailleImage(): ?int
-    {
-        return $this->tailleImage;
-    }
-
-    public function setTailleImage(?int $tailleImage): self
-    {
-        $this->tailleImage = $tailleImage;
 
         return $this;
     }
@@ -262,6 +233,18 @@ class Utilisateurs implements UserInterface
                 $reponse->setIdUtilisateur(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getImageBase64(): ?string
+    {
+        return $this->image_base64;
+    }
+
+    public function setImageBase64(?string $image_base64): self
+    {
+        $this->image_base64 = $image_base64;
 
         return $this;
     }

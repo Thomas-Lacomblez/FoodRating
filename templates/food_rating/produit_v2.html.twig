@@ -306,14 +306,19 @@
 			
 			<div class="card border-primary mb-3" style="max-width: 20rem;">
 				<div class="card-header">
-					{{ n.utilisateur.username }} - Nombre de votes : 
-					{% if commentairesProduit is defined %}
+					{% if n.utilisateur.imagebase64 is defined %}
+						<img src="data:image/png;image/jpg;image/gif;base64, {{ n.utilisateur.imagebase64 }}" style="width: 50px; height: 50px; border-radius : 75px;">
+					{% else %}
+						<i class="fas fa-user-circle fa-3x align-self-center"></i>
+					{% endif %}
+					{{ n.utilisateur.username }} <!--- Nombre de votes : -->
+					{# if commentairesProduit is defined %}
 						{% for c in commentairesProduit %}
 							{% if c.utilisateur.id == n.utilisateur.id %}
 								{{ c.utile }}
 							{% endif %}
 						{% endfor %}
-					{% endif %}
+					{% endif #}
 				</div>
 				<div class="card-body">
 					<p class="card-title">
