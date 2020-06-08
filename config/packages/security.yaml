@@ -23,10 +23,12 @@ security:
                 check_path: login_security
                 target_path_parameter: go_to
                 failure_path_parameter: back_to
-            
             logout:
                 path: logout_security
                 target: food_rating
+            guard:
+                authenticators:
+                    - App\Security\LoginFormAuthenticator
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#firewalls-authentication
 

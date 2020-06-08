@@ -19,6 +19,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mailer\MailerInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -593,7 +595,47 @@ class FoodRatingController extends AbstractController
     	
     	return null;
     }
-    
+	
+	 /**
+     * @Route("/contact", name="contact")
+     */
+	public function contact( MailerInterface $mailer, Request $request ) {
+		$emailAdmin = "Lacomblez.thomas@gmail.com";
+		$formMessage = $this->createFormBuilder(null)
+			->add('Email', TextType::class)
+			->add('Sujet', TextType::class)
+            ->add('Message', TextType::class)
+            ->add('Envoyer', SubmitType::class, ['label' => 'Envoyer'])
+			->getForm();
+			
+		// email
+		$formMessage->handleRequest($request);
+		
+		if($formMessage->isSubmitted() && $formMessage->isValid() ) {
+			//echo "dans if submit";
+			$data = $formMessage->getData();
+			$email = (new Email())
+				->from($emailAdmin)
+				->to($data["Email"])
+				//->cc('cc@example.com')
+				//->bcc('bcc@example.com')
+				//->replyTo('fabien@example.com')
+				//->priority(Email::PRIORITY_HIGH)
+				->subject($data["Sujet"])
+				->text($data["Message"]);
+				//$logger->info('email sent');
+			$mailer->send($email);
+			$this->addFlash('notice', 'Email sent');
+			return $this->render("food_rating/contactSent.html.twig", [
+				"form" => $formMessage->createView()
+			]);
+		}
+		
+		return $this->render("food_rating/contact.html.twig", [
+			"form" => $formMessage->createView()
+		]);
+	}
+
     /**
      * @Route("/test", name="test")
      * @param Api $api

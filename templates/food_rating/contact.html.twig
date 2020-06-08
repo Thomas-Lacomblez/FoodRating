@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    {{ form_start(form) }}
+        <div class="form-group">
+            {{ form_errors(form) }}
+            {{ form_row(form.Email) }}
+            {{ form_widget(form.Email) }}<br/>
+            {{ form_row(form.Sujet) }}
+            {{ form_widget(form.Sujet) }}<br/>
+            {{ form_row(form.Message) }}
+            {{ form_widget(form.Message) }}
+        </div>
+        {{ form_widget(form.Envoyer) }}
+    {{ form_end(form) }}
+
+
+    {% if form.vars.submitted == true %}
+        true
+    {% endif %}
+    {% if form.vars.submitted == false %}
+        false
+    {% endif %}
+{% endblock %}

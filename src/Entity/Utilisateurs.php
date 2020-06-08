@@ -77,6 +77,17 @@ class Utilisateurs implements UserInterface
      */
     private $reponses;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $vkey;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $verified = false;
+
+
     public function __construct()
     {
         $this->notes = new ArrayCollection();
@@ -157,6 +168,30 @@ class Utilisateurs implements UserInterface
     public function setTailleImage(?int $tailleImage): self
     {
         $this->tailleImage = $tailleImage;
+
+        return $this;
+    }
+
+    public function getVerified(): ?bool
+    {
+        return $this->verified;
+    }
+
+    public function setVerified(bool $verified): self
+    {
+        $this->verified = $verified;
+
+        return $this;
+    }
+
+    public function getVkey(): ?string
+    {
+        return $this->vkey;
+    }
+
+    public function setVkey(String $vkey): self
+    {
+        $this->vkey = $vkey;
 
         return $this;
     }
