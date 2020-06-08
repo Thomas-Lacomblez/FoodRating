@@ -4,7 +4,7 @@
     <center><h1>Bienvenue sur FoodRating - Accueil</h1></center>
     
     <div id="carousel_accueil" class="carousel slide" data-ride="carousel">
-        <ol class="carousel-indicators" style="top: 92%;">
+        <ol class="carousel-indicators" style="top: 95%;">
         {% for p in produit_carousel %}
         	{% if loop.first %}
             <li class="bg-primary" data-target="#carousel_accueil" data-slide-to="0" class="active"></li>
@@ -46,6 +46,13 @@
                     
                     {% if meilleursProduit is defined %}
                         <div id="carousel_meilleurs_produits" class="carousel slide" data-interval="false" data-ride="carousel">
+                        	<ol class="carousel-indicators" style="top: 95%;">
+                        		{% for p in meilleursProduit %}
+                        		<li class="bg-primary" data-target="#carousel_meilleurs_produits" {% if loop.first %} data-slide-to="0" class="active" {% else %} data-slide-to="{{ loop.index0 }}" {% endif %}></li>
+                        	    {% endfor %}
+                        	</ol>
+
+                        
                             <div class="carousel-inner w-75 mx-auto" style="height: 310px;">
                                 {% set indice = 0 %}
                                 {% for p in meilleursProduit %}
@@ -55,7 +62,7 @@
                                     {% else %}
                                         <div class="carousel-item">
                                     {% endif %}
-                                        {% if indice < categorieProduit|length %}
+                                        {% if indice < categorieProduit | length %}
                                             <a href="{{ path("produit_v2", {"id" : p.id ?? p.code, "categorie": categorieProduit[indice]}) }}">
                                                 <img class="d-block mx-auto img-thumbnail" style="height: 200px;" src="{{ p.image_url ?? p.image_front_url ?? p.selected_images.front.display.fr ?? "/images/image_vide.png" }}" alt="Image du produit : {{ p.product_name }}" />
                                             </a>
@@ -89,7 +96,7 @@
                 </p>
             </div>
             <div class="jumbotron col-sm-6">
-                <h1 class="display-4">Les meilleurs commentaires !</h1>
+                <h1 class="display-5">Les meilleurs commentaires !</h1>
                 <p class="lead">Affichage des 5 meilleurs commentaires en fonctions des produits</p>
                 <hr class="my-4">
                 <p>Voir plus avec le bouton "plus de commentaire"</p>

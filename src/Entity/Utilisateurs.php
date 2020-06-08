@@ -82,11 +82,17 @@ class Utilisateurs implements UserInterface
      */
     private $roles = [];
 
+    /**
+     * @ORM\OneToMany(targetEntity=Aime::class, mappedBy="idUtilisateur", orphanRemoval=true)
+     */
+    private $aimes;
+
     public function __construct()
     {
         $this->notes = new ArrayCollection();
         $this->commentaires = new ArrayCollection();
         $this->reponses = new ArrayCollection();
+        $this->aimes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -260,6 +266,37 @@ class Utilisateurs implements UserInterface
             // set the owning side to null (unless already changed)
             if ($reponse->getIdUtilisateur() === $this) {
                 $reponse->setIdUtilisateur(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Aime[]
+     */
+    public function getAimes(): Collection
+    {
+        return $this->aimes;
+    }
+
+    public function addAime(Aime $aime): self
+    {
+        if (!$this->aimes->contains($aime)) {
+            $this->aimes[] = $aime;
+            $aime->setIdUtilisateur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAime(Aime $aime): self
+    {
+        if ($this->aimes->contains($aime)) {
+            $this->aimes->removeElement($aime);
+            // set the owning side to null (unless already changed)
+            if ($aime->getIdUtilisateur() === $this) {
+                $aime->setIdUtilisateur(null);
             }
         }
 
