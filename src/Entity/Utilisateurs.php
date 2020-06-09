@@ -58,12 +58,12 @@ class Utilisateurs implements UserInterface
     private $notes;
 
     /**
-     * @ORM\OneToMany(targetEntity=Commentaires::class, mappedBy="utilisateur")
+     * @ORM\OneToMany(targetEntity=Commentaires::class, mappedBy="utilisateur", cascade={"remove"})
      */
     private $commentaires;
 
     /**
-     * @ORM\OneToMany(targetEntity=Reponse::class, mappedBy="idUtilisateur", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=Reponse::class, mappedBy="idUtilisateur", orphanRemoval=true, cascade={"remove"})
      */
     private $reponses;
 
@@ -73,7 +73,7 @@ class Utilisateurs implements UserInterface
     private $roles = [];
 
     /**
-     * @ORM\OneToMany(targetEntity=Aime::class, mappedBy="idUtilisateur", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=Aime::class, mappedBy="idUtilisateur", orphanRemoval=true, cascade={"remove"})
      */
     private $aimes;
     
