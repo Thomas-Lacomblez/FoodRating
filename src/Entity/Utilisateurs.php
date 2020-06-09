@@ -280,5 +280,7 @@ class Utilisateurs implements UserInterface
     public function setImageBase64(?string $image_base64): self
     {
         $this->image_base64 = $image_base64;
+        
+        return $this;
     }
 }

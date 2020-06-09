@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>{% block title %}FoodRating{% endblock %}</title>
+        <title>{% block title %}Modification des données Utilisateur{% endblock %}</title>
         <link rel="stylesheet" href="https://bootswatch.com/4/minty/bootstrap.min.css">
         <script src="https://bootswatch.com/_vendor/jquery/dist/jquery.min.js"></script>
         <script src="https://bootswatch.com/_vendor/bootstrap/dist/js/bootstrap.min.js"></script>
@@ -37,5 +37,15 @@
                 </div>
             </div>
         </div>
+    {% endblock %}
+    
+    {% block javascripts %}
+    <script>
+		$(document).ready(function() {
+			$("#donnees_modif_imagebase64").change(function() {
+				$("div.custom-file label").text($("#donnees_modif_imagebase64")[0].files[0].name);
+			});
+		});
+    </script>
     {% endblock %}
 </html>

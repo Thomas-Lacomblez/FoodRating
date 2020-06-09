@@ -46,6 +46,8 @@ class SearchController extends AbstractController
 	
 		$api = new Api("food", "fr");
     	$mot = $request->get('recherche');
+    	
+    	if (is_null($mot)) { return $this->redirectToRoute("food_rating"); }
 
 		$recherche = $api->search($mot, $request->query->getInt("page", 1));
 		$compteur = $recherche->searchCount();

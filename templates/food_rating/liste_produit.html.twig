@@ -39,28 +39,28 @@
     			<td class="align-middle">{{ cat[0] }}</td>
 				<td class="align-middle">
 					{% if moyennesProduits is defined %}
-						<i class="fas fa-star fa-1x etoile_affichage" id="etoileAffichage{{ p.id }}_1"></i>
-						<i class="fas fa-star fa-1x etoile_affichage" id="etoileAffichage{{ p.id }}_2"></i>
-						<i class="fas fa-star fa-1x etoile_affichage" id="etoileAffichage{{ p.id }}_3"></i>
-						<i class="fas fa-star fa-1x etoile_affichage" id="etoileAffichage{{ p.id }}_4"></i>
-						<i class="fas fa-star fa-1x etoile_affichage" id="etoileAffichage{{ p.id }}_5"></i>
+						<i class="fas fa-star fa-1x etoile_affichage" id="etoileAffichage{{ p.id ?? p.code }}_1"></i>
+						<i class="fas fa-star fa-1x etoile_affichage" id="etoileAffichage{{ p.id ?? p.code }}_2"></i>
+						<i class="fas fa-star fa-1x etoile_affichage" id="etoileAffichage{{ p.id ?? p.code }}_3"></i>
+						<i class="fas fa-star fa-1x etoile_affichage" id="etoileAffichage{{ p.id ?? p.code }}_4"></i>
+						<i class="fas fa-star fa-1x etoile_affichage" id="etoileAffichage{{ p.id ?? p.code }}_5"></i>
 						{% for m in moyennesProduits %}
-							{% if m.produitid == p.id %}
+							{% if m.produitid == p.id or m.produitid == p.code %}
 								<script>
 									$(document).ready(function() {
 										var nbStars=$('.etoile_affichage').length;
 										var i;
-										for (i = 1; i <= Math.round({{ m.moyenne }}); i++) { $('#etoileAffichage{{ p.id }}_' + i).addClass('text-warning'); }
+										for (i = 1; i <= Math.round({{ m.moyenne }}); i++) { $('#etoileAffichage{{ p.id ?? p.code }}_' + i).addClass('text-warning'); }
 									});
 								</script>
 							{% endif %}
 						{% endfor %}
 					{% else %}
-						<i class="fas fa-star fa-1x etoile_affichage" id="etoileAffichage{{ p.id }}_1"></i>
-						<i class="fas fa-star fa-1x etoile_affichage" id="etoileAffichage{{ p.id }}_2"></i>
-						<i class="fas fa-star fa-1x etoile_affichage" id="etoileAffichage{{ p.id }}_3"></i>
-						<i class="fas fa-star fa-1x etoile_affichage" id="etoileAffichage{{ p.id }}_4"></i>
-						<i class="fas fa-star fa-1x etoile_affichage" id="etoileAffichage{{ p.id }}_5"></i>
+						<i class="fas fa-star fa-1x etoile_affichage" id="etoileAffichage{{ p.id ?? p.code }}_1"></i>
+						<i class="fas fa-star fa-1x etoile_affichage" id="etoileAffichage{{ p.id ?? p.code }}_2"></i>
+						<i class="fas fa-star fa-1x etoile_affichage" id="etoileAffichage{{ p.id ?? p.code }}_3"></i>
+						<i class="fas fa-star fa-1x etoile_affichage" id="etoileAffichage{{ p.id ?? p.code }}_4"></i>
+						<i class="fas fa-star fa-1x etoile_affichage" id="etoileAffichage{{ p.id ?? p.code }}_5"></i>
 					{% endif %}
 				</td>
     		</tr>

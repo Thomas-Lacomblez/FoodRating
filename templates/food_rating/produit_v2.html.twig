@@ -13,7 +13,7 @@
 
 {# Partie supérieur de la page (image + infos) #}
 <div class="media pb-5">
-	<img src="{{ produit.image_url ?? produit.image_front_url ?? produit.selected_images.front.display.fr ?? "/images/image_vide.png" }}" class="align-self-center mr-3" alt="" />
+	<img id="myImg" src="{{ produit.image_url ?? produit.image_front_url ?? produit.selected_images.front.display.fr ?? "/images/image_vide.png" }}" class="align-self-center mr-3" alt="" />
 	<div class="media-body">
 		{% if produit.categories is defined and produit.categories is not empty %}
 			{% set cat = produit.categories | split (",") %}
@@ -31,6 +31,8 @@
 		Catégorie : {{ cat[0] }}</p>
 	</div>
 </div>
+
+{{ include('food_rating/modal_image.twig', {img: produit.image_url ?? produit.image_front_url ?? produit.selected_images.front.display.fr ?? "/images/image_vide.png", alt: produit.product_name ?? "Non renseigné"}) }}
 
 {# Partie INGREDIENTS #}
 <h3>Ingrédients</h3>
@@ -242,10 +244,10 @@
 	</script>
 	<div class="card border-primary mb-3" style="max-width: 20rem;">
 		<div class="card-header">
-			{% if n.utilisateur.imagebase64 is defined %}
+			{% if n.utilisateur.imagebase64 is defined and n.utilisateur.imagebase64 is not empty %}
 				<img src="data:image/png;image/jpg;image/gif;base64, {{ n.utilisateur.imagebase64 }}" style="width: 50px; height: 50px; border-radius : 75px;">
 			{% else %}
-				<i class="fas fa-user-circle fa-3x align-self-center"></i>
+				<i class="fas fa-user-circle fa-3x align-self-center align-middle"></i>
 			{% endif %}
 		    {{ n.utilisateur.username }} 
 		</div>
@@ -270,20 +272,20 @@
 			{{ n.createdAt | date("d/m/Y - H:i") }}
 			{% if commentairesProduit is defined %}
 				{% for c in commentairesProduit %}
-					{% if aimeCommentaire[c.id] is defined and aimeCommentaire[c.id] == app.user.id %}
-    				<div id="bouton-aime-{{ c.id }}" class="float-right">
-    					<span class="text-warning">
+					{% if c.utilisateur.id == n.utilisateur.id and aimeCommentaire[c.id] is defined and aimeCommentaire[c.id] == app.user.id %}
+    				<div class="float-right">
+    					<span id="span-aime-{{ c.id }}" class="text-warning">
         					<a class="no-hover">
-        						<i class="fas fa-thumbs-up" style="cursor: pointer;"></i>			
+        						<i id="bouton-aime-{{ c.id }}" class="fas fa-thumbs-up" style="cursor: pointer;" onclick="aime()"></i>			
         					</a>
         					<p class="d-inline">{{ c.utile }}</p>
         				</span>
 					</div>
-					{% else %}
-					<div id="bouton-aime-{{ c.id }}" class="float-right">
-						<span class="text-primary">
+					{% elseif c.utilisateur.id == n.utilisateur.id %}
+					<div class="float-right">
+						<span id="span-aime-{{ c.id }}" class="text-primary">
         					<a class="no-hover">
-        						<i class="fas fa-thumbs-up" style="cursor: pointer;"></i>			
+        						<i id="bouton-aime-{{ c.id }}" class="fas fa-thumbs-up" style="cursor: pointer;" onclick="aime()"></i>			
         					</a>
         					<p class="d-inline">{{ c.utile }}</p>
         				</span>
@@ -291,29 +293,31 @@
 					{% endif %}
 					
 					<script>
-            		$( "div[id|='bouton-aime'] span" ).click(function() {
-            			let idCom = $(this).parent()[0].id.split("-");
+            		function aime() {
+            			let idCom = event.target.id.split("-");
             			let url, val = 0;
-            
-            			if ($(this).hasClass("text-primary")) {
+
+            			// On remonte jusqu'au <span>
+            			if ($("span#span-aime-"+ idCom[2]).hasClass("text-primary")) {
             				url = "{{ path("commentaire_utile", {"id": produit.id ?? produit.code, "categorie": categorie, "utile": c.id}) }}";
             				val++;
             			} else {
                 			url = "{{ path("supprimer_vote", {"id": produit.id ?? produit.code, "categorie": categorie, "utile": c.id}) }}";
                 			val--;
                     	}
-                    	
-    					$(this).toggleClass("text-primary").toggleClass("text-warning");
 
+            			$("span#span-aime-"+ idCom[2]).toggleClass("text-primary").toggleClass("text-warning");
+            			
             			$.ajax({
         					method: "POST",
         					url: url
         				})
         				.done(function() {
-            				let oldVal = parseInt($("div#bouton-aime-"+ idCom[2] +" span p").text(), 10);
-        					$("div#bouton-aime-"+ idCom[2] +" span p").text(val + oldVal);
+            				// let oldVal = parseInt($("div#bouton-aime-"+ idCom[2] +" span p").text(), 10);
+            				let oldVal = parseInt($("span#span-aime-"+ idCom[2] +" p").text(), 10);
+        					$("span#span-aime-"+ idCom[2] +" p").text(val + oldVal);
         				});
-            		});
+            		};
             		</script>
 				{% endfor %}
 			{% endif %}
