@@ -5,8 +5,9 @@ namespace App\Controller;
 use App\Entity\Aime;
 use App\Entity\Notes;
 
-use OpenFoodFacts\Api;
+use League\Csv\Reader;
 
+use OpenFoodFacts\Api;
 use App\Entity\Commentaires;
 use App\Entity\Utilisateurs;
 use App\Entity\MoyenneProduits;
@@ -17,6 +18,7 @@ use App\Repository\CategoriesRepository;
 use App\Repository\CommentairesRepository;
 use App\Repository\UtilisateursRepository;
 use Knp\Component\Pager\PaginatorInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use App\Repository\MoyenneProduitsRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mailer\MailerInterface;
@@ -107,6 +109,24 @@ class FoodRatingController extends AbstractController
      * @Route("/categories/{categorie}/produit_v2/{id}", name="produit_v2")
      */
     public function afficheProduitV2($id, $categorie, ?UserInterface $user, PaginatorInterface $paginator, Request $request, CommentairesRepository $repoC) {
+		function multi_in_array($value, $array) {
+    		foreach ($array AS $item) {
+        		if (!is_array($item)) {
+            		if ($item == $value) {
+                		return true;
+            		}
+            		continue;
+       			}
+        		if (in_array($value, $item)) {
+            		return true;
+        		}
+        		else if (multi_in_array($value, $item)) {
+            		return true;
+        		}
+    		}
+    		return false;
+		}
+		
     	$api = new Api("food", "fr");
 		$produit = $api->getProduct($id);
 		$data = $produit->getData();
@@ -174,6 +194,38 @@ class FoodRatingController extends AbstractController
 			$pourcentageEtoiles = array(0,0,0,0,0);
 		}
 		if ($user && !$this->container->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
+			$filesystem = new Filesystem();
+			if(!$filesystem->exists('csv/'. $user->getId())) {
+				$filesystem->mkdir('csv/'. $user->getId(), 0700);
+			}
+			if(!$filesystem->exists('csv/'. $user->getId().'/produit.csv')) {
+				$filesystem->touch('csv/'. $user->getId().'/produit.csv');
+				$csv = fopen('csv/'. $user->getId().'/produit.csv', 'w');
+				fputcsv($csv, array("id", "categorieUrl"), ";");
+				fclose($csv);
+			}
+			$stream = fopen('csv/'. $user->getId().'/produit.csv', 'r');
+			$csv = Reader::createFromStream($stream);
+			$csv->setDelimiter(';');
+			$csv->setHeaderOffset(0);
+			$records = $csv->getRecords();
+			$ajoutCsv = array($id, $categorie);
+			$tabCsv = array();
+
+			while (($result = fgetcsv($stream, 100, ";")) !== false) {
+    			$tabCsv [] = $result;
+			}
+
+			if (count(file('csv/'. $user->getId().'/produit.csv')) == 1) {
+				$csvModif = fopen('csv/'. $user->getId().'/produit.csv', 'a+');
+				fputcsv($csvModif, $ajoutCsv, ";");
+				fclose($csvModif);
+			}
+			elseif (!multi_in_array($ajoutCsv[0], $tabCsv)) {
+				$csvModif = fopen('csv/'. $user->getId().'/produit.csv', 'a+');
+				fputcsv($csvModif, $ajoutCsv, ";");
+				fclose($csvModif);
+			}
 			$note = $manager->getRepository(Notes::class)->findBy(['utilisateur' => $user, 'produit_id' => $data['id'] ?? $data['code']]);
 			$commentaire = $manager->getRepository(Commentaires::class)->findBy(['utilisateur' => $user, 'produit_id' => $data['id'] ?? $data['code']]);
 			if (!empty($note[0])) {
@@ -608,25 +660,18 @@ class FoodRatingController extends AbstractController
     /**
      * @Route("/espace", name="espace")
      */
-    public function espace( ?UserInterface $user) {
+    public function espace(?UserInterface $user) {
 		if ($user) {
 			if ($this->container->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
 				return $this->redirectToRoute('compte_admin');
 			}
 			else {
-				return $this->redirectToRoute('user_show');
+				return $this->redirectToRoute('compte_client');
 			}
 		}
 		else {
 			return $this->render('food_rating/accueil.html.twig');
 		}
-	}
-	
-	/**
-	 * @Route("/client", name="compte_client")
-	 */
-	public function compteClient() {
-		return $this->render('food_rating/espace.html.twig');
 	}
 
 	/**
@@ -641,19 +686,6 @@ class FoodRatingController extends AbstractController
 			"utilisateurs" => $utilisateurs
 		]);
 	}
-
-    /**
-     * @Route("/client/info_compte", name="user_show")
-     */
-	public function show(UtilisateursRepository $repo, ?UserInterface $user) {
-		$utilisateur = $repo->findBy(["id" => $user->getId()]);
-		if ($utilisateur[0]->getImageBase64() != null) {
-			return $this->render('food_rating/info_compte.html.twig', [
-				"image" => $utilisateur[0]->getImageBase64()
-			]);
-		}
-        return $this->render('food_rating/info_compte.html.twig');
-    }
     
     /**
      * @Route("/categories", name="liste_categorie")

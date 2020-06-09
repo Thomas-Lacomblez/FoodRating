@@ -33,9 +33,11 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ path("liste_categorie") }}">Catégories</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ path("test") }}">test 3</a>
-                    </li>
+                    {% if app.user %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path("compte_client") }}">Tableau de bord</a>
+                        </li>
+                    {% endif %}
                 </ul>
                 <form class="form-inline my-2 my-lg-0" action="{{ path('resultat') }}" method="get">
                     <input class="form-control mr-sm-2" type="text" id="recherche" name="recherche" placeholder="Recherche" required>
