@@ -4,13 +4,16 @@ namespace App\Controller;
 
 use App\Entity\Notes;
 use OpenFoodFacts\Api;
+use App\Entity\Utilisateurs;
 use App\Repository\CategoriesRepository;
+use App\Repository\UtilisateursRepository;
 use Knp\Component\Pager\PaginatorInterface;
 use App\Repository\MoyenneProduitsRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class SearchController extends AbstractController
@@ -36,7 +39,7 @@ class SearchController extends AbstractController
     	$resultat = new JsonResponse();
     	$resultat->setData($result);
     	
-    	return $resultat;
+		return $resultat;
     }
 
     /**
@@ -124,6 +127,71 @@ class SearchController extends AbstractController
 			"produits" => $produits,
 			"notes" => $notesProduits,
     		"from_search" => " "
+		]);
+	}
+
+	 /**
+     * @Route("/recherche_user", name="recherche_user")
+     */
+    public function rechercheUtilisateur(Request $request, ?UserInterface $user) {
+
+    	$result = array();
+		$term = trim(strip_tags($request->get('term')));
+		
+		$manager = $this->getDoctrine()->getManager();
+
+		$entities = $manager->getRepository(Utilisateurs::class)->CreateQueryBuilder('u')
+							->where('u.username LIKE :username and u.username not like :user')
+							->setParameter('username', '%'.$term.'%')
+							->setParameter('user', '%'.$user->getUsername().'%')
+							->getQuery()
+							->getResult();
+		$result = array();
+
+		foreach ($entities as $entity) {
+			$result[] = $entity->getUsername();
+		}
+    	
+    	$resultat = new JsonResponse();
+    	$resultat->setData($result);
+    	
+    	return $resultat;
+	}
+	
+	/**
+	 * @Route("/resultat_user", name="resultat_user")
+	 */
+	public function resultatUtilisateurs(Request $request, PaginatorInterface $paginator, UtilisateursRepository $repoU, ?UserInterface $user) {
+	
+    	$mot = $request->get('recherche_utilisateur');
+    	
+    	if (is_null($mot)) { return $this->redirectToRoute("food_rating"); }
+
+		$donnees = array();
+		$manager = $this->getDoctrine()->getManager();
+		$recherche = $repoU->CreateQueryBuilder('u')
+						   ->where('u.username LIKE :username and u.username not like :user')
+						   ->setParameter('username', '%'.$mot.'%')
+						   ->setParameter('user', '%'.$user->getUsername().'%')
+						   ->getQuery()
+						   ->getResult();
+		
+		$users = $paginator->paginate(
+			$recherche,
+			$request->query->getInt("page", 1),
+			20
+		);
+				
+		// On utilise un template basé sur Bootstrap, celui par défaut ne l'est pas
+		$users->setTemplate('@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig');
+		
+		// On aligne les sélecteurs au centre de la page
+		$users->setCustomParameters([
+				"align" => "center"
+		]);
+		
+    	return $this->render("espace_utilisateur/liste_utilisateur.html.twig", [
+			"utilisateurs" => $users
 		]);
 	}
 	

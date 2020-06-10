@@ -1,0 +1,28 @@
+{% extends "base.html.twig" %}
+
+{% block title %} Liste des utilisateurs {% endblock %}
+
+{% block body %}
+<script src="https://bootswatch.com/_vendor/jquery/dist/jquery.min.js"></script>
+<h1>Liste des produits</h1>
+
+<div class="form-group mx-auto">
+  <input type="text" class="form-control mx-auto" id="myInput" style="width: 60%;" placeholder="Rechercher dans le tableau...">
+</div>
+
+<div class="flex-sm-wrap mt-5">
+
+	<!-- Utilisation du sélecteur de pages de KNP -->
+    {{ knp_pagination_render(utilisateurs) }}
+	
+</div>
+
+{% for u in utilisateurs %}
+    {% if u.imagebase64 is not null %}
+        <img src="data:image/png;image/jpg;image/gif;base64, {{ u.imagebase64 }}" style="width: 100px; height: 100px; border-radius : 75px;" data-toggle="dropdown" data-placement="bottom" title="{{ u.username }}" alt="photo de profil"/>
+    {% else %}
+        <i class="fas fa-user-circle fa-3x pt-1 dropdown-toggle text-light ml-3" data-toggle="dropdown" data-placement="bottom" title="{{ u.username }}"></i>
+    {% endif %}
+    <h4>{{ u.username }}</h4>
+{% endfor %}
+{% endblock %}

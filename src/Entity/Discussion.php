@@ -23,7 +23,7 @@ class Discussion
     private $idDiscussion;
 
     /**
-     * @ORM\OneToOne(targetEntity="Utilisateurs")
+     * @ORM\ManyToOne(targetEntity=Utilisateurs::class, inversedBy="discussion")
      * @ORM\JoinColumn(name="id_utilisateur", referencedColumnName="id")
      */
     private $id_utilisateur;

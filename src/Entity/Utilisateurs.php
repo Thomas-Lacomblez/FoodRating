@@ -82,12 +82,18 @@ class Utilisateurs implements UserInterface
      */
     private $image_base64;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Discussion::class, mappedBy="id_utilisateur", orphanRemoval=true, cascade={"remove"})
+     */
+    private $discussions;
+
     public function __construct()
     {
         $this->notes = new ArrayCollection();
         $this->commentaires = new ArrayCollection();
         $this->reponses = new ArrayCollection();
         $this->aimes = new ArrayCollection();
+        $this->discussions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -212,6 +218,8 @@ class Utilisateurs implements UserInterface
         return $this;
     }
 
+
+
     /**
      * @return Collection|Reponse[]
      */
@@ -270,7 +278,15 @@ class Utilisateurs implements UserInterface
                 $aime->setIdUtilisateur(null);
             }
         }
-	}
+    }
+    
+    /**
+     * @return Collection|Discussion[]
+     */
+    public function getDiscussions(): Collection
+    {
+        return $this->discussions;
+    }
 
     public function getImageBase64(): ?string
     {
