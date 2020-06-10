@@ -34,9 +34,9 @@
                         <li>Forum <i id="flecheF2" onclick="gestionTexte('element2', 'flecheF2')" style="cursor:pointer;">▼</i>
                             <div id="element2" style="display:none">
                                 <ul>
-                                    <li><a class="text-secondary"href="#">Les sujets visités</a></li>
-                                    <li><a class="text-secondary"href="#">Mes sujets</a></li>
-                                    <li><a class="text-secondary"href="#">Les sujets ou je participe</a></li>
+                                    <li><a class="text-secondary"href="{{ path("forum_visite") }}">Les sujets visités</a></li>
+                                    <li><a class="text-secondary"href="{{ path("forum_discussion") }}">Mes sujets</a></li>
+                                    <li><a class="text-secondary"href="{{ path("forum_participation") }}">Participations aux sujets</a></li>
                                 </ul>
                             </div>
                         </li>
@@ -64,7 +64,8 @@
         </div>
     </div>
     <div class="container">
-        <h1>Les produits visités</h1>
+        <h1>Produits</h1>
+        <h2>Les produits visités</h2>
         {% if produitsVisite is not null %}
             <table class="table table-sm table-striped table-hover mt-5 mx-auto" style="width: 100%">
                 <thead class="thead-light">
@@ -121,10 +122,10 @@
                 </tbody>
             </table>
         {% else %}
-            <h2>Aucun produit</h2>
+            <h4 class="text-secondary">Aucun produit</h4>
         {% endif %}
 
-    <h1>Les produits Notés</h1>
+        <h2>Les produits Notés</h2>
         {% if userProduitsNotes is not null %}
             <table class="table table-sm table-striped table-hover mt-5 mx-auto" style="width: 100%">
                 <thead class="thead-light">
@@ -181,10 +182,10 @@
                 </tbody>
             </table>
         {% else %}
-            <h2>Aucun produit</h2>
+            <h4 class="text-secondary">Aucun produit</h4>
         {% endif %}
 
-        <h1>Les produits Commentés</h1>
+        <h2>Les produits Commentés</h2>
         {% if userProduitsCommentaires is not null %}
             <table class="table table-sm table-striped table-hover mt-5 mx-auto" style="width: 100%">
                 <thead class="thead-light">
@@ -241,7 +242,86 @@
                 </tbody>
             </table>
         {% else %}
-            <h2>Aucun produit</h2>
+            <h4 class="text-secondary">Aucun produit</h4>
+        {% endif %}
+        <h1>Forum</h1>
+        <h2>Les sujets visités</h2>
+        {% if sujetsVisite is not null %}
+            <table class="table table-sm table-striped table-hover mt-2">
+                <thead class="thead-light">
+                    <tr>
+                        <th class="w-75">Titre</th>
+                        <th>Utilisateur</th>
+                        <th>Date de création</th>
+                    </tr>
+                </thead>
+        
+                <tbody>
+        
+                    {% for s in sujetsVisite %}
+                        <tr>
+                            <td class="font-weight-bold"> <a href="{{ path("readDisc", {"id": s.idDiscussion}) }}">{{ s.titre }}</a> </td>
+                            <td> {{ s.id_utilisateur.username }} </td>
+                            <td class="text-muted"> {{ s.creation | date("d/m/Y") }} </td>
+                        </tr>
+                    {% endfor %}
+        
+                </tbody>
+            </table>
+        {% else %}
+            <h4 class="text-secondary">Aucun sujet</h4>
+        {% endif %}
+        <h2>Mes sujets</h2>
+        {% if sujetsUser is not null %}
+            <table class="table table-sm table-striped table-hover mt-2">
+                <thead class="thead-light">
+                    <tr>
+                        <th class="w-75">Titre</th>
+                        <th>Utilisateur</th>
+                        <th>Date de création</th>
+                    </tr>
+                </thead>
+        
+                <tbody>
+        
+                    {% for s in sujetsUser %}
+                        <tr>
+                            <td class="font-weight-bold"> <a href="{{ path("readDisc", {"id": s.idDiscussion}) }}">{{ s.titre }}</a> </td>
+                            <td> {{ s.id_utilisateur.username }} </td>
+                            <td class="text-muted"> {{ s.creation | date("d/m/Y") }} </td>
+                        </tr>
+                    {% endfor %}
+        
+                </tbody>
+            </table>
+        {% else %}
+            <h4 class="text-secondary">Aucun sujet</h4>
+        {% endif %}
+        <h2>Participations aux sujets</h2>
+        {% if participation is not null %}
+            <table class="table table-sm table-striped table-hover mt-2">
+                <thead class="thead-light">
+                    <tr>
+                        <th class="w-75">Titre</th>
+                        <th>Utilisateur</th>
+                        <th>Date de création</th>
+                    </tr>
+                </thead>
+        
+                <tbody>
+        
+                    {% for p in participation %}
+                        <tr>
+                            <td class="font-weight-bold"> <a href="{{ path("readDisc", {"id": p.idDiscussion.idDiscussion}) }}">{{ p.idDiscussion.titre }}</a> </td>
+                            <td> {{ p.idDiscussion.id_utilisateur.username }} </td>
+                            <td class="text-muted"> {{ p.idDiscussion.creation | date("d/m/Y") }} </td>
+                        </tr>
+                    {% endfor %}
+        
+                </tbody>
+            </table>
+        {% else %}
+            <h4 class="text-secondary">Aucun sujet</h4>
         {% endif %}
     </div>
 {% endblock %}

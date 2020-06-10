@@ -36,9 +36,9 @@
                         <li>Forum <i id="flecheF2" onclick="gestionTexte('element2', 'flecheF2')" style="cursor:pointer;">▼</i>
                             <div id="element2" style="display:none">
                                 <ul>
-                                    <li><a class="text-secondary"href="#">Les sujets visités</a></li>
-                                    <li><a class="text-secondary"href="#">Mes sujets</a></li>
-                                    <li><a class="text-secondary"href="#">Les sujets ou je participe</a></li>
+                                    <li><a class="text-secondary"href="{{ path("forum_visite") }}">Les sujets visités</a></li>
+                                    <li><a class="text-secondary"href="{{ path("forum_discussion") }}">Mes sujets</a></li>
+                                    <li><a class="text-secondary"href="{{ path("forum_participation") }}">Participations aux sujets</a></li>
                                 </ul>
                             </div>
                         </li>
@@ -135,7 +135,7 @@
             </table>
         </div>
     {% else %}
-        <h1>Aucun produit visités</h1>
+        <h1>Aucun produit</h1>
     {% endif %}
 
     {% block javascripts %}

@@ -5,6 +5,8 @@ namespace App\Controller;
 use League\Csv\Reader;
 use OpenFoodFacts\Api;
 use App\Repository\NotesRepository;
+use App\Repository\ReponseRepository;
+use App\Repository\DiscussionRepository;
 use App\Repository\CommentairesRepository;
 use App\Repository\UtilisateursRepository;
 use Knp\Component\Pager\PaginatorInterface;
@@ -20,7 +22,7 @@ class EspaceUtilisateurController extends AbstractController
     /**
 	 * @Route("/client", name="compte_client")
 	 */
-	public function compteClient(?UserInterface $user, MoyenneProduitsRepository $repo, NotesRepository $repoN, CommentairesRepository $repoC) {
+	public function compteClient(?UserInterface $user, MoyenneProduitsRepository $repo, NotesRepository $repoN, CommentairesRepository $repoC, DiscussionRepository $repoD, ReponseRepository $repoR) {
 		$api = new Api("food", "fr");
 		$filesystem = new Filesystem();
 		$tableauProduitsVisite = array();
@@ -31,6 +33,7 @@ class EspaceUtilisateurController extends AbstractController
 		$categoriesNotes = array();
 		$userProduitsCommentaires = array();
 		$categoriesNotes2 = array();
+		$tableauSujetsVisite = array();
 
 		$notesUser = $repoN->createQueryBuilder('n')
 						   ->where('n.utilisateur = :user')
@@ -47,7 +50,24 @@ class EspaceUtilisateurController extends AbstractController
 								  ->setMaxResults(5)
 								  ->getQuery()
 								  ->getResult();
-
+		
+		$sujetsUser = $repoD->createQueryBuilder('d')
+							->where('d.id_utilisateur = :user')
+							->setParameter('user', $user)
+							->orderBy('d.idDiscussion', 'DESC')
+							->setMaxResults(5)
+							->getQuery()
+							->getResult();
+		
+		$participationSujets = $repoR->createQueryBuilder('r')
+									 ->where('r.idUtilisateur = :user')
+									 ->setParameter('user', $user)
+									 ->orderBy('r.createdAt', 'ASC')
+									 ->groupBy('r.idDiscussion')
+									 ->setMaxResults(5)
+									 ->getQuery()
+									 ->getResult();
+		dump($participationSujets);
 		if($filesystem->exists('csv/'. $user->getId().'/produit.csv')) {
 			$stream = fopen('csv/'. $user->getId().'/produit.csv', 'r');
 			$csv = Reader::createFromStream($stream);
@@ -128,6 +148,31 @@ class EspaceUtilisateurController extends AbstractController
 			$userProduitsCommentaires = null;
 			$categoriesCommentaires = array();
 		}
+
+		if($filesystem->exists('csv/'. $user->getId().'/forum.csv')) {
+			$stream = fopen('csv/'. $user->getId().'/forum.csv', 'r');
+			$csv = Reader::createFromStream($stream);
+			$csv->setDelimiter(';');
+			$csv->setHeaderOffset(0);
+			$records = $csv->getRecords();
+			if (count(file('csv/'. $user->getId().'/forum.csv')) == 1) {
+				$tableauSujetsVisite [] = "Aucun forum";
+			}
+			else {
+				foreach($records as $row) {
+					$sortie++;
+					$sujet = $repoD->find($row['id']);
+					$tableauSujetsVisite [] = $sujet;
+					if($sortie == 5) {
+						break;	
+					}
+				}
+			}
+		}
+		else {
+			$tableauSujetsVisite = null;
+		}
+
 		return $this->render('espace_utilisateur/espace.html.twig', [
 			"produitsVisite" => $tableauProduitsVisite,
 			"categories" => $categories,
@@ -135,7 +180,10 @@ class EspaceUtilisateurController extends AbstractController
 			"userProduitsNotes" => $userProduitsNotes,
 			"categoriesNotes" => $categoriesNotes,
 			"userProduitsCommentaires" => $userProduitsCommentaires,
-			"categoriesCommentaires" => $categoriesCommentaires
+			"categoriesCommentaires" => $categoriesCommentaires,
+			"sujetsVisite" => $tableauSujetsVisite,
+			"sujetsUser" => $sujetsUser,
+			"participation" => $participationSujets
 		]);
 	}
 	
@@ -321,6 +369,127 @@ class EspaceUtilisateurController extends AbstractController
 		}
 		else {
 			return $this->render("espace_utilisateur/produit_commentaires.html.twig");
+		}
+	}
+
+	/**
+	 * @Route("/client/forum_visite", name="forum_visite")
+	 */
+	public function forumVisite(?UserInterface $user, DiscussionRepository $repoD, PaginatorInterface $paginator, Request $request) {
+		$filesystem = new Filesystem();
+		$tableauSujetsVisite = array();
+		if($filesystem->exists('csv/'. $user->getId().'/forum.csv')) {
+			$stream = fopen('csv/'. $user->getId().'/forum.csv', 'r');
+			$csv = Reader::createFromStream($stream);
+			$csv->setDelimiter(';');
+			$csv->setHeaderOffset(0);
+			$records = $csv->getRecords();
+			if (count(file('csv/'. $user->getId().'/forum.csv')) == 1) {
+				$tableauSujetsVisite [] = "Aucun forum";
+			}
+			else {
+				foreach($records as $row) {
+					$sujet = $repoD->find($row['id']);
+					$tableauSujetsVisite [] = $sujet;
+				}
+			}
+			$sujets = $paginator->paginate(
+				$tableauSujetsVisite,
+				$request->query->getInt("page", 1),
+				10
+			);
+					
+			// On utilise un template basé sur Bootstrap, celui par défaut ne l'est pas
+			$sujets->setTemplate('@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig');
+			
+			// On aligne les sélecteurs au centre de la page
+			$sujets->setCustomParameters([
+					"align" => "center"
+			]);
+			return $this->render("espace_utilisateur/forum_visite.html.twig", [
+				"sujetsVisite" => $sujets
+			]);
+		}
+		else {
+			return $this->render("espace_utilisateur/forum_visite.html.twig");
+		}
+	}
+
+	/**
+	 * @Route("/client/forum_visite/supprimer", name="forum_visite_supprimer")
+	 */
+	public function supprimerForumsVisite(?UserInterface $user) {
+		$filesystem = new Filesystem();
+		if($filesystem->exists('csv/'. $user->getId().'/forum.csv')) {
+			$filesystem->remove('csv/'. $user->getId().'/forum.csv');
+		}
+		return $this->redirectToRoute('forum_visite');
+	}
+
+	/**
+	 * @Route("/client/forum_discussion", name="forum_discussion")
+	 */
+	public function forumDiscussion(?UserInterface $user, DiscussionRepository $repoD, PaginatorInterface $paginator, Request $request) {
+		$sujetsUser = $repoD->createQueryBuilder('d')
+							->where('d.id_utilisateur = :user')
+							->setParameter('user', $user)
+							->orderBy('d.idDiscussion', 'DESC')
+							->getQuery()
+							->getResult();
+		if ($sujetsUser != null) {
+			$sujets = $paginator->paginate(
+				$sujetsUser,
+				$request->query->getInt("page", 1),
+				10
+			);
+					
+			// On utilise un template basé sur Bootstrap, celui par défaut ne l'est pas
+			$sujets->setTemplate('@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig');
+			
+			// On aligne les sélecteurs au centre de la page
+			$sujets->setCustomParameters([
+					"align" => "center"
+			]);
+			return $this->render("espace_utilisateur/forum_discussion.html.twig", [
+				"sujetsUser" => $sujets
+			]);	
+		}
+		else {
+			return $this->render("espace_utilisateur/forum_discussion.html.twig");
+		}
+	}
+
+	/**
+	 * @Route("/client/forum_participation", name="forum_participation")
+	 */
+	public function forumParticipation(?UserInterface $user, ReponseRepository $repoR, PaginatorInterface $paginator, Request $request) {
+		$participationSujets = $repoR->createQueryBuilder('r')
+									 ->where('r.idUtilisateur = :user')
+									 ->setParameter('user', $user)
+									 ->orderBy('r.createdAt', 'ASC')
+									 ->groupBy('r.idDiscussion')
+									 ->getQuery()
+									 ->getResult();
+		if ($participationSujets != null) {
+			$sujets = $paginator->paginate(
+				$participationSujets,
+				$request->query->getInt("page", 1),
+				10
+			);
+					
+			// On utilise un template basé sur Bootstrap, celui par défaut ne l'est pas
+			$sujets->setTemplate('@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig');
+			
+			// On aligne les sélecteurs au centre de la page
+			$sujets->setCustomParameters([
+					"align" => "center"
+			]);
+			return $this->render("espace_utilisateur/forum_participation.html.twig", [
+				"participation" => $sujets
+			]);	
+		}
+		else {
+			return $this->render("espace_utilisateur/forum_participation.html.twig");
 		}
 	}
     
