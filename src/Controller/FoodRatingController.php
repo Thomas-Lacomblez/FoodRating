@@ -8,6 +8,7 @@ use App\Entity\Notes;
 use League\Csv\Reader;
 
 use OpenFoodFacts\Api;
+use App\Entity\Discussion;
 use App\Entity\Commentaires;
 use App\Entity\Utilisateurs;
 use App\Entity\MoyenneProduits;
@@ -673,19 +674,6 @@ class FoodRatingController extends AbstractController
 		}
 	}
 
-	/**
-	 * @Route("/admin", name="compte_admin")
-	 */
-	public function compteAdmin() {
-		$manager = $this->getDoctrine()->getManager();
-		$utilisateurs = $manager->getRepository(Utilisateurs::class)->findByRole('ROLE_USER');
-		dump($utilisateurs);
-
-		return $this->render("food_rating/espace_admin.html.twig", [
-			"utilisateurs" => $utilisateurs
-		]);
-	}
-    
     /**
      * @Route("/categories", name="liste_categorie")
      */
@@ -758,52 +746,6 @@ class FoodRatingController extends AbstractController
 			]);
 		}
 	}
-	
-
-	/**
-	 * @Route("/admin/users/suppression", name="suppression_user")
-	 */
-	public function suppressionUser(Request $request){
-		$manager = $this->getDoctrine()->getManager();
-		$pseudo = "";
-		dump($request);
-		if ($request->query->has("uas")){
-			$user = $manager->getRepository(Utilisateurs::class)->findOneBy(['email' => $request->query->get("uas")]);
-
-			// Dans le cas où l'admin envoie en paramètre URL une adresse qui n'existe pas
-			if (empty($user)){
-				$this->addFlash(
-					'notice',
-					"L'utilisateur que vous avez demandé de supprimer n'existe pas."
-				);
-			}
-			// Dans le cas où l'admin envoie en paramètre URL une adresse d'un admin
-			elseif ($user->getRoles() == ['ROLE_ADMIN']) {
-				$pseudo = $user->getUsername();
-				$this->addFlash(
-					'notice',
-					'L\'utilisateur ' . $pseudo . " est un admin ! Il ne peut pas être supprimé."
-				);
-			}
-			// Dans le cas où l'admin envoie en paramètre URL une adresse d'un user ou a cliqué sur le bouton Supprimer à côté d'un user
-			else {
-				$manager->remove($user);
-				$manager->flush();
-				$pseudo = $user->getUsername();
-				$this->addFlash(
-					'notice',
-					'L\'utilisateur ' . $pseudo . " a été supprimé"
-				);
-			}
-		}
-
-		$utilisateurs = $manager->getRepository(Utilisateurs::class)->findAll();
-
-		return $this->redirectToRoute("compte_admin");
-	}
-
-
-
     
     /**
      * @Route("/debug/{id}", name="debug")

@@ -16,26 +16,42 @@
 	{% if c.sujet is defined %}
 		<div class="media border border-primary rounded-lg pl-3 pt-3 pr-3 my-2">
         	<!-- <img src="img_avatar1.png" class="align-self-center mr-3" style="width:60px"> -->
-			{% if c.id_utilisateur.imagebase64 is defined and c.id_utilisateur.imagebase64 is not empty%}
-				<img src="data:image/png;image/jpg;image/gif;base64, {{ c.id_utilisateur.imagebase64 }}" style="width: 50px; height: 50px; border-radius : 75px;">
+			{% if c.id_utilisateur is not null %}
+				{% if c.id_utilisateur.imagebase64 is defined and c.id_utilisateur.imagebase64 is not empty%}
+					<img src="data:image/png;image/jpg;image/gif;base64, {{ c.id_utilisateur.imagebase64 }}" style="width: 50px; height: 50px; border-radius : 75px;">
+				{% else %}
+					<i class="fas fa-user-circle fa-3x align-self-center"></i>
+				{% endif %}
 			{% else %}
-        		<i class="fas fa-user-circle fa-3x align-self-center"></i>
+				<i class="fas fa-user-circle fa-3x align-self-center"></i>
 			{% endif %}
         	<div class="media-body ml-3">
-        		<h4>{{ c.id_utilisateur.username }}</h4>
+        		{% if c.id_utilisateur is not null %}
+					<h4>{{ c.id_utilisateur.username }}</h4>
+				{% else %}
+					<h4>Cet utilisateur a été supprimé</h4>
+				{% endif %}
         		<p>{{ c.message | raw }}</p>
         		<p class="small text-muted font-italic float-right mt-2">{{ c.creation | date("d/m/Y - H:i") }}</p>
         	</div>
         </div>
 	{% else %}
 		<div class="media border border-secondary rounded-lg pl-3 pt-3 pr-3 my-2">
-			{% if c.idUtilisateur.imagebase64 is defined and c.idutilisateur.imagebase64 is not empty%}
-				<img src="data:image/png;image/jpg;image/gif;base64, {{ c.idUtilisateur.imagebase64 }}" style="width: 50px; height: 50px; border-radius : 75px;">
+			{% if c.idUtilisateur is not null %}
+				{% if c.idUtilisateur.imagebase64 is defined and c.idutilisateur.imagebase64 is not empty%}
+					<img src="data:image/png;image/jpg;image/gif;base64, {{ c.idUtilisateur.imagebase64 }}" style="width: 50px; height: 50px; border-radius : 75px;">
+				{% else %}
+					<i class="fas fa-user-circle fa-3x align-self-center"></i>
+				{% endif %}
 			{% else %}
-        		<i class="fas fa-user-circle fa-3x align-self-center"></i>
+				<i class="fas fa-user-circle fa-3x align-self-center"></i>
 			{% endif %}
 			<div class="media-body ml-3">
-				<h4>{{ c.idUtilisateur.username }}</h4>
+				{% if c.idUtilisateur is not null %}
+					<h4>{{ c.idUtilisateur.username }}</h4>
+				{% else %}
+					<h4>Cet utilisateur a été supprimé</h4>
+				{% endif %}
 				<p>{{ c.message | raw }}</p>
 				<p class="small text-muted font-italic float-right mt-2">{{ c.createdAt | date("d/m/Y - H:i") }}</p>
 			</div>

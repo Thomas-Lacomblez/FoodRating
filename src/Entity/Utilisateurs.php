@@ -63,7 +63,7 @@ class Utilisateurs implements UserInterface
     private $commentaires;
 
     /**
-     * @ORM\OneToMany(targetEntity=Reponse::class, mappedBy="idUtilisateur", orphanRemoval=true, cascade={"remove"})
+     * @ORM\OneToMany(targetEntity=Reponse::class, mappedBy="idUtilisateur")
      */
     private $reponses;
 
@@ -83,7 +83,7 @@ class Utilisateurs implements UserInterface
     private $image_base64;
 
     /**
-     * @ORM\OneToMany(targetEntity=Discussion::class, mappedBy="id_utilisateur", orphanRemoval=true, cascade={"remove"})
+     * @ORM\OneToMany(targetEntity=Discussion::class, mappedBy="id_utilisateur")
      */
     private $discussions;
 

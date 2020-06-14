@@ -21,7 +21,11 @@
 		{% for d in discussions %}
         <tr>
         	<td class="font-weight-bold"> <a href="{{ path("readDisc", {"id": d.idDiscussion}) }}">{{ d.titre }}</a> </td>
-        	<td> {{ d.id_utilisateur.username }} </td>
+        	{% if d.id_utilisateur is not null %}
+        	    <td> {{ d.id_utilisateur.username }} </td>
+            {% else %}
+                <td> Utilisateur Supprimé </td>
+            {% endif %}
         	<td class="text-muted"> {{ d.creation | date("d/m/Y") }} </td>
         </tr>
         {% endfor %}

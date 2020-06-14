@@ -19,7 +19,7 @@ class Reponse
 
     /**
      * @ORM\ManyToOne(targetEntity=Utilisateurs::class, inversedBy="reponses")
-     * @ORM\JoinColumn(name="idUtilisateur", referencedColumnName="id", nullable=false)
+     * @ORM\JoinColumn(name="idUtilisateur", referencedColumnName="id", onDelete="SET NULL")
      */
     private $idUtilisateur;
 

@@ -24,7 +24,7 @@ class Discussion
 
     /**
      * @ORM\ManyToOne(targetEntity=Utilisateurs::class, inversedBy="discussions")
-     * @ORM\JoinColumn(name="id_utilisateur", referencedColumnName="id")
+     * @ORM\JoinColumn(name="id_utilisateur", referencedColumnName="id", onDelete="SET NULL")
      */
     private $id_utilisateur;
 
