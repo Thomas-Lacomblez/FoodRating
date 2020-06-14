@@ -1,7 +1,5 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Liste des sujets{% endblock %}
-
 {% block body %}
     <script src="https://bootswatch.com/_vendor/jquery/dist/jquery.min.js"></script>
     <script>
@@ -18,7 +16,7 @@
 			}
 		}
     </script>
-    <div class="card bg-light mb-3 float-left" style="max-width: 20rem;">
+    <div class="card bg-light mb-3" style="max-width: 20rem;">
         <div class="card-header">Tableau de bord de {{ app.user.username }}</div>
             <div class="card-body">
                 <h4 class="card-title">Table des matières</h4>
@@ -34,19 +32,19 @@
                             </div>
                         </li>
                         <li>Forum <i id="flecheF2" onclick="gestionTexte('element2', 'flecheF2')" style="cursor:pointer;">▼</i>
-                            <div id="element2" style="display:block">
+                            <div id="element2" style="display:none">
                                 <ul>
-                                    <li><a class="text-succes"href="#">Les sujets visités</a></li>
+                                    <li><a class="text-secondary"href="{{ path("forum_visite") }}">Les sujets visités</a></li>
                                     <li><a class="text-secondary"href="{{ path("forum_discussion") }}">Mes sujets</a></li>
                                     <li><a class="text-secondary"href="{{ path("forum_participation") }}">Participations aux sujets</a></li>
                                 </ul>
                             </div>
                         </li>
                         <li>Amis <i id="flecheF3" onclick="gestionTexte('element3', 'flecheF3')" style="cursor:pointer;">▼</i>
-                            <div id="element3" style="display:none">
+                            <div id="element3" style="display:block">
                                 <ul>
                                     <li><a class="text-secondary"href="{{ path("liste_utilisateur") }}">Liste des utilisateurs</a></li>
-                                    <li><a class="text-secondary"href="{{ path("liste_amis") }}">Liste d'amis</a></li>
+                                    <li><a class="text-succes"href="#">Liste d'amis</a></li>
                                     <li><a class="text-secondary"href="#">Messages</a></li>
                                     <li><a class="text-secondary"href="{{ path("demandes") }}">Demandes en attentes</a></li>
                                 </ul>
@@ -66,34 +64,37 @@
         </div>
     </div>
     <div class="container">
-        {% if sujetsVisite is defined %}
-            <a href="{{ path("forum_visite_supprimer") }}" class="btn btn-danger">Supprimer l'historique <i class="fas fa-trash-alt"></i></a>
-            
-            <table class="table table-sm table-striped table-hover mt-5 mx-auto" style="width: 70%">
-                <thead class="thead-light">
-                    <tr>
-                        <th class="w-75">Titre</th>
-                        <th>Utilisateur</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                
-                <tbody>
-                
-                    {% for s in sujetsVisite %}
-                    <tr>
-                        <td class="font-weight-bold"> <a href="{{ path("readDisc", {"id": s.idDiscussion}) }}">{{ s.titre }}</a> </td>
-                        <td> {{ s.id_utilisateur.username }} </td>
-                        <td class="text-muted"> {{ s.creation | date("d/m/Y") }} </td>
-                    </tr>
-                    {% endfor %}
-                
-                </tbody>
-            </table>
-
-            <div class="mt-3">{{ knp_pagination_render(sujetsVisite) }}</div>
-        {% else %} 
-            <h1>Aucun Sujet</h1>
+        {% if listeAmis1 is not empty %}
+            <h3>Amis sortant</h3>
+            {% for l1 in listeAmis1 %}
+                {% if l1.utilisateur2.imagebase64 is not null %}
+                    <img class="float-left" src="data:image/png;image/jpg;image/gif;base64, {{ l1.utilisateur2.imagebase64 }}" style="width: 100px; height: 100px; border-radius : 75px;" data-toggle="dropdown" data-placement="bottom" title="{{ l1.utilisateur2.username }}" alt="photo de profil"/>
+                {% else %}
+                    <i class="fas fa-user-circle fa-6x align-self-center float-left"></i>
+                {% endif %}
+                <h4>{{ l1.utilisateur2.username }}</h4><br/>
+                <div class="form-group float-right">
+                    <a href="" class="btn btn-info">Messages <i class="fa fa-envelope"></i></a>
+                    <a href="{{ path("supprimer_amis", {"id" : l1.id}) }}" class="btn btn-danger">Supprimer <i class="fas fa-trash-alt"></i></a>
+                </div><br>
+                <hr class="my-5 border-info" />
+            {% endfor %}
+        {% endif %}
+        {% if listeAmis2 is not empty %}
+             <h3>Amis entrant</h3>
+            {% for l2 in listeAmis2 %}
+                {% if l2.utilisateur1.imagebase64 is not null %}
+                    <img class="float-left" src="data:image/png;image/jpg;image/gif;base64, {{ l2.utilisateur1.imagebase64 }}" style="width: 100px; height: 100px; border-radius : 75px;" data-toggle="dropdown" data-placement="bottom" title="{{ l2.utilisateur1.username }}" alt="photo de profil"/>
+                {% else %}
+                    <i class="fas fa-user-circle fa-6x align-self-center float-left"></i>
+                {% endif %}
+                <h4>{{ l2.utilisateur1.username }}</h4><br/>
+                <div class="form-group float-right">
+                    <a href="" class="btn btn-info">Messages <i class="fa fa-envelope"></i></a>
+                    <a href="{{ path("supprimer_amis", {"id" : l2.id}) }}" class="btn btn-danger">Supprimer <i class="fas fa-trash-alt"></i></a>
+                </div><br>
+                <hr class="my-5 border-info" />
+            {% endfor %}
         {% endif %}
     </div>
 {% endblock %}

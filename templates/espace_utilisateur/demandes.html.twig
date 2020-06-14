@@ -1,7 +1,5 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Liste des sujets{% endblock %}
-
 {% block body %}
     <script src="https://bootswatch.com/_vendor/jquery/dist/jquery.min.js"></script>
     <script>
@@ -18,7 +16,7 @@
 			}
 		}
     </script>
-    <div class="card bg-light mb-3 float-left" style="max-width: 20rem;">
+    <div class="card bg-light mb-3" style="max-width: 20rem;">
         <div class="card-header">Tableau de bord de {{ app.user.username }}</div>
             <div class="card-body">
                 <h4 class="card-title">Table des matières</h4>
@@ -34,21 +32,21 @@
                             </div>
                         </li>
                         <li>Forum <i id="flecheF2" onclick="gestionTexte('element2', 'flecheF2')" style="cursor:pointer;">▼</i>
-                            <div id="element2" style="display:block">
+                            <div id="element2" style="display:none">
                                 <ul>
-                                    <li><a class="text-succes"href="#">Les sujets visités</a></li>
+                                    <li><a class="text-secondary"href="{{ path("forum_visite") }}">Les sujets visités</a></li>
                                     <li><a class="text-secondary"href="{{ path("forum_discussion") }}">Mes sujets</a></li>
                                     <li><a class="text-secondary"href="{{ path("forum_participation") }}">Participations aux sujets</a></li>
                                 </ul>
                             </div>
                         </li>
                         <li>Amis <i id="flecheF3" onclick="gestionTexte('element3', 'flecheF3')" style="cursor:pointer;">▼</i>
-                            <div id="element3" style="display:none">
+                            <div id="element3" style="display:block">
                                 <ul>
                                     <li><a class="text-secondary"href="{{ path("liste_utilisateur") }}">Liste des utilisateurs</a></li>
                                     <li><a class="text-secondary"href="{{ path("liste_amis") }}">Liste d'amis</a></li>
                                     <li><a class="text-secondary"href="#">Messages</a></li>
-                                    <li><a class="text-secondary"href="{{ path("demandes") }}">Demandes en attentes</a></li>
+                                    <li><a class="text-succes"href="#">Demandes en attentes</a></li>
                                 </ul>
                             </div>
                         </li>
@@ -66,34 +64,54 @@
         </div>
     </div>
     <div class="container">
-        {% if sujetsVisite is defined %}
-            <a href="{{ path("forum_visite_supprimer") }}" class="btn btn-danger">Supprimer l'historique <i class="fas fa-trash-alt"></i></a>
-            
-            <table class="table table-sm table-striped table-hover mt-5 mx-auto" style="width: 70%">
-                <thead class="thead-light">
-                    <tr>
-                        <th class="w-75">Titre</th>
-                        <th>Utilisateur</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                
-                <tbody>
-                
-                    {% for s in sujetsVisite %}
-                    <tr>
-                        <td class="font-weight-bold"> <a href="{{ path("readDisc", {"id": s.idDiscussion}) }}">{{ s.titre }}</a> </td>
-                        <td> {{ s.id_utilisateur.username }} </td>
-                        <td class="text-muted"> {{ s.creation | date("d/m/Y") }} </td>
-                    </tr>
-                    {% endfor %}
-                
-                </tbody>
-            </table>
+        {% if demandesUser is not empty %}
+            <div class="flex-sm-wrap mt-5">
 
-            <div class="mt-3">{{ knp_pagination_render(sujetsVisite) }}</div>
-        {% else %} 
-            <h1>Aucun Sujet</h1>
+                <!-- Utilisation du sélecteur de pages de KNP -->
+                {{ knp_pagination_render(demandesUser) }}
+        
+            </div>
+            <h2><u>Demandes envoyées</u></h2><br>
+            {% for d in demandesUser %}
+                {% if d.recepteur.imagebase64 is not null %}
+                    <img class="float-left" src="data:image/png;image/jpg;image/gif;base64, {{ d.recepteur.imagebase64 }}" style="width: 100px; height: 100px; border-radius : 75px;" data-toggle="dropdown" data-placement="bottom" title="{{ d.utilisateur2.username }}" alt="photo de profil"/>
+                {% else %}
+                    <i class="fas fa-user-circle fa-6x align-self-center float-left"></i>
+                {% endif %}
+                <h4>{{ d.recepteur.username }}</h4><br/>
+                <em> {{ d.recepteur.username }} à reçu la demande, en attente de confirmation ! </em>
+                <a href="{{ path("supprimer_demande", {"id" : d.id}) }}" class="btn btn-danger float-right">Retirer la demande <i class="fas fa-trash-alt"></i></a>
+                <hr class="my-5 border-info" />
+            {% endfor %}
+        {% else %}
+            <h4 class="text-secondary">Aucune demandes envoyées</h4>
         {% endif %}
+
+        {% if receptionUser is not empty %}
+            <div class="flex-sm-wrap mt-5">
+
+                <!-- Utilisation du sélecteur de pages de KNP -->
+                {{ knp_pagination_render(receptionUser) }}
+        
+            </div>
+            <h2><u>Demandes reçus</u></h2><br>
+            {% for r in receptionUser %}
+                {% if r.demandeur.imagebase64 is not null %}
+                    <img class="float-left" src="data:image/png;image/jpg;image/gif;base64, {{ r.demandeur.imagebase64 }}" style="width: 100px; height: 100px; border-radius : 75px;" data-toggle="dropdown" data-placement="bottom" title="{{ r.demandeur.username }}" alt="photo de profil"/>
+                {% else %}
+                    <i class="fas fa-user-circle fa-6x align-self-center float-left"></i>
+                {% endif %}
+                <h4>{{ r.demandeur.username }}</h4><br/>
+                <em>{{ r.demandeur.username }} vous à envoyé une demande d'ami !</em>
+                <div class="form-group float-right">
+                    <a href="{{ path("accepter_demande", {"id" : r.id}) }}" class="btn btn-primary">Accepter <i class="fa fa-check"></i></a>
+                    <a href="{{ path("refuser_demande", {"id" : r.id}) }}" class="btn btn-secondary">Refuser <i class="fa fa-times"></i></a>
+                </div>
+                <hr class="my-5 border-info" />
+            {% endfor %}
+        {% else %}
+            <h4 class="text-secondary">Aucune demandes reçus</h4>
+        {% endif %}
+
     </div>
 {% endblock %}

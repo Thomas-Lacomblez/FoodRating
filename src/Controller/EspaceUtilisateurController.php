@@ -2,10 +2,14 @@
 
 namespace App\Controller;
 
+use App\Entity\Amis;
 use League\Csv\Reader;
 use OpenFoodFacts\Api;
+use App\Entity\DemandeAmi;
+use App\Repository\AmisRepository;
 use App\Repository\NotesRepository;
 use App\Repository\ReponseRepository;
+use App\Repository\DemandeAmiRepository;
 use App\Repository\DiscussionRepository;
 use App\Repository\CommentairesRepository;
 use App\Repository\UtilisateursRepository;
@@ -67,7 +71,6 @@ class EspaceUtilisateurController extends AbstractController
 									 ->setMaxResults(5)
 									 ->getQuery()
 									 ->getResult();
-		dump($participationSujets);
 		if($filesystem->exists('csv/'. $user->getId().'/produit.csv')) {
 			$stream = fopen('csv/'. $user->getId().'/produit.csv', 'r');
 			$csv = Reader::createFromStream($stream);
@@ -492,7 +495,364 @@ class EspaceUtilisateurController extends AbstractController
 			return $this->render("espace_utilisateur/forum_participation.html.twig");
 		}
 	}
-    
+
+	/**
+	 * @Route("/client/liste_utilisateurs", name="liste_utilisateur")
+	 */
+	public function listeUtilisateurs(?UserInterface $user, UtilisateursRepository $repoU, DemandeAmiRepository $repoD, AmisRepository $repoA, PaginatorInterface $paginator, Request $request) {
+		$donnees = $repoU->createQueryBuilder("u")
+						 ->where("u.username != :user")
+						 ->setParameter("user", $user->getUsername())
+						 ->orderBy('u.username')
+						 ->getQuery()
+						 ->getResult();
+		$demande = $repoD->findBy(array("demandeur" => $user));
+		$recept = $repoD->findBy(array("recepteur" => $user));
+		$listeAmis1 = $repoA->findBy(array("utilisateur1" => $user));
+		$listeAmis2 = $repoA->findBy(array("utilisateur2" => $user));
+		$saveRecepteur = array();
+		$saveDemandeur = array();
+		$saveListeAmis1 = array();
+		$saveListeAmis2 = array();
+		$demandePourRecepteur = array();
+		$utilisateursTab = array();
+		$utilisateursFinal = array();
+		
+		if ($demande != null) {
+			for($i = 0; $i < sizeof($demande); $i++) {
+				$saveRecepteur [] = $demande[$i]->getRecepteur();
+			}
+		}
+
+		if($recept != null) {
+			for($i = 0; $i < sizeof($recept); $i++) {
+				$saveDemandeur[] = $recept[$i]->getDemandeur();
+			}
+		}
+
+		if($listeAmis1 != null) {
+			for($i = 0; $i < sizeof($listeAmis1); $i++) {
+				$saveListeAmis1[] = $listeAmis1[$i]->getUtilisateur2();
+			}
+		}
+
+		if($listeAmis2 != null) {
+			for($i = 0; $i < sizeof($listeAmis2); $i++) {
+				$saveListeAmis2[] = $listeAmis2[$i]->getUtilisateur1();
+			}
+		}
+
+		for($j = 0; $j < sizeof($donnees); $j++) {
+			if($demande != null && $recept == null && $listeAmis1 == null && $listeAmis2 == null) {
+				if(!in_array($donnees[$j], $saveRecepteur)) {
+					$utilisateursTab [] = $donnees[$j];
+				}
+			}
+			elseif($demande != null && $recept == null && $listeAmis1 != null && $listeAmis2 == null) {
+				if(!in_array($donnees[$j], $saveRecepteur) && !in_array($donnees[$j], $saveListeAmis1)) {
+					$utilisateursTab [] = $donnees[$j];
+				}
+			}
+			elseif($demande != null && $recept == null && $listeAmis1 == null && $listeAmis2 != null) {
+				if(!in_array($donnees[$j], $saveRecepteur) && !in_array($donnees[$j], $saveListeAmis2)) {
+					$utilisateursTab [] = $donnees[$j];
+				}
+			}
+			elseif($demande != null && $recept == null && $listeAmis1 != null && $listeAmis2 != null) {
+				if(!in_array($donnees[$j], $saveRecepteur) && !in_array($donnees[$j], $saveListeAmis1) && !in_array($donnees[$j], $saveListeAmis2)) {
+					$utilisateursTab [] = $donnees[$j];
+				}
+			}
+			elseif($demande == null && $recept != null && $listeAmis1 == null && $listeAmis2 == null) {
+				if(!in_array($donnees[$j], $saveDemandeur)) {
+					$utilisateursTab [] = $donnees[$j];
+				}
+			}
+			elseif($demande == null && $recept != null && $listeAmis1 != null && $listeAmis2 == null) {
+				if(!in_array($donnees[$j], $saveDemandeur) && !in_array($donnees[$j], $saveListeAmis1)) {
+					$utilisateursTab [] = $donnees[$j];
+				}
+			}
+			elseif($demande == null && $recept != null && $listeAmis1 == null && $listeAmis2 != null) {
+				if(!in_array($donnees[$j], $saveDemandeur) && !in_array($donnees[$j], $saveListeAmis2)) {
+					$utilisateursTab [] = $donnees[$j];
+				}
+			}
+			elseif($demande == null && $recept != null && $listeAmis1 != null && $listeAmis2 != null) {
+				if(!in_array($donnees[$j], $saveDemandeur) && !in_array($donnees[$j], $saveListeAmis1) && !in_array($donnees[$j], $saveListeAmis2)) {
+					$utilisateursTab [] = $donnees[$j];
+				}
+			}
+			elseif($demande != null && $recept != null && $listeAmis1 == null && $listeAmis2 == null) {
+				if(!in_array($donnees[$j], $saveRecepteur) && !in_array($donnees[$j], $saveDemandeur)) {
+					$utilisateursTab [] = $donnees[$j];
+				}
+			}
+			elseif($demande != null && $recept != null && $listeAmis1 != null && $listeAmis2 == null) {
+				if(!in_array($donnees[$j], $saveRecepteur) && !in_array($donnees[$j], $saveDemandeur) && !in_array($donnees[$j], $saveListeAmis1)) {
+					$utilisateursTab [] = $donnees[$j];
+				}
+			}
+			elseif($demande != null && $recept != null && $listeAmis1 != null && $listeAmis2 == null) {
+				if(!in_array($donnees[$j], $saveRecepteur) && !in_array($donnees[$j], $saveDemandeur) && !in_array($donnees[$j], $saveListeAmis1)) {
+					$utilisateursTab [] = $donnees[$j];
+				}
+			}
+			elseif($demande != null && $recept != null && $listeAmis1 == null && $listeAmis2 != null) {
+				if(!in_array($donnees[$j], $saveRecepteur) && !in_array($donnees[$j], $saveDemandeur) && !in_array($donnees[$j], $saveListeAmis2)) {
+					$utilisateursTab [] = $donnees[$j];
+				}
+			}
+			elseif($demande != null && $recept != null && $listeAmis1 != null && $listeAmis2 != null) {
+				if(!in_array($donnees[$j], $saveRecepteur) && !in_array($donnees[$j], $saveDemandeur) && !in_array($donnees[$j], $saveListeAmis1) && !in_array($donnees[$j], $saveListeAmis2)) {
+					$utilisateursTab [] = $donnees[$j];
+				}
+			}
+			elseif($demande == null && $recept == null && $listeAmis1 != null && $listeAmis2 == null) {
+				if(!in_array($donnees[$j], $saveListeAmis1)) {
+					$utilisateursTab [] = $donnees[$j];
+				}
+			}
+			elseif($demande == null && $recept == null && $listeAmis1 == null && $listeAmis2 != null) {
+				if(!in_array($donnees[$j], $saveListeAmis2)) {
+					$utilisateursTab [] = $donnees[$j];
+				}
+			}
+			elseif($demande == null && $recept == null && $listeAmis1 != null && $listeAmis2 != null) {
+				if(!in_array($donnees[$j], $saveListeAmis1) && !in_array($donnees[$j], $saveListeAmis2)) {
+					$utilisateursTab [] = $donnees[$j];
+				}
+			}
+			else {
+				break;
+			}
+		
+		}
+		asort($utilisateursTab);
+
+		if($demande == null && $recept == null && $listeAmis1 == null && $listeAmis2 == null) {
+			$utilisateurs = $paginator->paginate(
+				$donnees,
+				$request->query->getInt("page", 1),
+				30
+			);
+		}
+		else {
+			$utilisateurs = $paginator->paginate(
+				$utilisateursTab,
+				$request->query->getInt("page", 1),
+				20
+			);
+		}
+
+
+		// On utilise un template basé sur Bootstrap, celui par défaut ne l'est pas
+		$utilisateurs->setTemplate('@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig');
+
+		// On aligne les sélecteurs au centre de la page
+		$utilisateurs->setCustomParameters([
+				"align" => "center"
+		]);
+
+		$demandeUtilisateurs = $paginator->paginate(
+			$demande,
+			$request->query->getInt("pageDemande", 1),
+			5,
+			['pageParameterName' => 'pageDemande']
+		);
+
+		// On utilise un template basé sur Bootstrap, celui par défaut ne l'est pas
+		$demandeUtilisateurs->setTemplate('@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig');
+
+		// On aligne les sélecteurs au centre de la page
+		$demandeUtilisateurs->setCustomParameters([
+				"align" => "center"
+		]);
+
+		$receptionUtilisateurs = $paginator->paginate(
+			$recept,
+			$request->query->getInt("pageReception", 1),
+			5,
+			['pageParameterName' => 'pageReception']
+		);
+
+		// On utilise un template basé sur Bootstrap, celui par défaut ne l'est pas
+		$receptionUtilisateurs->setTemplate('@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig');
+
+		// On aligne les sélecteurs au centre de la page
+		$receptionUtilisateurs->setCustomParameters([
+				"align" => "center"
+		]);
+				
+		return $this->render("espace_utilisateur/liste_utilisateur.html.twig", [
+				"utilisateurs" => $utilisateurs,
+				"demande" => $demandeUtilisateurs,
+				"reception" => $receptionUtilisateurs
+		]);
+	}
+
+	/**
+	 * @Route("/client/demandes", name="demandes")
+	 */
+	public function demandes(?UserInterface $user, DemandeAmiRepository $repoD, PaginatorInterface $paginator, Request $request) {
+		$donneesDemandeur = $repoD->createQueryBuilder("r")
+						 ->where("r.demandeur = :user")
+						 ->setParameter("user", $user)
+						 ->orderBy("r.createdAt", "ASC")
+						 ->getQuery()
+						 ->getResult();
+		$donneesRecepteur = $repoD->createQueryBuilder("r")
+								  ->where("r.recepteur = :user")
+								  ->setParameter("user", $user)
+								  ->orderBy("r.createdAt", "ASC")
+								  ->getQuery()
+								  ->getResult();
+		$demandesUser = $paginator->paginate(
+			$donneesDemandeur,
+			$request->query->getInt("page", 1),
+			10
+		);
+					
+		// On utilise un template basé sur Bootstrap, celui par défaut ne l'est pas
+		$demandesUser->setTemplate('@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig');
+
+		// On aligne les sélecteurs au centre de la page
+		$demandesUser->setCustomParameters([
+				"align" => "center"
+		]);
+
+		$receptionUser = $paginator->paginate(
+			$donneesRecepteur,
+			$request->query->getInt("page2", 1),
+			10,
+			['pageParameterName' => 'page2']
+		);
+					
+		// On utilise un template basé sur Bootstrap, celui par défaut ne l'est pas
+		$receptionUser->setTemplate('@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig');
+
+		// On aligne les sélecteurs au centre de la page
+		$receptionUser->setCustomParameters([
+				"align" => "center"
+		]);
+
+		return $this->render("espace_utilisateur/demandes.html.twig", [
+			"demandesUser" => $demandesUser,
+			"receptionUser" => $receptionUser
+		]);
+							
+	}
+
+	/**
+	 * @Route("/client/demandes/{id}", name="demande_ami")
+	 */
+	public function demandeAmi($id, ?UserInterface $user, UtilisateursRepository $repoU) {
+		$manager = $this->getDoctrine()->getManager();
+		$demandeAmi= new DemandeAmi();
+		$user2 = $repoU->find($id);
+		$demandeAmi->setDemandeur($user)
+				   ->setRecepteur($user2)
+				   ->setCreatedAt(new \DateTime());
+		$manager->persist($demandeAmi);
+		$manager->flush();
+		return $this->redirectToRoute('demandes');
+	}
+
+	/**
+	 * @Route("/client/demandes/supprimer/{id}", name="supprimer_demande")
+	 */
+	public function supprimerDemande($id, ?UserInterface $user, DemandeAmiRepository $repoD) {
+		$manager = $this->getDoctrine()->getManager();
+		$demande = $repoD->findBy(["demandeur" => $user, "id" => $id]);
+		$manager->remove($demande[0]);
+		$manager->flush();
+		return $this->redirectToRoute('demandes');
+	}
+
+	/**
+	 * @Route("/client/demandes/refuser/{id}", name="refuser_demande")
+	 */
+	public function refuserDemande($id, ?UserInterface $user, DemandeAmiRepository $repoD) {
+		$manager = $this->getDoctrine()->getManager();
+		$demande = $repoD->findBy(["recepteur" => $user, "id" => $id]);
+		$manager->remove($demande[0]);
+		$manager->flush();
+		return $this->redirectToRoute('demandes');
+	}
+
+	/**
+	 * @Route("/client/demandes/accepter/{id}", name="accepter_demande")
+	 */
+	public function accepterDemande($id, ?UserInterface $user, DemandeAmiRepository $repoD) {
+		$manager = $this->getDoctrine()->getManager();
+		$demande = $repoD->findBy(["recepteur" => $user, "id" => $id]);
+		$ami = new Amis();
+		$ami->setUtilisateur1($demande[0]->getDemandeur())
+			->setUtilisateur2($user)
+			->setCreatedAt(new \DateTime());
+		$manager->persist($ami);
+		$manager->remove($demande[0]);
+		$manager->flush();
+		return $this->redirectToRoute('demandes');
+	}
+
+	/**
+	 * @Route("/client/liste_amis", name="liste_amis")
+	 */
+    public function listeAmis(?UserInterface $user, AmisRepository $repoA, PaginatorInterface $paginator, Request $request) {
+		$listeAmis1 = $repoA->findBy(array("utilisateur1" => $user));
+		$listeAmis2 = $repoA->findBy(array("utilisateur2" => $user));
+
+		$amis1 = $paginator->paginate(
+			$listeAmis1,
+			$request->query->getInt("page", 1),
+			10
+		);
+
+		$amis1->setTemplate('@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig');
+
+		// On aligne les sélecteurs au centre de la page
+		$amis1->setCustomParameters([
+				"align" => "center"
+		]);
+
+		$amis2 = $paginator->paginate(
+			$listeAmis2,
+			$request->query->getInt("page2", 1),
+			10,
+			['pageParameterName' => 'page2']
+		);
+					
+		// On utilise un template basé sur Bootstrap, celui par défaut ne l'est pas
+		$amis2->setTemplate('@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig');
+
+		// On aligne les sélecteurs au centre de la page
+		$amis2->setCustomParameters([
+				"align" => "center"
+		]);
+		return $this->render('espace_utilisateur/liste_ami.html.twig', [
+			"listeAmis1" => $amis1,
+			"listeAmis2" => $amis2
+		]);
+	}
+
+	/**
+	 * @Route("/client/liste_amis/supprimer/{id}", name="supprimer_amis")
+	 */
+	public function supprimerAmis($id, ?UserInterface $user, AmisRepository $repoA) {
+		$manager = $this->getDoctrine()->getManager();
+		$ami1 = $repoA->findBy(["utilisateur1" => $user, "id" => $id]);
+		$ami2 = $repoA->findBy(["utilisateur2" => $user, "id" => $id]);
+		if($ami1 != null) {
+			$manager->remove($ami1[0]);
+		}
+		else {
+			$manager->remove($ami2[0]);
+		}
+		$manager->flush();
+		return $this->redirectToRoute('liste_amis');
+	}
+
     /**
      * @Route("/client/info_compte", name="user_show")
      */

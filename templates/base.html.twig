@@ -41,12 +41,12 @@
                 </ul>
                 <form class="form-inline my-2 my-lg-0" action="{{ path('resultat') }}" method="get">
                     <input class="form-control mr-sm-2" type="text" id="recherche" name="recherche" placeholder="Recherche" required>
-                    <button class="btn btn-warning my-2 my-sm-0 mr-2" type="submit">Rechercher</button>
+                    <button class="btn btn-warning my-2 my-sm-0 mr-2" type="submit">Rechercher <i class="fa fa-search"></i></button>
                 </form>
                 {% if app.user %}
                     <form class="form-inline my-2 my-lg-0" action=" {{ path('resultat_user') }}" method="get">
                         <input class="form-control mr-sm-2" type="text" id="recherche_utilisateur" name="recherche_utilisateur" placeholder="Rechercher un utilisateur" required>
-                        <button class="btn btn-secondary my-2 my-sm-0 mr-2" type="submit">Rechercher</button>
+                        <button class="btn btn-secondary my-2 my-sm-0 mr-2" type="submit">Rechercher <i class="fa fa-search"></i></button>
                     </form>
                 {% endif %}
                 

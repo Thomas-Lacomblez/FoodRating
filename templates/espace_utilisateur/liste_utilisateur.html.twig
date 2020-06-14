@@ -4,25 +4,106 @@
 
 {% block body %}
 <script src="https://bootswatch.com/_vendor/jquery/dist/jquery.min.js"></script>
-<h1>Liste des produits</h1>
-
-<div class="form-group mx-auto">
-  <input type="text" class="form-control mx-auto" id="myInput" style="width: 60%;" placeholder="Rechercher dans le tableau...">
-</div>
-
-<div class="flex-sm-wrap mt-5">
+<div class="card bg-light mb-3" style="max-width: 20rem;">
+        <div class="card-header">Tableau de bord de {{ app.user.username }}</div>
+            <div class="card-body">
+                <h4 class="card-title">Table des matières</h4>
+                <p class="card-text">
+                    <ul>
+                        <li>Produits <i id="flecheF1" onclick="gestionTexte('element1', 'flecheF1')" style="cursor:pointer;">▼</i>
+                            <div id="element1" style="display:none">
+                                <ul>
+                                    <li><a class="text-secondary"href="{{ path("produit_visite") }}">Les produits visités</a></li>
+                                    <li><a class="text-secondary"href="{{ path("produit_notes") }}">Les produits notés</a></li>
+                                    <li><a class="text-secondary"href="{{ path("produit_commentaires") }}">Les produits commentés</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li>Forum <i id="flecheF2" onclick="gestionTexte('element2', 'flecheF2')" style="cursor:pointer;">▼</i>
+                            <div id="element2" style="display:none">
+                                <ul>
+                                    <li><a class="text-secondary"href="{{ path("forum_visite") }}">Les sujets visités</a></li>
+                                    <li><a class="text-secondary"href="{{ path("forum_discussion") }}">Mes sujets</a></li>
+                                    <li><a class="text-secondary"href="{{ path("forum_participation") }}">Participations aux sujets</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li>Amis <i id="flecheF3" onclick="gestionTexte('element3', 'flecheF3')" style="cursor:pointer;">▼</i>
+                            <div id="element3" style="display:block">
+                                <ul>
+                                    <li><a class="text-succes"href="#">Liste des utilisateurs</a></li>
+                                    <li><a class="text-secondary"href="{{ path("liste_amis") }}">Liste d'amis</a></li>
+                                    <li><a class="text-secondary"href="#">Messages</a></li>
+                                    <li><a class="text-secondary"href="{{ path("demandes") }}">Demandes en attentes</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li>Autres <i id="flecheF4" onclick="gestionTexte('element4', 'flecheF4')" style="cursor:pointer;">▼</i>
+                            <div id="element4" style="display:none">
+                                <ul>
+                                    <li><a class="text-secondary"href="#">Mes commentaires utiles</a></li>
+                                    <li><a class="text-secondary"href="#">Les utilisateurs signalés</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+    </div>
 
 	<!-- Utilisation du sélecteur de pages de KNP -->
-    {{ knp_pagination_render(utilisateurs) }}
 	
 </div>
-
-{% for u in utilisateurs %}
-    {% if u.imagebase64 is not null %}
-        <img src="data:image/png;image/jpg;image/gif;base64, {{ u.imagebase64 }}" style="width: 100px; height: 100px; border-radius : 75px;" data-toggle="dropdown" data-placement="bottom" title="{{ u.username }}" alt="photo de profil"/>
-    {% else %}
-        <i class="fas fa-user-circle fa-3x pt-1 dropdown-toggle text-light ml-3" data-toggle="dropdown" data-placement="bottom" title="{{ u.username }}"></i>
+<div class="container">
+    {% if app.user %}
+        {% if demande is not empty %}
+            <h3>Mes demandes en attente</h3><br>
+            {{ knp_pagination_render(demande) }}
+            {% for d in demande %}
+                {% if d.recepteur.imagebase64 is not null %}
+                    <img class="float-left" src="data:image/png;image/jpg;image/gif;base64, {{ d.recepteur.imagebase64 }}" style="width: 100px; height: 100px; border-radius : 75px;" data-toggle="dropdown" data-placement="bottom" title="{{ d.recepteur.username }}" alt="photo de profil"/>
+                {% else %}
+                    <i class="fas fa-user-circle fa-6x align-self-center float-left"></i>
+                {% endif %}
+                <h4>{{ d.recepteur.username }}</h4><br/>
+                <em> {{ d.recepteur.username }} à reçu la demande, en attente de confirmation ! </em>
+                <a href="{{ path("supprimer_demande", {"id" : d.id}) }}" class="btn btn-danger float-right">Retirer la demande <i class="fas fa-trash-alt"></i></a>
+                <hr class="my-5 border-info" />
+            {% endfor %}
+        {% endif %}
+        {% if reception is not empty %}
+            <h3>Mes demandes reçus</h3><br>
+            {{ knp_pagination_render(reception) }}
+            {% for r in reception %}
+                {% if r.demandeur.imagebase64 is not null %}
+                    <img class="float-left" src="data:image/png;image/jpg;image/gif;base64, {{ r.demandeur.imagebase64 }}" style="width: 100px; height: 100px; border-radius : 75px;" data-toggle="dropdown" data-placement="bottom" title="{{ r.demandeur.username }}" alt="photo de profil"/>
+                {% else %}
+                    <i class="fas fa-user-circle fa-6x align-self-center float-left"></i>
+                {% endif %}
+                <h4>{{ r.demandeur.username }}</h4><br/>
+                <em>{{ r.demandeur.username }} vous à envoyé une demande d'ami !</em>
+                <div class="form-group float-right">
+                    <a href="{{ path("accepter_demande", {"id" : r.id}) }}" class="btn btn-primary">Accepter <i class="fa fa-check"></i></a>
+                    <a href="{{ path("refuser_demande", {"id" : r.id}) }}" class="btn btn-secondary">Refuser <i class="fa fa-times"></i></a>
+                </div>
+                <hr class="my-5 border-info" />
+            {% endfor %}
+        {% endif %}
+        {% if  utilisateurs|length >= 1 %}
+            {{ knp_pagination_render(utilisateurs) }}
+            <h3>Les Utilisateurs</h3><br>
+            {% for u in utilisateurs %}
+                {% if u.imagebase64 is not null %}
+                    <img class="float-left" src="data:image/png;image/jpg;image/gif;base64, {{ u.imagebase64 }}" style="width: 100px; height: 100px; border-radius : 75px;" data-toggle="dropdown" data-placement="bottom" title="{{ u.username }}" alt="photo de profil"/>
+                {% else %}
+                    <i class="fas fa-user-circle fa-6x align-self-center float-left"></i>
+                {% endif %}
+                <h4>{{ u.username }}</h4><br/>
+                <a href="{{ path("demande_ami", {"id" : u.id}) }}" class="btn btn-info float-right">Envoyer une demande d'ami <i class="fa fa-paper-plane"></i></a>
+                <hr class="my-5 border-info" />
+            {% endfor %}
+        {% endif %}
     {% endif %}
-    <h4>{{ u.username }}</h4>
-{% endfor %}
+</div>
 {% endblock %}

@@ -144,7 +144,6 @@ class FoodRatingController extends AbstractController
 		$keyAime = array_map($fonctionKey, $aimeCommentaire);
 		reset($aimeCommentaire);
 		$valueAime = array_map($fonctionValue, $aimeCommentaire);
-		
 		$aimeCommentaire = array_combine($keyAime, $valueAime);
 		
 		$collection = $api->getByFacets(["categorie" => $categorie]);

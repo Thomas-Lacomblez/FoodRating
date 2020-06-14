@@ -87,6 +87,26 @@ class Utilisateurs implements UserInterface
      */
     private $discussions;
 
+    /**
+     * @ORM\OneToMany(targetEntity=DemandeAmi::class, mappedBy="demandeur", cascade={"remove"})
+     */
+    private $demandeAmisDemandeur;
+
+    /**
+     * @ORM\OneToMany(targetEntity=DemandeAmi::class, mappedBy="recepteur", cascade={"remove"})
+     */
+    private $demandeAmisRecepteur;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Amis::class, mappedBy="utilisateur1", cascade={"remove"})
+     */
+    private $amisUtilisateur1;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Amis::class, mappedBy="utilisateur2", cascade={"remove"})
+     */
+    private $amisUtilisateur2;
+
     public function __construct()
     {
         $this->notes = new ArrayCollection();
@@ -94,6 +114,10 @@ class Utilisateurs implements UserInterface
         $this->reponses = new ArrayCollection();
         $this->aimes = new ArrayCollection();
         $this->discussions = new ArrayCollection();
+        $this->demandeAmisDemandeur = new ArrayCollection();
+        $this->demandeAmisRecepteur = new ArrayCollection();
+        $this->amisUtilisateur1 = new ArrayCollection();
+        $this->amisUtilisateur2 = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -297,6 +321,130 @@ class Utilisateurs implements UserInterface
     {
         $this->image_base64 = $image_base64;
         
+        return $this;
+    }
+
+    /**
+     * @return Collection|DemandeAmi[]
+     */
+    public function getDemandeAmisDemandeur(): Collection
+    {
+        return $this->demandeAmisDemandeur;
+    }
+
+    public function addDemandeAmisDemandeur(DemandeAmi $demandeAmisDemandeur): self
+    {
+        if (!$this->demandeAmisDemandeur->contains($demandeAmisDemandeur)) {
+            $this->demandeAmisDemandeur[] = $demandeAmisDemandeur;
+            $demandeAmisDemandeur->setDemandeur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDemandeAmisDemandeur(DemandeAmi $demandeAmisDemandeur): self
+    {
+        if ($this->demandeAmisDemandeur->contains($demandeAmisDemandeur)) {
+            $this->demandeAmisDemandeur->removeElement($demandeAmisDemandeur);
+            // set the owning side to null (unless already changed)
+            if ($demandeAmisDemandeur->getDemandeur() === $this) {
+                $demandeAmisDemandeur->setDemandeur(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|DemandeAmi[]
+     */
+    public function getDemandeAmisRecepteur(): Collection
+    {
+        return $this->demandeAmisRecepteur;
+    }
+
+    public function addDemandeAmisRecepteur(DemandeAmi $demandeAmisRecepteur): self
+    {
+        if (!$this->demandeAmisRecepteur->contains($demandeAmisRecepteur)) {
+            $this->demandeAmisRecepteur[] = $demandeAmisRecepteur;
+            $demandeAmisRecepteur->setRecepteur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDemandeAmisRecepteur(DemandeAmi $demandeAmisRecepteur): self
+    {
+        if ($this->demandeAmisRecepteur->contains($demandeAmisRecepteur)) {
+            $this->demandeAmisRecepteur->removeElement($demandeAmisRecepteur);
+            // set the owning side to null (unless already changed)
+            if ($demandeAmisRecepteur->getRecepteur() === $this) {
+                $demandeAmisRecepteur->setRecepteur(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Amis[]
+     */
+    public function getAmisUtilisateur1(): Collection
+    {
+        return $this->amisUtilisateur1;
+    }
+
+    public function addAmisUtilisateur1(Amis $amisUtilisateur1): self
+    {
+        if (!$this->amisUtilisateur1->contains($amisUtilisateur1)) {
+            $this->amisUtilisateur1[] = $amisUtilisateur1;
+            $amisUtilisateur1->setUtilisateur1($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAmisUtilisateur1(Amis $amisUtilisateur1): self
+    {
+        if ($this->amisUtilisateur1->contains($amisUtilisateur1)) {
+            $this->amisUtilisateur1->removeElement($amisUtilisateur1);
+            // set the owning side to null (unless already changed)
+            if ($amisUtilisateur1->getUtilisateur1() === $this) {
+                $amisUtilisateur1->setUtilisateur1(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Amis[]
+     */
+    public function getAmisUtilisateur2(): Collection
+    {
+        return $this->amisUtilisateur2;
+    }
+
+    public function addAmisUtilisateur2(Amis $amisUtilisateur2): self
+    {
+        if (!$this->amisUtilisateur2->contains($amisUtilisateur2)) {
+            $this->amisUtilisateur2[] = $amisUtilisateur2;
+            $amisUtilisateur2->setUtilisateur2($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAmisUtilisateur2(Amis $amisUtilisateur2): self
+    {
+        if ($this->amisUtilisateur2->contains($amisUtilisateur2)) {
+            $this->amisUtilisateur2->removeElement($amisUtilisateur2);
+            // set the owning side to null (unless already changed)
+            if ($amisUtilisateur2->getUtilisateur2() === $this) {
+                $amisUtilisateur2->setUtilisateur2(null);
+            }
+        }
+
         return $this;
     }
 }

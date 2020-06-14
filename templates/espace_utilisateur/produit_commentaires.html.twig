@@ -45,10 +45,10 @@
                         <li>Amis <i id="flecheF3" onclick="gestionTexte('element3', 'flecheF3')" style="cursor:pointer;">▼</i>
                             <div id="element3" style="display:none">
                                 <ul>
-                                    <li><a class="text-secondary"href="#">Rechercher un ami</a></li>
-                                    <li><a class="text-secondary"href="#">Liste d'amis</a></li>
+                                    <li><a class="text-secondary"href="{{ path("liste_utilisateur") }}">Liste des utilisateurs</a></li>
+                                    <li><a class="text-secondary"href="{{ path("liste_amis") }}">Liste d'amis</a></li>
                                     <li><a class="text-secondary"href="#">Messages</a></li>
-                                    <li><a class="text-secondary"href="#">Demandes en attentes</a></li>
+                                    <li><a class="text-secondary"href="{{ path("demandes") }}">Demandes en attentes</a></li>
                                 </ul>
                             </div>
                         </li>

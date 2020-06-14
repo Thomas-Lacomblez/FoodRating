@@ -187,7 +187,7 @@ class SecurityController extends AbstractController
                     $moyennes = $repoM->findBy(["produit_id" => $tabProduitMoyenne[$i]]);
                     $saveNote = array();
                     for ($m = 0; $m < sizeof($notes); $m++) {
-                        $saveNote[] = $notes[0]->getNbEtoiles();
+                        $saveNote[] = $notes[$m]->getNbEtoiles();
                     }
                     $moyenneNote = round((array_sum($saveNote)/count($saveNote)), 2);
                     $moyennes[0]->setMoyenne($moyenneNote);
