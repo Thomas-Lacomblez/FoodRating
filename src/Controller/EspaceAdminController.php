@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Entity\Reponse;
+use App\Entity\Discussion;
 use App\Entity\Utilisateurs;
 use App\Repository\NotesRepository;
 use App\Repository\MoyenneProduitsRepository;
@@ -34,7 +36,6 @@ class EspaceAdminController extends AbstractController
 
 		$manager = $this->getDoctrine()->getManager();
 		$pseudo = "";
-		dump($request);
 		if ($request->query->has("uas")){
 			$user = $manager->getRepository(Utilisateurs::class)->findOneBy(['email' => $request->query->get("uas")]);
 
@@ -107,6 +108,68 @@ class EspaceAdminController extends AbstractController
 		return $this->redirectToRoute("compte_admin");
 	}
 
+	/**
+	 * @Route("/admin/reponse/suppression", name="suppression_reponse")
+	 */
+	public function suppressionReponse(Request $request){
+
+		$manager = $this->getDoctrine()->getManager();
+		if ($request->query->has("aas")){
+			$reponse = $manager->getRepository(Reponse::class)->findOneBy(['id' => $request->query->get("aas")]);
+
+			// Dans le cas où l'admin envoie en paramètre URL une id de reponse qui n'existe pas
+			if (empty($reponse)){
+				$this->addFlash(
+					'suppr_rep',
+					"La réponse que vous avez demandé de supprimer n'existe pas."
+				);
+			}
+			else {
+				$manager->remove($reponse);
+				$manager->flush();
+				$this->addFlash(
+					'suppr_rep',
+					"La réponse a été supprimée"
+				);
+			}
+		}
+		if ($request->query->has("numerodiscussion")){
+			return $this->redirectToRoute("readDisc", [
+				'id' => $request->query->getInt("numerodiscussion")
+			]);
+		}
+		else {
+			return $this->redirectToRoute("forum");
+		}
+	}
+
+	/**
+	 * @Route("/admin/discussion/suppression", name="suppression_discussion")
+	 */
+	public function suppressionDiscussion(Request $request){
+		$manager = $this->getDoctrine()->getManager();
+		if ($request->query->has("das")){
+			$discussion = $manager->getRepository(Discussion::class)->findOneBy(['idDiscussion' => $request->query->get("das")]);
+
+			// Dans le cas où l'admin envoie en paramètre URL une id de reponse qui n'existe pas
+			if (empty($discussion)){
+				$this->addFlash(
+					'suppr_disc',
+					"La discussion que vous avez demandé de supprimer n'existe pas."
+				);
+			}
+			else {
+				$manager->remove($discussion);
+				$manager->flush();
+				$this->addFlash(
+					'suppr_disc',
+					"La discussion a été supprimée"
+				);
+			}
+		}
+		return $this->redirectToRoute("forum");
+		
+	}
 }
 
 ?>

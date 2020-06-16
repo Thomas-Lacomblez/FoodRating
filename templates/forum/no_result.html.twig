@@ -4,6 +4,10 @@
 
 {% block body %}
 
+{% for message in app.flashes('suppr_disc') %}
+    {{ message }}
+{% endfor %}
+
 <h1 class="text-muted mx-auto">Aucun sujet n'a été ouvert.</h1>
 <br />
 <a href="{{ path("createDisc") }}" class="btn btn-primary">Créer un nouveau sujet</a>
