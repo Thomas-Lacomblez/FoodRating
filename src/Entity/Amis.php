@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\AmisRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -31,6 +33,22 @@ class Amis
      * @ORM\Column(type="datetime")
      */
     private $createdAt;
+
+    /**
+     * @ORM\OneToMany(targetEntity=DiscussionPrivee::class, mappedBy="amis", cascade={"remove"})
+     */
+    private $discussionPrivees;
+
+    /**
+     * @ORM\OneToMany(targetEntity=ReponsePrivee::class, mappedBy="amis", cascade={"remove"})
+     */
+    private $reponsePrivees;
+
+    public function __construct()
+    {
+        $this->discussionPrivees = new ArrayCollection();
+        $this->reponsePrivees = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -69,6 +87,68 @@ class Amis
     public function setCreatedAt(\DateTimeInterface $createdAt): self
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|DiscussionPrivee[]
+     */
+    public function getDiscussionPrivees(): Collection
+    {
+        return $this->discussionPrivees;
+    }
+
+    public function addDiscussionPrivee(DiscussionPrivee $discussionPrivee): self
+    {
+        if (!$this->discussionPrivees->contains($discussionPrivee)) {
+            $this->discussionPrivees[] = $discussionPrivee;
+            $discussionPrivee->setAmis($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDiscussionPrivee(DiscussionPrivee $discussionPrivee): self
+    {
+        if ($this->discussionPrivees->contains($discussionPrivee)) {
+            $this->discussionPrivees->removeElement($discussionPrivee);
+            // set the owning side to null (unless already changed)
+            if ($discussionPrivee->getAmis() === $this) {
+                $discussionPrivee->setAmis(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|ReponsePrivee[]
+     */
+    public function getReponsePrivees(): Collection
+    {
+        return $this->reponsePrivees;
+    }
+
+    public function addReponsePrivee(ReponsePrivee $reponsePrivee): self
+    {
+        if (!$this->reponsePrivees->contains($reponsePrivee)) {
+            $this->reponsePrivees[] = $reponsePrivee;
+            $reponsePrivee->setAmis($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReponsePrivee(ReponsePrivee $reponsePrivee): self
+    {
+        if ($this->reponsePrivees->contains($reponsePrivee)) {
+            $this->reponsePrivees->removeElement($reponsePrivee);
+            // set the owning side to null (unless already changed)
+            if ($reponsePrivee->getAmis() === $this) {
+                $reponsePrivee->setAmis(null);
+            }
+        }
 
         return $this;
     }

@@ -1,0 +1,63 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Messages{% endblock %}
+
+{% block body %}
+{% if discussion is not null %}
+    {% if discussion.envoyeurDisc == app.user %}
+        <h1>Messages avec {{ discussion.recepteurDisc.username }}</h1>
+    {% else %}
+        <h1>Messages avec {{ discussion.envoyeurDisc.username }}</h1>
+    {% endif %}
+    <h5> Message de {{ discussion.envoyeurDisc.username }}</h5>
+    <div class="media border border-primary rounded-lg pl-3 pt-3 pr-3 my-2">
+        {% if discussion.envoyeurDisc.imagebase64 is defined and discussion.envoyeurDisc.imagebase64 is not empty %}
+            <img src="data:image/png;image/jpg;image/gif;base64, {{ discussion.envoyeurDisc.imagebase64 }}" style="width: 50px; height: 50px; border-radius : 75px;">
+        {% else %}
+            <i class="fas fa-user-circle fa-3x align-self-center"></i>
+        {% endif %}
+        <div class="media-body ml-3">
+            <p>{{ discussion.message | raw }}</p>
+        	<p class="small text-muted font-italic float-right mt-2">{{ discussion.createdAt | date("d/m/Y - H:i") }}</p>
+        </div>
+    </div>
+    {% if reponses is defined %}
+        {% for r in reponses %}
+            <h5> Message de {{ r.envoyeurRep.username }}</h5>
+            <div class="media border border-primary rounded-lg pl-3 pt-3 pr-3 my-2">
+                {% if r.envoyeurRep.imagebase64 is defined and r.envoyeurRep.imagebase64 is not empty %}
+                    <img src="data:image/png;image/jpg;image/gif;base64, {{ r.envoyeurRep.imagebase64 }}" style="width: 50px; height: 50px; border-radius : 75px;">
+                {% else %}
+                    <i class="fas fa-user-circle fa-3x align-self-center"></i>
+                {% endif %}
+                <div class="media-body ml-3">
+                    <p>{{ r.message | raw }}</p>
+                    <p class="small text-muted font-italic float-right mt-2">{{ r.createdAt | date("d/m/Y - H:i") }}</p>
+                </div>
+            </div>
+        {% endfor %}
+        <form action="{{ path("reponses", {"id": amis.id}) }}" method="post">
+            <div class="form-group">
+                <textarea class="form-control" name="message" id="message" row="3" placeholder="Ecrivez votre message..."></textarea>
+            </div>
+            <div class="form-goup float-right"></div>
+                <button class="btn btn-primary" type="submit">Envoyer</button>
+                <a href="{{ path("liste_amis") }}" class="btn btn-danger">Annuler</a>
+            </div>
+        </form>
+    {% endif %}
+{% else %}
+    <h3>Aucun message</h3>
+    <form action="{{ path("discussion", {"id": amis.id}) }}" method="post">
+        <div class="form-group">
+            <textarea class="form-control" name="message" id="message" row="3" placeholder="Ecrivez votre message..."></textarea>
+        </div>
+        <div class="form-goup float-right"></div>
+            <button class="btn btn-primary" type="submit">Envoyer</button>
+            <button class="btn btn-danger" type="reset" data-dismiss="modal">Annuler</button>
+        </div>
+    </form>
+</div>
+{% endif %}
+
+{% endblock %}
