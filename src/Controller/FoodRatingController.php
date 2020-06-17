@@ -35,7 +35,7 @@ class FoodRatingController extends AbstractController
     /**
      * @Route("/", name="food_rating")
      */
-    public function home(MoyenneProduitsRepository $repo, CategoriesRepository $repoC) {
+    public function home(MoyenneProduitsRepository $repo, CategoriesRepository $repoC, CommentairesRepository $repoCo) {
 		$api = new Api("food", "fr");
 		$manager = $this->getDoctrine()->getManager();
 		$moyenneProduits = $repo->findAll();
@@ -49,6 +49,18 @@ class FoodRatingController extends AbstractController
 		$tabCategoriesRandom = array();
 		$tab = array();
 		$tabPrdRandom = array();
+		$meilleursCommentaires = $repoCo->createQueryBuilder('c')
+										->orderBy("c.utile", "DESC")
+										->setMaxResults(5)
+            							->getQuery()
+										->getResult();
+		$sauvegardeProduitCom = array();
+		if($meilleursCommentaires != null) {
+			for($i = 0; $i < sizeof($meilleursCommentaires); $i++) {
+				$produit = $api->getProduct($meilleursCommentaires[$i]->getProduitId());
+				$sauvegardeProduitCom [] = $produit;
+			}
+		}
 		for ($i = 0; $i < sizeof($categories); $i++) {
 			$tabCategories [] = [
 					"name" => $categories[$i]["name"],
@@ -96,12 +108,16 @@ class FoodRatingController extends AbstractController
 			return $this->render('food_rating/accueil.html.twig', [
 				"meilleursProduit" => $meilleursProduit,
 				"categorieProduit" => $categorieProduit,
-				"produit_carousel" => $tabPrdRandom
+				"produit_carousel" => $tabPrdRandom,
+				"meilleursCommentaires" => $meilleursCommentaires,
+				"commentairesProduit" => $sauvegardeProduitCom
 			]);
 		}
 		else {
 			return $this->render('food_rating/accueil.html.twig', [
-				"produit_carousel" => $tabPrdRandom
+				"produit_carousel" => $tabPrdRandom,
+				"meilleursCommentaires" => $meilleursCommentaires,
+				"commentairesProduit" => $sauvegardeProduitCom
 			]);
 		}
     }

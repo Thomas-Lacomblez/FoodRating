@@ -107,6 +107,26 @@ class Utilisateurs implements UserInterface
      */
     private $amisUtilisateur2;
 
+    /**
+     * @ORM\OneToMany(targetEntity=DiscussionPrivee::class, mappedBy="envoyeurDisc", cascade={"remove"})
+     */
+    private $discussionPriveesEnvoyeur;
+
+    /**
+     * @ORM\OneToMany(targetEntity=DiscussionPrivee::class, mappedBy="recepteurDisc", cascade={"remove"})
+     */
+    private $discussionPriveesRecepteur;
+
+    /**
+     * @ORM\OneToMany(targetEntity=ReponsePrivee::class, mappedBy="envoyeurRep", cascade={"remove"})
+     */
+    private $reponsePriveesEnvoyeur;
+
+    /**
+     * @ORM\OneToMany(targetEntity=ReponsePrivee::class, mappedBy="recepteurRep", cascade={"remove"})
+     */
+    private $reponsePriveesRecepteur;
+
     public function __construct()
     {
         $this->notes = new ArrayCollection();
@@ -118,6 +138,10 @@ class Utilisateurs implements UserInterface
         $this->demandeAmisRecepteur = new ArrayCollection();
         $this->amisUtilisateur1 = new ArrayCollection();
         $this->amisUtilisateur2 = new ArrayCollection();
+        $this->discussionPriveesEnvoyeur = new ArrayCollection();
+        $this->discussionPriveesRecepteur = new ArrayCollection();
+        $this->reponsePriveesEnvoyeur = new ArrayCollection();
+        $this->reponsePriveesRecepteur = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -442,6 +466,130 @@ class Utilisateurs implements UserInterface
             // set the owning side to null (unless already changed)
             if ($amisUtilisateur2->getUtilisateur2() === $this) {
                 $amisUtilisateur2->setUtilisateur2(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|DiscussionPrivee[]
+     */
+    public function getDiscussionPriveesEnvoyeur(): Collection
+    {
+        return $this->discussionPriveesEnvoyeur;
+    }
+
+    public function addDiscussionPriveesEnvoyeur(DiscussionPrivee $discussionPriveesEnvoyeur): self
+    {
+        if (!$this->discussionPriveesEnvoyeur->contains($discussionPriveesEnvoyeur)) {
+            $this->discussionPriveesEnvoyeur[] = $discussionPriveesEnvoyeur;
+            $discussionPriveesEnvoyeur->setEnvoyeurDisc($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDiscussionPriveesEnvoyeur(DiscussionPrivee $discussionPriveesEnvoyeur): self
+    {
+        if ($this->discussionPriveesEnvoyeur->contains($discussionPriveesEnvoyeur)) {
+            $this->discussionPriveesEnvoyeur->removeElement($discussionPriveesEnvoyeur);
+            // set the owning side to null (unless already changed)
+            if ($discussionPriveesEnvoyeur->getEnvoyeurDisc() === $this) {
+                $discussionPriveesEnvoyeur->setEnvoyeurDisc(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|DiscussionPrivee[]
+     */
+    public function getDiscussionPriveesRecepteur(): Collection
+    {
+        return $this->discussionPriveesRecepteur;
+    }
+
+    public function addDiscussionPriveesRecepteur(DiscussionPrivee $discussionPriveesRecepteur): self
+    {
+        if (!$this->discussionPriveesRecepteur->contains($discussionPriveesRecepteur)) {
+            $this->discussionPriveesRecepteur[] = $discussionPriveesRecepteur;
+            $discussionPriveesRecepteur->setRecepteurDisc($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDiscussionPriveesRecepteur(DiscussionPrivee $discussionPriveesRecepteur): self
+    {
+        if ($this->discussionPriveesRecepteur->contains($discussionPriveesRecepteur)) {
+            $this->discussionPriveesRecepteur->removeElement($discussionPriveesRecepteur);
+            // set the owning side to null (unless already changed)
+            if ($discussionPriveesRecepteur->getRecepteurDisc() === $this) {
+                $discussionPriveesRecepteur->setRecepteurDisc(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|ReponsePrivee[]
+     */
+    public function getReponsePriveesEnvoyeur(): Collection
+    {
+        return $this->reponsePriveesEnvoyeur;
+    }
+
+    public function addReponsePriveesEnvoyeur(ReponsePrivee $reponsePriveesEnvoyeur): self
+    {
+        if (!$this->reponsePriveesEnvoyeur->contains($reponsePriveesEnvoyeur)) {
+            $this->reponsePriveesEnvoyeur[] = $reponsePriveesEnvoyeur;
+            $reponsePriveesEnvoyeur->setEnvoyeurRep($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReponsePriveesEnvoyeur(ReponsePrivee $reponsePriveesEnvoyeur): self
+    {
+        if ($this->reponsePriveesEnvoyeur->contains($reponsePriveesEnvoyeur)) {
+            $this->reponsePriveesEnvoyeur->removeElement($reponsePriveesEnvoyeur);
+            // set the owning side to null (unless already changed)
+            if ($reponsePriveesEnvoyeur->getEnvoyeurRep() === $this) {
+                $reponsePriveesEnvoyeur->setEnvoyeurRep(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|ReponsePrivee[]
+     */
+    public function getReponsePriveesRecepteur(): Collection
+    {
+        return $this->reponsePriveesRecepteur;
+    }
+
+    public function addReponsePriveesRecepteur(ReponsePrivee $reponsePriveesRecepteur): self
+    {
+        if (!$this->reponsePriveesRecepteur->contains($reponsePriveesRecepteur)) {
+            $this->reponsePriveesRecepteur[] = $reponsePriveesRecepteur;
+            $reponsePriveesRecepteur->setRecepteurRep($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReponsePriveesRecepteur(ReponsePrivee $reponsePriveesRecepteur): self
+    {
+        if ($this->reponsePriveesRecepteur->contains($reponsePriveesRecepteur)) {
+            $this->reponsePriveesRecepteur->removeElement($reponsePriveesRecepteur);
+            // set the owning side to null (unless already changed)
+            if ($reponsePriveesRecepteur->getRecepteurRep() === $this) {
+                $reponsePriveesRecepteur->setRecepteurRep(null);
             }
         }
 

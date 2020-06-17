@@ -6,6 +6,8 @@ use App\Entity\Amis;
 use League\Csv\Reader;
 use OpenFoodFacts\Api;
 use App\Entity\DemandeAmi;
+use App\Entity\ReponsePrivee;
+use App\Entity\DiscussionPrivee;
 use App\Repository\AmisRepository;
 use App\Repository\NotesRepository;
 use App\Repository\ReponseRepository;
@@ -13,10 +15,12 @@ use App\Repository\DemandeAmiRepository;
 use App\Repository\DiscussionRepository;
 use App\Repository\CommentairesRepository;
 use App\Repository\UtilisateursRepository;
+use App\Repository\ReponsePriveeRepository;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use App\Repository\MoyenneProduitsRepository;
 use Symfony\Component\HttpFoundation\Request;
+use App\Repository\DiscussionPriveeRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -750,11 +754,13 @@ class EspaceUtilisateurController extends AbstractController
 		$manager = $this->getDoctrine()->getManager();
 		$demandeAmi= new DemandeAmi();
 		$user2 = $repoU->find($id);
-		$demandeAmi->setDemandeur($user)
-				   ->setRecepteur($user2)
-				   ->setCreatedAt(new \DateTime());
-		$manager->persist($demandeAmi);
-		$manager->flush();
+		if($user2 != null) {
+			$demandeAmi->setDemandeur($user)
+					->setRecepteur($user2)
+					->setCreatedAt(new \DateTime());
+			$manager->persist($demandeAmi);
+			$manager->flush();
+		}
 		return $this->redirectToRoute('demandes');
 	}
 
@@ -764,8 +770,10 @@ class EspaceUtilisateurController extends AbstractController
 	public function supprimerDemande($id, ?UserInterface $user, DemandeAmiRepository $repoD) {
 		$manager = $this->getDoctrine()->getManager();
 		$demande = $repoD->findBy(["demandeur" => $user, "id" => $id]);
-		$manager->remove($demande[0]);
-		$manager->flush();
+		if($demande != null) {
+			$manager->remove($demande[0]);
+			$manager->flush();
+		}
 		return $this->redirectToRoute('demandes');
 	}
 
@@ -775,8 +783,10 @@ class EspaceUtilisateurController extends AbstractController
 	public function refuserDemande($id, ?UserInterface $user, DemandeAmiRepository $repoD) {
 		$manager = $this->getDoctrine()->getManager();
 		$demande = $repoD->findBy(["recepteur" => $user, "id" => $id]);
-		$manager->remove($demande[0]);
-		$manager->flush();
+		if($demande != null) {
+			$manager->remove($demande[0]);
+			$manager->flush();
+		}
 		return $this->redirectToRoute('demandes');
 	}
 
@@ -786,13 +796,15 @@ class EspaceUtilisateurController extends AbstractController
 	public function accepterDemande($id, ?UserInterface $user, DemandeAmiRepository $repoD) {
 		$manager = $this->getDoctrine()->getManager();
 		$demande = $repoD->findBy(["recepteur" => $user, "id" => $id]);
-		$ami = new Amis();
-		$ami->setUtilisateur1($demande[0]->getDemandeur())
-			->setUtilisateur2($user)
-			->setCreatedAt(new \DateTime());
-		$manager->persist($ami);
-		$manager->remove($demande[0]);
-		$manager->flush();
+		if($demande != null) {
+			$ami = new Amis();
+			$ami->setUtilisateur1($demande[0]->getDemandeur())
+				->setUtilisateur2($user)
+				->setCreatedAt(new \DateTime());
+			$manager->persist($ami);
+			$manager->remove($demande[0]);
+			$manager->flush();
+		}
 		return $this->redirectToRoute('demandes');
 	}
 
@@ -800,39 +812,28 @@ class EspaceUtilisateurController extends AbstractController
 	 * @Route("/client/liste_amis", name="liste_amis")
 	 */
     public function listeAmis(?UserInterface $user, AmisRepository $repoA, PaginatorInterface $paginator, Request $request) {
-		$listeAmis1 = $repoA->findBy(array("utilisateur1" => $user));
-		$listeAmis2 = $repoA->findBy(array("utilisateur2" => $user));
 
-		$amis1 = $paginator->paginate(
-			$listeAmis1,
+		$listeAmis = $repoA->createQueryBuilder("a")
+						   ->where("a.utilisateur1 = :user or a.utilisateur2 = :user")
+						   ->setParameter("user", $user)
+						   ->orderBy("a.id", "ASC")
+						   ->getQuery()
+						   ->getResult();
+
+		$amis = $paginator->paginate(
+			$listeAmis,
 			$request->query->getInt("page", 1),
-			10
+			20
 		);
 
-		$amis1->setTemplate('@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig');
+		$amis->setTemplate('@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig');
 
 		// On aligne les sélecteurs au centre de la page
-		$amis1->setCustomParameters([
-				"align" => "center"
-		]);
-
-		$amis2 = $paginator->paginate(
-			$listeAmis2,
-			$request->query->getInt("page2", 1),
-			10,
-			['pageParameterName' => 'page2']
-		);
-					
-		// On utilise un template basé sur Bootstrap, celui par défaut ne l'est pas
-		$amis2->setTemplate('@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig');
-
-		// On aligne les sélecteurs au centre de la page
-		$amis2->setCustomParameters([
+		$amis->setCustomParameters([
 				"align" => "center"
 		]);
 		return $this->render('espace_utilisateur/liste_ami.html.twig', [
-			"listeAmis1" => $amis1,
-			"listeAmis2" => $amis2
+			"listeAmis1" => $amis
 		]);
 	}
 
@@ -843,14 +844,159 @@ class EspaceUtilisateurController extends AbstractController
 		$manager = $this->getDoctrine()->getManager();
 		$ami1 = $repoA->findBy(["utilisateur1" => $user, "id" => $id]);
 		$ami2 = $repoA->findBy(["utilisateur2" => $user, "id" => $id]);
-		if($ami1 != null) {
-			$manager->remove($ami1[0]);
+		if($ami1 != null || $ami2 != null) {
+			if($ami1 != null) {
+				$manager->remove($ami1[0]);
+			}
+			else {
+				$manager->remove($ami2[0]);
+			}
+			$manager->flush();
+		}
+		return $this->redirectToRoute('liste_amis');
+	}
+
+	/**
+	 * @Route("/client/affiche_message/{id}", name="affiche_message")
+	 */
+	public function afficheMessage($id, DiscussionPriveeRepository $repoD, ReponsePriveeRepository $repoR , AmisRepository $repoA, UtilisateursRepository $repoU, ?UserInterface $user, Request $request, PaginatorInterface $paginator) {
+		$manager = $this->getDoctrine()->getManager();
+		$listeAmis = $repoA->createQueryBuilder("a")
+						   ->where("(a.utilisateur1 = :user or a.utilisateur2 = :user) and a.id = :id")
+						   ->setParameter("user", $user)
+						   ->setParameter("id", $id)
+						   ->getQuery()
+						   ->getResult();
+		if($listeAmis != null) {
+			$discussion = $repoD->findBy(array("amis" => $listeAmis[0]));
+			$listeReponses = $repoR->findBy(array("amis" => $listeAmis[0]));
+
+			$reponses = $paginator->paginate(
+				$listeReponses,
+				$request->query->getInt("page", 1),
+				10
+			);
+
+			$reponses->setTemplate('@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig');
+
+			// On aligne les sélecteurs au centre de la page
+			$reponses->setCustomParameters([
+					"align" => "center"
+			]);
+			
+			if($discussion == null) {
+				return $this->render('espace_utilisateur/messages.html.twig', [
+					"discussion" => null,
+					"amis" => $listeAmis[0]
+				]);
+			}
+			else {
+				return $this->render('espace_utilisateur/messages.html.twig', [
+					"discussion" => $discussion[0],
+					"reponses" => $reponses,
+					"amis" => $listeAmis[0]
+				]);
+			}
 		}
 		else {
-			$manager->remove($ami2[0]);
+			return $this->redirectToRoute("liste_amis");
 		}
-		$manager->flush();
-		return $this->redirectToRoute('liste_amis');
+	}
+
+	/**
+	 * @Route("/client/affiche_message/discussion/{id}", name="discussion")
+	 */
+	public function discussion($id, DiscussionPriveeRepository $repoD, AmisRepository $repoA, UtilisateursRepository $repoU, ?UserInterface $user, Request $request) {
+		$manager = $this->getDoctrine()->getManager();
+		$listeAmis = $repoA->createQueryBuilder("a")
+						   ->where("(a.utilisateur1 = :user or a.utilisateur2 = :user) and a.id = :id")
+						   ->setParameter("user", $user)
+						   ->setParameter("id", $id)
+						   ->getQuery()
+						   ->getResult();
+		if($listeAmis != null) {
+			$discussion1 = $repoD->findBy(array("amis" => $listeAmis[0]));
+
+			if($discussion1 == null) {
+				if(!empty($request->get('message'))) {
+					if($listeAmis[0]->getUtilisateur1() == $user) {
+						$discussion = new DiscussionPrivee();
+						$discussion->setAmis($listeAmis[0])
+								->setMessage($request->get('message'))
+								->setCreatedAt(new \DateTime())
+								->setEnvoyeurDisc($user)
+								->setRecepteurDisc($listeAmis[0]->getUtilisateur2());
+						$manager->persist($discussion);
+						$manager->flush();
+					}
+					else {
+						$discussion = new DiscussionPrivee();
+						$discussion->setAmis($listeAmis[0])
+								->setMessage($request->get('message'))
+								->setCreatedAt(new \DateTime())
+								->setEnvoyeurDisc($user)
+								->setRecepteurDisc($listeAmis[0]->getUtilisateur1());
+						$manager->persist($discussion);
+						$manager->flush();
+					}
+				}
+			}
+			return $this->redirectToRoute('affiche_message', [
+				"id" => $id
+			]);
+		}
+		else {
+			return $this->redirectToRoute("liste_amis");
+		}
+	}
+
+	/**
+	 * @Route("/client/affiche_message/reponses/{id}", name="reponses")
+	 */
+	public function reponses($id, DiscussionPriveeRepository $repoD, ReponsePriveeRepository $repoR, AmisRepository $repoA, UtilisateursRepository $repoU, ?UserInterface $user, Request $request) {
+		$manager = $this->getDoctrine()->getManager();
+		$listeAmis = $repoA->createQueryBuilder("a")
+						   ->where("(a.utilisateur1 = :user or a.utilisateur2 = :user) and a.id = :id")
+						   ->setParameter("user", $user)
+						   ->setParameter("id", $id)
+						   ->getQuery()
+						   ->getResult();
+		if($listeAmis != null) {
+			$discussion1 = $repoD->findBy(array("amis" => $listeAmis[0]));
+
+			if($discussion1 != null) {
+				if(!empty($request->get('message'))) {
+					if($listeAmis[0]->getUtilisateur1() == $user) {
+						$discussion = new ReponsePrivee();
+						$discussion->setAmis($listeAmis[0])
+								->setMessage($request->get('message'))
+								->setCreatedAt(new \DateTime())
+								->setDiscussion($discussion1[0])
+								->setEnvoyeurRep($user)
+								->setRecepteurRep($listeAmis[0]->getUtilisateur2());
+						$manager->persist($discussion);
+						$manager->flush();
+					}
+					else {
+						$discussion = new ReponsePrivee();
+						$discussion->setAmis($listeAmis[0])
+								->setMessage($request->get('message'))
+								->setCreatedAt(new \DateTime())
+								->setDiscussion($discussion1[0])
+								->setEnvoyeurRep($user)
+								->setRecepteurRep($listeAmis[0]->getUtilisateur1());
+						$manager->persist($discussion);
+						$manager->flush();
+					}
+				}
+			}
+			return $this->redirectToRoute('affiche_message', [
+				"id" => $id
+			]);
+		}
+		else {
+			return $this->redirectToRoute("liste_amis");
+		}
 	}
 
     /**

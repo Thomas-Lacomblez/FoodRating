@@ -1,5 +1,9 @@
 {% extends 'base.html.twig' %}
-
+{% block stylesheets %}
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.16/dist/summernote.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.16/dist/summernote-bs4.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+{% endblock %}
 {% block body %}
     <script src="https://bootswatch.com/_vendor/jquery/dist/jquery.min.js"></script>
     <script>
@@ -45,16 +49,7 @@
                                 <ul>
                                     <li><a class="text-secondary"href="{{ path("liste_utilisateur") }}">Liste des utilisateurs</a></li>
                                     <li><a class="text-succes"href="#">Liste d'amis</a></li>
-                                    <li><a class="text-secondary"href="#">Messages</a></li>
                                     <li><a class="text-secondary"href="{{ path("demandes") }}">Demandes en attentes</a></li>
-                                </ul>
-                            </div>
-                        </li>
-                        <li>Autres <i id="flecheF4" onclick="gestionTexte('element4', 'flecheF4')" style="cursor:pointer;">▼</i>
-                            <div id="element4" style="display:none">
-                                <ul>
-                                    <li><a class="text-secondary"href="#">Mes commentaires utiles</a></li>
-                                    <li><a class="text-secondary"href="#">Les utilisateurs signalés</a></li>
                                 </ul>
                             </div>
                         </li>
@@ -65,36 +60,35 @@
     </div>
     <div class="container">
         {% if listeAmis1 is not empty %}
-            <h3>Amis sortant</h3>
+            <h3>Amis</h3>
             {% for l1 in listeAmis1 %}
-                {% if l1.utilisateur2.imagebase64 is not null %}
-                    <img class="float-left" src="data:image/png;image/jpg;image/gif;base64, {{ l1.utilisateur2.imagebase64 }}" style="width: 100px; height: 100px; border-radius : 75px;" data-toggle="dropdown" data-placement="bottom" title="{{ l1.utilisateur2.username }}" alt="photo de profil"/>
-                {% else %}
-                    <i class="fas fa-user-circle fa-6x align-self-center float-left"></i>
+                {% if l1.utilisateur1 == app.user %}
+                    {% if l1.utilisateur2.imagebase64 is not null %}
+                        <img class="float-left" src="data:image/png;image/jpg;image/gif;base64, {{ l1.utilisateur2.imagebase64 }}" style="width: 100px; height: 100px; border-radius : 75px;" data-toggle="dropdown" data-placement="bottom" title="{{ l1.utilisateur2.username }}" alt="photo de profil"/>
+                    {% else %}
+                        <i class="fas fa-user-circle fa-6x align-self-center float-left"></i>
+                    {% endif %}
+                    <h4>{{ l1.utilisateur2.username }}</h4><br/>
+                {% elseif l1.utilisateur2 == app.user %}
+                    {% if l1.utilisateur1.imagebase64 is not null %}
+                        <img class="float-left" src="data:image/png;image/jpg;image/gif;base64, {{ l1.utilisateur1.imagebase64 }}" style="width: 100px; height: 100px; border-radius : 75px;" data-toggle="dropdown" data-placement="bottom" title="{{ l1.utilisateur1.username }}" alt="photo de profil"/>
+                    {% else %}
+                        <i class="fas fa-user-circle fa-6x align-self-center float-left"></i>
+                    {% endif %}
+                    <h4>{{ l1.utilisateur1.username }}</h4><br/>
                 {% endif %}
-                <h4>{{ l1.utilisateur2.username }}</h4><br/>
+                </script>
                 <div class="form-group float-right">
-                    <a href="" class="btn btn-info">Messages <i class="fa fa-envelope"></i></a>
+                    <a href="{{ path("affiche_message", {"id" : l1.id }) }}" type="button" class="btn btn-info">Messages <i class="fa fa-envelope"></i></a>
                     <a href="{{ path("supprimer_amis", {"id" : l1.id}) }}" class="btn btn-danger">Supprimer <i class="fas fa-trash-alt"></i></a>
                 </div><br>
                 <hr class="my-5 border-info" />
             {% endfor %}
-        {% endif %}
-        {% if listeAmis2 is not empty %}
-             <h3>Amis entrant</h3>
-            {% for l2 in listeAmis2 %}
-                {% if l2.utilisateur1.imagebase64 is not null %}
-                    <img class="float-left" src="data:image/png;image/jpg;image/gif;base64, {{ l2.utilisateur1.imagebase64 }}" style="width: 100px; height: 100px; border-radius : 75px;" data-toggle="dropdown" data-placement="bottom" title="{{ l2.utilisateur1.username }}" alt="photo de profil"/>
-                {% else %}
-                    <i class="fas fa-user-circle fa-6x align-self-center float-left"></i>
-                {% endif %}
-                <h4>{{ l2.utilisateur1.username }}</h4><br/>
-                <div class="form-group float-right">
-                    <a href="" class="btn btn-info">Messages <i class="fa fa-envelope"></i></a>
-                    <a href="{{ path("supprimer_amis", {"id" : l2.id}) }}" class="btn btn-danger">Supprimer <i class="fas fa-trash-alt"></i></a>
-                </div><br>
-                <hr class="my-5 border-info" />
-            {% endfor %}
+        {% else %}
+            <h3 class="text-secondary">Vous n'avez pas encore d'ami</h3>
         {% endif %}
     </div>
+{% endblock %}
+
+{% block javascripts %}  
 {% endblock %}
