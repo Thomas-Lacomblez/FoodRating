@@ -272,7 +272,7 @@
 			{{ n.createdAt | date("d/m/Y - H:i") }}
 			{% if commentairesProduit is defined %}
 				{% for c in commentairesProduit %}
-					{% if c.utilisateur.id == n.utilisateur.id and aimeCommentaire[c.id] is defined and aimeCommentaire[c.id] == app.user.id %}
+					{% if app.user and c.utilisateur.id == n.utilisateur.id and aimeCommentaire[c.id] is defined and aimeCommentaire[c.id] == app.user.id %}
     				<div class="float-right">
     					<span id="span-aime-{{ c.id }}" class="text-warning">
         					<a class="no-hover">
@@ -292,6 +292,7 @@
 					</div>
 					{% endif %}
 					
+					{% if c.utilisateur.id == n.utilisateur.id %}
 					<script>
             		function aime() {
             			let idCom = event.target.id.split("-");
@@ -319,6 +320,8 @@
         				});
             		};
             		</script>
+            		{% endif %}
+            		
 				{% endfor %}
 			{% endif %}
 		</div>
