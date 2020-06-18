@@ -6,6 +6,10 @@
         <link rel="stylesheet" href="https://bootswatch.com/4/minty/bootstrap.min.css">
         <script src="https://bootswatch.com/_vendor/jquery/dist/jquery.min.js"></script>
         <script src="https://bootswatch.com/_vendor/bootstrap/dist/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+        <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
         {% block stylesheets %}{% endblock %}
     </head>
 
@@ -13,6 +17,8 @@
         <div style="margin-top:10%;">
             <div class="container">
                 <div class="col-sm-5 m-auto form-group tab-pane fade active show">
+                    <img src="/images/logo.png" alt="logo">
+                    <hr class="border-info" />
                     {% form_theme formModifierMdp 'bootstrap_4_layout.html.twig' %}
                     <fieldset>
                         <legend>Modification du mot de passe !</legend>
@@ -21,8 +27,24 @@
                         {{ form_row(formModifierMdp.password, {'label': "Mot de passe", 'attr': {'placeholder': "Entrez votre mot de passe"}}) }}
                         {{ form_row(formModifierMdp.password_confirmation, {'label': "Confirmation du mot de passe", 'attr': {'placeholder': "Retapez votre mot de passe"}}) }}
                          <div class="form-group">
-                            <button type="submit" class="btn btn-success">Modifier</button>
-                            <a href="{{ path('user_show') }}" class="btn btn-info">Retour</a>
+                            <button type="submit" class="btn btn-success" data-toggle="modal" data-target="#myModal">Modifier <i class="fa fa-wrench"></i></button>
+                            <a href="{{ path('user_show') }}" class="btn btn-info">Retour <i class="fa fa-arrow-left"></i></a>
+                        </div>
+                        <div class="modal" id="myModal">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title"><i class="fa fa-exclamation-circle text-danger"></i> Modification du mot de passe</h5>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Etes-vous sûr de vouloir modifier votre mot de passe ?</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-primary">Oui <i class="fa fa-check"></i></button>
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Non <i class="fa fa-times"></i></button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         {{ form_end(formModifierMdp) }}
                     </fieldset>

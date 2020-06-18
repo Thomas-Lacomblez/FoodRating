@@ -237,7 +237,7 @@
         {% endif %}
         <h1>Forum</h1>
         <h2>Les sujets visités</h2>
-        {% if sujetsVisite is not null %}
+        {% if sujetsVisite is defined and sujetsVisite is not null %}
             <table class="table table-sm table-striped table-hover mt-2">
                 <thead class="thead-light">
                     <tr>

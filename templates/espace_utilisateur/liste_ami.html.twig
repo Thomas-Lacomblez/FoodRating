@@ -80,8 +80,30 @@
                 </script>
                 <div class="form-group float-right">
                     <a href="{{ path("affiche_message", {"id" : l1.id }) }}" type="button" class="btn btn-info">Messages <i class="fa fa-envelope"></i></a>
-                    <a href="{{ path("supprimer_amis", {"id" : l1.id}) }}" class="btn btn-danger">Supprimer <i class="fas fa-trash-alt"></i></a>
+                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModalSupprAmi{{ l1.id }}">Supprimer <i class="fas fa-trash-alt"></i></button>
                 </div><br>
+                <div class="modal" id="myModalSupprAmi{{ l1.id }}">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title"><i class="fa fa-exclamation-circle text-danger"></i> Supprimer un ami</h5>
+                            </div>
+                            <div class="modal-body">
+                                {% if l1.utilisateur1 == app.user %}
+                                    <p>Etes-vous sûr de vouloir supprimer <b>{{ l1.utilisateur2.username }}</b> de votre liste d'ami ?</p>
+                                {% elseif l1.utilisateur2 == app.user %}
+                                    <p>Etes-vous sûr de vouloir supprimer <b>{{ l1.utilisateur1.username }}</b> de votre liste d'ami ?</p>
+                                {% endif %}
+                            </div>
+                            <div class="modal-footer">
+                                <form action="{{ path("supprimer_amis", {"id" : l1.id}) }}">
+                                    <button type="submit" class="btn btn-primary">Oui <i class="fa fa-check"></i></button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Non <i class="fa fa-times"></i></button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <hr class="my-5 border-info" />
             {% endfor %}
         {% else %}

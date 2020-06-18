@@ -59,7 +59,25 @@
                 {% endif %}
                 <h4>{{ d.recepteur.username }}</h4><br/>
                 <em> {{ d.recepteur.username }} a reçu la demande, en attente de confirmation ! </em>
-                <a href="{{ path("supprimer_demande", {"id" : d.id}) }}" class="btn btn-danger float-right">Retirer la demande <i class="fas fa-trash-alt"></i></a>
+                <button type="button" class="btn btn-danger float-right" data-toggle="modal" data-target="#myModalSuppr{{ d.id }}">Retirer la demande <i class="fas fa-trash-alt"></i></button>
+                <div class="modal" id="myModalSuppr{{ d.id }}">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title"><i class="fa fa-exclamation-circle text-danger"></i> Retirer la demande</h5>
+                            </div>
+                            <div class="modal-body">
+                                <p>Etes-vous sûr de vouloir retirer la demande que vous avez envoyé à <b>{{ d.recepteur.username }}</b> ?</p>
+                            </div>
+                            <div class="modal-footer">
+                                <form action="{{ path("supprimer_demande", {"id" : d.id}) }}">
+                                    <button type="submit" class="btn btn-primary">Oui <i class="fa fa-check"></i></button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Non <i class="fa fa-times"></i></button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <hr class="my-5 border-info" />
             {% endfor %}
         {% endif %}
@@ -75,8 +93,44 @@
                 <h4>{{ r.demandeur.username }}</h4><br/>
                 <em>{{ r.demandeur.username }} vous a envoyé une demande d'ami !</em>
                 <div class="form-group float-right">
-                    <a href="{{ path("accepter_demande", {"id" : r.id}) }}" class="btn btn-primary">Accepter <i class="fa fa-check"></i></a>
-                    <a href="{{ path("refuser_demande", {"id" : r.id}) }}" class="btn btn-secondary">Refuser <i class="fa fa-times"></i></a>
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModalAccept{{ r.id }}">Accepter <i class="fa fa-check"></i></button>
+                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#myModalRefuse{{ r.id }}">Refuser <i class="fa fa-times"></i></button>
+                </div>
+                <div class="modal" id="myModalAccept{{ r.id }}">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title"><i class="fa fa-exclamation-circle text-danger"></i> Accepter la demande</h5>
+                            </div>
+                            <div class="modal-body">
+                                <p>Etes-vous sûr de vouloir accepter la demande de <b>{{ r.demandeur.username }}</b> ?</p>
+                            </div>
+                            <div class="modal-footer">
+                                <form action="{{ path("accepter_demande", {"id" : r.id}) }}">
+                                    <button type="submit" class="btn btn-primary">Oui <i class="fa fa-check"></i></button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Non <i class="fa fa-times"></i></button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal" id="myModalRefuse{{ r.id }}">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title"><i class="fa fa-exclamation-circle text-danger"></i> Refuser la demande</h5>
+                            </div>
+                            <div class="modal-body">
+                                <p>Etes-vous sûr de vouloir refuser la demande de <b>{{ r.demandeur.username }}</b> ?</p>
+                            </div>
+                            <div class="modal-footer">
+                                <form action="{{ path("refuser_demande", {"id" : r.id}) }}">
+                                    <button type="submit" class="btn btn-primary">Oui <i class="fa fa-check"></i></button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Non <i class="fa fa-times"></i></button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <hr class="my-5 border-info" />
             {% endfor %}
@@ -91,7 +145,25 @@
                     <i class="fas fa-user-circle fa-6x align-self-center float-left"></i>
                 {% endif %}
                 <h4>{{ u.username }}</h4><br/>
-                <a href="{{ path("demande_ami", {"id" : u.id}) }}" class="btn btn-info float-right">Envoyer une demande d'ami <i class="fa fa-paper-plane"></i></a>
+                <button type="button" class="btn btn-info float-right" data-toggle="modal" data-target="#myModalAjout{{ u.id }}">Envoyer une demande d'ami <i class="fa fa-paper-plane"></i></button>
+                <div class="modal" id="myModalAjout{{ u.id }}">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title"><i class="fa fa-exclamation-circle text-danger"></i> Demande d'ami</h5>
+                            </div>
+                            <div class="modal-body">
+                                <p>Etes-vous sûr de vouloir envoyer une demande à <b>{{ u.username }}</b> ?</p>
+                            </div>
+                            <div class="modal-footer">
+                                <form action="{{ path("demande_ami", {"id" : u.id}) }}">
+                                    <button type="submit" class="btn btn-primary">Oui <i class="fa fa-check"></i></button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Non <i class="fa fa-times"></i></button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <hr class="my-5 border-info" />
             {% endfor %}
         {% endif %}

@@ -63,7 +63,25 @@
         {% if produits is defined %}
 
             <div class="form-group mx-auto">
-                <a href="{{ path("produit_visite_supprimer") }}" class="btn btn-danger">Supprimer l'historique <i class="fas fa-trash-alt"></i></a>
+                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModal">Supprimer l'historique <i class="fas fa-trash-alt"></i></button>
+            </div>
+            <div class="modal" id="myModal">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title"><i class="fa fa-exclamation-circle text-danger"></i> Suppression de l'historique</h5>
+                        </div>
+                        <div class="modal-body">
+                            <p>Etes-vous sûr de vouloir supprimer votre historique ?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <form action="{{ path("produit_visite_supprimer") }}">
+                                <button type="submit" class="btn btn-primary">Oui <i class="fa fa-check"></i></button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Non <i class="fa fa-times"></i></button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="flex-sm-wrap mt-5">
 

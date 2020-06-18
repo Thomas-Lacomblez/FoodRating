@@ -4,7 +4,6 @@
 
 {% block body %}
 <script src="https://bootswatch.com/_vendor/jquery/dist/jquery.min.js"></script>
-
 <style>
 .no-hover:hover {
 	text-decoration: none;
@@ -125,104 +124,104 @@
 <div class="row">
 	<div class="col">
     	{% if app.user %}
-    	<script>
-    	$(document).ready(function(){
+    		<script>
+				$(document).ready(function(){
+			
+					function ExtractId(id) {
+						var id=id.split('_');
+						var id=id[1];
+						return id;
+					}
+					
+					$('.etoile').on('click', function(e){
+						var id = ExtractId($(this).attr('id')); 
+						var nbStars=$('.etoile').length; 
+						var i;
+						for (i = 1; i <= nbStars; i++) {
+							if(i <= id) {
+								$('#etoile_' + i).addClass('text-warning');
+							}	
+							else if(i > id){
+								$('#etoile_' + i).removeClass('text-warning');
+							}
+							if(i==id) {
+								$('#note').attr({value:i});
+							}
+						}
+					});
+				});
+				{% if note is defined and app.user.id == note.utilisateur.id %}
+					$(document).ready( function() {
+						var nbStars=$('.etoile').length; 
+						var i;
+						for (i = 1; i <= {{ note.nbEtoiles }}; i++) {
+							$('#etoile_' + i).addClass('text-warning');
+						}
+					});
+				{% endif %}
+    		</script>
+    	
+			{% if produit.categories is defined and produit.categories is not empty %}
+				{% set cat = produit.categories | split(",") %}
+			{% else %}
+				{% set cat = ["Non renseignée"] %}
+			{% endif %}
+    	
+    		{% if note is defined and produit.categories is not empty %}
+				<form action="{{ path("modifier_notation", {"id" : produit.id ?? produit.code, "categorie" : categorie}) }}" method="post">
+					<div class="form-group">
+						<label>Note :
+							<i class="fas fa-star fa-3x etoile" id="etoile_1" title="Pas du tout satisfait" style="cursor: pointer;"></i>
+							<i class="fas fa-star fa-3x etoile" id="etoile_2" title="Pas satisfait" style="cursor: pointer;"></i>
+							<i class="fas fa-star fa-3x etoile" id="etoile_3"title="Moyennement satisfait" style="cursor: pointer;"></i>
+							<i class="fas fa-star fa-3x etoile" id="etoile_4"title="Satisfait" style="cursor: pointer;"></i>
+							<i class="fas fa-star fa-3x etoile" id="etoile_5" title="Très satisfait" style="cursor: pointer;"></i><br>
+							<input type="hidden" name="note" id="note" value="">
+						</label>
+					</div>
+					
+					<div class="form-group">
+						<label for="commentaire">Commentaire</label>
+						{% if commentaire is defined %}
+						<textarea class="form-control" name="commentaire" id="commentaire" rows="3">{{ commentaire.message }}</textarea>
+						{% else %}
+						<textarea class="form-control" name="commentaire" id="commentaire" rows="3"></textarea>
+						{% endif %}
+					</div>
+					
+					<div class="form-group">
+					<button type="submit" class="btn btn-primary">Modifier <i class="fa fa-wrench"></i></button>
+						<a href="{{ path("supprimer_notation", {"id" : produit.id ?? produit.code, "categorie" : categorie }) }}" class="btn btn-danger" role="button">
+							Supprimer <i class="fas fa-trash-alt"></i>
+						</a>
+					</div>
+				</form>
+    	
+    		{% else %}
     
-    		function ExtractId(id) {
-    			var id=id.split('_');
-    			var id=id[1];
-    			return id;
-    		}
-    		
-    		$('.etoile').on('click', function(e){
-    			var id = ExtractId($(this).attr('id')); 
-    			var nbStars=$('.etoile').length; 
-    			var i;
-    			for (i = 1; i <= nbStars; i++) {
-    				if(i <= id) {
-    					$('#etoile_' + i).addClass('text-warning');
-    				}	
-    				else if(i > id){
-    					$('#etoile_' + i).removeClass('text-warning');
-    				}
-    				if(i==id) {
-    					$('#note').attr({value:i});
-    				}
-    			}
-    		});
-    	});
-    	{% if note is defined and app.user.id == note.utilisateur.id %}
-    		$(document).ready( function() {
-    			var nbStars=$('.etoile').length; 
-    			var i;
-    			for (i = 1; i <= {{ note.nbEtoiles }}; i++) {
-    				$('#etoile_' + i).addClass('text-warning');
-    			}
-    		});
-    	{% endif %}
-    	</script>
-    	
-    	{% if produit.categories is defined and produit.categories is not empty %}
-    		{% set cat = produit.categories | split(",") %}
-    	{% else %}
-    		{% set cat = ["Non renseignée"] %}
-    	{% endif %}
-    	
-    	{% if note is defined and produit.categories is not empty %}
-    	<form action="{{ path("modifier_notation", {"id" : produit.id ?? produit.code, "categorie" : categorie}) }}" method="post">
-    		<div class="form-group">
-    			<label>Note :
-        			<i class="fas fa-star fa-3x etoile" id="etoile_1" title="Pas du tout satisfait" style="cursor: pointer;"></i>
-        			<i class="fas fa-star fa-3x etoile" id="etoile_2" title="Pas satisfait" style="cursor: pointer;"></i>
-        			<i class="fas fa-star fa-3x etoile" id="etoile_3"title="Moyennement satisfait" style="cursor: pointer;"></i>
-        			<i class="fas fa-star fa-3x etoile" id="etoile_4"title="Satisfait" style="cursor: pointer;"></i>
-        			<i class="fas fa-star fa-3x etoile" id="etoile_5" title="Très satisfait" style="cursor: pointer;"></i><br>
-        			<input type="hidden" name="note" id="note" value="">
-    			</label>
-    		</div>
-    		
-    		<div class="form-group">
-    			<label for="commentaire">Commentaire</label>
-    			{% if commentaire is defined %}
-    			<textarea class="form-control" name="commentaire" id="commentaire" rows="3">{{ commentaire.message }}</textarea>
-    			{% else %}
-    			<textarea class="form-control" name="commentaire" id="commentaire" rows="3"></textarea>
-    			{% endif %}
-    		</div>
-    		
-    		<div class="form-group">
-    			<input type="submit" class="btn btn-primary" value="Modifier" />
-    			<a href="{{ path("supprimer_notation", {"id" : produit.id ?? produit.code, "categorie" : categorie }) }}" class="btn btn-danger" role="button">
-    				Supprimer <i class="fas fa-trash-alt"></i>
-    			</a>
-    		</div>
-    	</form>
+				<form id="formulaire" action="{{ path("notation", {"id" : produit.id ?? produit.code, "categorie" : categorie }) }}" method="post">
+					<div class="form-group">
+						<label>Note : </label>
+						<i class="fas fa-star fa-3x etoile" id="etoile_1" title="Pas du tout satisfait" style="cursor: pointer;"></i>
+						<i class="fas fa-star fa-3x etoile" id="etoile_2" title="Pas satisfait" style="cursor: pointer;"></i>
+						<i class="fas fa-star fa-3x etoile" id="etoile_3"title="Moyennement satisfait" style="cursor: pointer;"></i>
+						<i class="fas fa-star fa-3x etoile" id="etoile_4"title="Satisfait" style="cursor: pointer;"></i>
+						<i class="fas fa-star fa-3x etoile" id="etoile_5" title="Très satisfait" style="cursor: pointer;"></i>
+						<input type="hidden" name="note" id="note" value="">
+					</div>
+					<div class="form-group">
+						<label for="commentaire">Commentaire</label>
+						<textarea class="form-control" name="commentaire" id="commentaire" rows="3"></textarea>
+					</div>
+					<div class="form-group">
+						<button type="submit" class="btn btn-primary">Noter <i class="fa fa-comment"></i></button>
+					</div>
+				</form>
+    		{% endif %}
     	
     	{% else %}
-    
-    	<form id="formulaire" action="{{ path("notation", {"id" : produit.id ?? produit.code, "categorie" : categorie }) }}" method="post">
-    		<div class="form-group">
-    			<label>Note : </label>
-    			<i class="fas fa-star fa-3x etoile" id="etoile_1" title="Pas du tout satisfait" style="cursor: pointer;"></i>
-    			<i class="fas fa-star fa-3x etoile" id="etoile_2" title="Pas satisfait" style="cursor: pointer;"></i>
-    			<i class="fas fa-star fa-3x etoile" id="etoile_3"title="Moyennement satisfait" style="cursor: pointer;"></i>
-    			<i class="fas fa-star fa-3x etoile" id="etoile_4"title="Satisfait" style="cursor: pointer;"></i>
-    			<i class="fas fa-star fa-3x etoile" id="etoile_5" title="Très satisfait" style="cursor: pointer;"></i>
-    			<input type="hidden" name="note" id="note" value="">
-    		</div>
-    		<div class="form-group">
-    			<label for="commentaire">Commentaire</label>
-    			<textarea class="form-control" name="commentaire" id="commentaire" rows="3"></textarea>
-    		</div>
-    		<div class="form-group">
-    			<input type="submit" class="btn btn-primary" value="Noter">
-    		</div>
-    	</form>
-    	{% endif %}
-    	
-    	{% else %}
-    	<p>Pour noter un produit, merci de vous connecter !</p>
-    	<a type="button" class="btn btn-info" href="/connexion">Mon compte</a>
+			<p>Pour noter un produit, merci de vous connecter !</p>
+			<a type="button" class="btn btn-info" href="/connexion">Mon compte <i class="fa fa-user"></i></a>
     	{% endif %}
 	</div>
 </div>
@@ -233,103 +232,105 @@
 <h3 class="mb-3">Commentaires et Notes</h3>
 
 {% if notesProduit is defined and notesProduit is not empty %}
-<div class="card-columns">
-	{% for n in notesProduit %}
-	<script>
-		$(document).ready(function() {
-			var nbStars=$('.etoile_affichage').length;
-			var i;
-			for (i = 1; i <= {{ n.nbEtoiles }}; i++) { $('#etoileAffichage{{ n.id }}_' + i).addClass('text-warning'); }
-		});
-	</script>
-	<div class="card border-primary mb-3" style="max-width: 20rem;">
-		<div class="card-header">
-			{% if n.utilisateur.imagebase64 is defined and n.utilisateur.imagebase64 is not empty %}
-				<img src="data:image/png;image/jpg;image/gif;base64, {{ n.utilisateur.imagebase64 }}" style="width: 50px; height: 50px; border-radius : 75px;">
-			{% else %}
-				<i class="fas fa-user-circle fa-3x align-self-center align-middle"></i>
-			{% endif %}
-		    {{ n.utilisateur.username }} 
-		</div>
-		
-		<div class="card-body">
-			<p class="card-title">
-				<i class="fas fa-star fa-2x etoile_affichage" id="etoileAffichage{{ n.id }}_1"></i>
-				<i class="fas fa-star fa-2x etoile_affichage" id="etoileAffichage{{ n.id }}_2"></i>
-				<i class="fas fa-star fa-2x etoile_affichage" id="etoileAffichage{{ n.id }}_3"></i>
-				<i class="fas fa-star fa-2x etoile_affichage" id="etoileAffichage{{ n.id }}_4"></i>
-				<i class="fas fa-star fa-2x etoile_affichage" id="etoileAffichage{{ n.id }}_5"></i>
-			</p>
-			
-			{% for c in commentairesProduit %}
-				{% if c.utilisateur.id == n.utilisateur.id %}
-				<p class="card-text">{{ c.message }}</p>
-				{% endif %}
-			{% endfor %}
-		</div>
-		
-		<div class="card-footer">
-			{{ n.createdAt | date("d/m/Y - H:i") }}
-			{% if commentairesProduit is defined %}
-				{% for c in commentairesProduit %}
-					{% if app.user and c.utilisateur.id == n.utilisateur.id and aimeCommentaire[c.id] is defined and aimeCommentaire[c.id] == app.user.id %}
-    				<div class="float-right">
-    					<span id="span-aime-{{ c.id }}" class="text-warning">
-        					<a class="no-hover">
-        						<i id="bouton-aime-{{ c.id }}" class="fas fa-thumbs-up" style="cursor: pointer;" onclick="aime()"></i>			
-        					</a>
-        					<p class="d-inline">{{ c.utile }}</p>
-        				</span>
-					</div>
-					{% elseif c.utilisateur.id == n.utilisateur.id %}
-					<div class="float-right">
-						<span id="span-aime-{{ c.id }}" class="text-primary">
-        					<a class="no-hover">
-        						<i id="bouton-aime-{{ c.id }}" class="fas fa-thumbs-up" style="cursor: pointer;" onclick="aime()"></i>			
-        					</a>
-        					<p class="d-inline">{{ c.utile }}</p>
-        				</span>
-					</div>
+	<div class="card-columns">
+		{% for n in notesProduit %}
+			<script>
+				$(document).ready(function() {
+					var nbStars=$('.etoile_affichage').length;
+					var i;
+					for (i = 1; i <= {{ n.nbEtoiles }}; i++) { $('#etoileAffichage{{ n.id }}_' + i).addClass('text-warning'); }
+				});
+			</script>
+			<div class="card border-primary mb-3" style="max-width: 20rem;">
+				<div class="card-header">
+					{% if n.utilisateur.imagebase64 is defined and n.utilisateur.imagebase64 is not empty %}
+						<img src="data:image/png;image/jpg;image/gif;base64, {{ n.utilisateur.imagebase64 }}" style="width: 50px; height: 50px; border-radius : 75px;">
+					{% else %}
+						<i class="fas fa-user-circle fa-3x align-self-center align-middle"></i>
 					{% endif %}
+					{{ n.utilisateur.username }} 
+				</div>
+			
+				<div class="card-body">
+					<p class="card-title">
+						<i class="fas fa-star fa-2x etoile_affichage" id="etoileAffichage{{ n.id }}_1"></i>
+						<i class="fas fa-star fa-2x etoile_affichage" id="etoileAffichage{{ n.id }}_2"></i>
+						<i class="fas fa-star fa-2x etoile_affichage" id="etoileAffichage{{ n.id }}_3"></i>
+						<i class="fas fa-star fa-2x etoile_affichage" id="etoileAffichage{{ n.id }}_4"></i>
+						<i class="fas fa-star fa-2x etoile_affichage" id="etoileAffichage{{ n.id }}_5"></i>
+					</p>
 					
-					{% if c.utilisateur.id == n.utilisateur.id %}
-					<script>
-            		function aime() {
-            			let idCom = event.target.id.split("-");
-            			let url, val = 0;
+					{% for c in commentairesProduit %}
+						{% if c.utilisateur.id == n.utilisateur.id %}
+						<p class="card-text">{{ c.message }}</p>
+						{% endif %}
+					{% endfor %}
+				</div>
+			
+				<div class="card-footer">
+					{{ n.createdAt | date("d/m/Y - H:i") }}
+					{% if app.user %}
+						{% if commentairesProduit is defined %}
+							{% for c in commentairesProduit %}
+								{% if app.user and c.utilisateur.id == n.utilisateur.id and aimeCommentaire[c.id] is defined and aimeCommentaire[c.id] == app.user.id %}
+								<div class="float-right">
+									<span id="span-aime-{{ c.id }}" class="text-warning">
+										<a class="no-hover">
+											<i id="bouton-aime-{{ c.id }}" class="fas fa-thumbs-up" style="cursor: pointer;" onclick="aime()"></i>			
+										</a>
+										<p class="d-inline">{{ c.utile }}</p>
+									</span>
+								</div>
+								{% elseif c.utilisateur.id == n.utilisateur.id %}
+								<div class="float-right">
+									<span id="span-aime-{{ c.id }}" class="text-primary">
+										<a class="no-hover">
+											<i id="bouton-aime-{{ c.id }}" class="fas fa-thumbs-up" style="cursor: pointer;" onclick="aime()"></i>			
+										</a>
+										<p class="d-inline">{{ c.utile }}</p>
+									</span>
+								</div>
+								{% endif %}
+								
+								{% if c.utilisateur.id == n.utilisateur.id %}
+								<script>
+									function aime() {
+										let idCom = event.target.id.split("-");
+										let url, val = 0;
 
-            			// On remonte jusqu'au <span>
-            			if ($("span#span-aime-"+ idCom[2]).hasClass("text-primary")) {
-            				url = "{{ path("commentaire_utile", {"id": produit.id ?? produit.code, "categorie": categorie, "utile": c.id}) }}";
-            				val++;
-            			} else {
-                			url = "{{ path("supprimer_vote", {"id": produit.id ?? produit.code, "categorie": categorie, "utile": c.id}) }}";
-                			val--;
-                    	}
+										// On remonte jusqu'au <span>
+										if ($("span#span-aime-"+ idCom[2]).hasClass("text-primary")) {
+											url = "{{ path("commentaire_utile", {"id": produit.id ?? produit.code, "categorie": categorie, "utile": c.id}) }}";
+											val++;
+										} else {
+											url = "{{ path("supprimer_vote", {"id": produit.id ?? produit.code, "categorie": categorie, "utile": c.id}) }}";
+											val--;
+										}
 
-            			$("span#span-aime-"+ idCom[2]).toggleClass("text-primary").toggleClass("text-warning");
-            			
-            			$.ajax({
-        					method: "POST",
-        					url: url
-        				})
-        				.done(function() {
-            				// let oldVal = parseInt($("div#bouton-aime-"+ idCom[2] +" span p").text(), 10);
-            				let oldVal = parseInt($("span#span-aime-"+ idCom[2] +" p").text(), 10);
-        					$("span#span-aime-"+ idCom[2] +" p").text(val + oldVal);
-        				});
-            		};
-            		</script>
-            		{% endif %}
-            		
-				{% endfor %}
-			{% endif %}
-		</div>
+										$("span#span-aime-"+ idCom[2]).toggleClass("text-primary").toggleClass("text-warning");
+										
+										$.ajax({
+											method: "POST",
+											url: url
+										})
+										.done(function() {
+											// let oldVal = parseInt($("div#bouton-aime-"+ idCom[2] +" span p").text(), 10);
+											let oldVal = parseInt($("span#span-aime-"+ idCom[2] +" p").text(), 10);
+											$("span#span-aime-"+ idCom[2] +" p").text(val + oldVal);
+										});
+									};
+								</script>
+								{% endif %}
+								
+							{% endfor %}
+						{% endif %}
+					{% endif %}
+				</div>
+			</div>
+		{% endfor %}
 	</div>
-	{% endfor %}
-</div>
 {% else %}
-<p>Pas de commentaires pour ce produit.</p>
+	<p>Pas de commentaires pour ce produit.</p>
 {% endif %}
 
 <div class="flex-sm-wrap mt-5">
