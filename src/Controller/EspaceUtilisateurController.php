@@ -253,6 +253,7 @@ class EspaceUtilisateurController extends AbstractController
 		if($filesystem->exists('csv/'. $user->getId().'/produit.csv')) {
 			$filesystem->remove('csv/'. $user->getId().'/produit.csv');
 		}
+		$this->addFlash('succes', 'Historique supprimé');
 		return $this->redirectToRoute('produit_visite');
 	}
 
@@ -430,6 +431,7 @@ class EspaceUtilisateurController extends AbstractController
 		if($filesystem->exists('csv/'. $user->getId().'/forum.csv')) {
 			$filesystem->remove('csv/'. $user->getId().'/forum.csv');
 		}
+		$this->addFlash('succes', 'Historique supprimé');
 		return $this->redirectToRoute('forum_visite');
 	}
 
@@ -760,6 +762,10 @@ class EspaceUtilisateurController extends AbstractController
 					->setCreatedAt(new \DateTime());
 			$manager->persist($demandeAmi);
 			$manager->flush();
+			$this->addFlash('succes', 'Demande envoyée');
+		}
+		else {
+			$this->addFlash('echec', 'Impossible d\'envoyer la demande');
 		}
 		return $this->redirectToRoute('demandes');
 	}
@@ -773,6 +779,10 @@ class EspaceUtilisateurController extends AbstractController
 		if($demande != null) {
 			$manager->remove($demande[0]);
 			$manager->flush();
+			$this->addFlash('succes', 'Demande supprimée');
+		}
+		else {
+			$this->addFlash('echec', 'Impossible de supprimer la demande');
 		}
 		return $this->redirectToRoute('demandes');
 	}
@@ -786,6 +796,10 @@ class EspaceUtilisateurController extends AbstractController
 		if($demande != null) {
 			$manager->remove($demande[0]);
 			$manager->flush();
+			$this->addFlash('succes', 'Demande refusée');
+		}
+		else {
+			$this->addFlash('echec', 'Impossible de refuser la demande');
 		}
 		return $this->redirectToRoute('demandes');
 	}
@@ -804,6 +818,10 @@ class EspaceUtilisateurController extends AbstractController
 			$manager->persist($ami);
 			$manager->remove($demande[0]);
 			$manager->flush();
+			$this->addFlash('succes', 'Demande acceptée');
+		}
+		else {
+			$this->addFlash('echec', 'Impossible d\'accepter la demande');
 		}
 		return $this->redirectToRoute('demandes');
 	}
@@ -852,6 +870,10 @@ class EspaceUtilisateurController extends AbstractController
 				$manager->remove($ami2[0]);
 			}
 			$manager->flush();
+			$this->addFlash('succes', 'Ami supprimé');
+		}
+		else {
+			$this->addFlash('echec', 'Erreur de suppression');
 		}
 		return $this->redirectToRoute('liste_amis');
 	}
@@ -928,6 +950,7 @@ class EspaceUtilisateurController extends AbstractController
 								->setRecepteurDisc($listeAmis[0]->getUtilisateur2());
 						$manager->persist($discussion);
 						$manager->flush();
+						$this->addFlash('succes', 'Message envoyé');
 					}
 					else {
 						$discussion = new DiscussionPrivee();
@@ -938,8 +961,15 @@ class EspaceUtilisateurController extends AbstractController
 								->setRecepteurDisc($listeAmis[0]->getUtilisateur1());
 						$manager->persist($discussion);
 						$manager->flush();
+						$this->addFlash('succes', 'Message envoyé');
 					}
 				}
+				else {
+					$this->addFlash('echec', 'Message non envoyé');
+				}
+			}
+			else {
+				$this->addFlash('echec', 'Message non envoyé');
 			}
 			return $this->redirectToRoute('affiche_message', [
 				"id" => $id
@@ -976,6 +1006,7 @@ class EspaceUtilisateurController extends AbstractController
 								->setRecepteurRep($listeAmis[0]->getUtilisateur2());
 						$manager->persist($discussion);
 						$manager->flush();
+						$this->addFlash('succes', 'Message envoyé');
 					}
 					else {
 						$discussion = new ReponsePrivee();
@@ -987,8 +1018,15 @@ class EspaceUtilisateurController extends AbstractController
 								->setRecepteurRep($listeAmis[0]->getUtilisateur1());
 						$manager->persist($discussion);
 						$manager->flush();
+						$this->addFlash('succes', 'Message envoyé');
 					}
 				}
+				else {
+					$this->addFlash('echec', 'Message non envoyé');
+				}
+			}
+			else {
+				$this->addFlash('echec', 'Message non envoyé');
 			}
 			return $this->redirectToRoute('affiche_message', [
 				"id" => $id

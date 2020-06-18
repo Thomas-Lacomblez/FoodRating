@@ -72,6 +72,7 @@ class SecurityController extends AbstractController
                  ->setRoles(['ROLE_USER']);
             $manager->persist($user);
             $manager->flush();
+            $this->addFlash('inscription', 'Inscription réussie');
             return $this->redirectToRoute('login_security');
 
         }
@@ -201,7 +202,6 @@ class SecurityController extends AbstractController
         $session = $this->get('session');
         $session = new Session();
         $session->invalidate();
-
         return $this->redirectToRoute('food_rating');
 
      }

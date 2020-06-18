@@ -59,5 +59,17 @@
     </form>
 </div>
 {% endif %}
+{% for message in app.flashes('succes') %}
+    <div class="alert alert-dismissible alert-success fixed-bottom ml-auto" style="width: 300px; heigth: 200px; margin-bottom: 65px;">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <strong>{{ message }}</strong>
+    </div>
+{% endfor %}
 
+{% for message in app.flashes('echec') %}
+    <div class="alert alert-dismissible alert-danger fixed-bottom ml-auto" style="width: 300px; heigth: 200px; margin-bottom: 65px;">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <strong>{{ message }}</strong>
+    </div>
+{% endfor %}
 {% endblock %}

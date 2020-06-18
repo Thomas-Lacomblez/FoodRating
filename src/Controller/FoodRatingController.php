@@ -408,11 +408,13 @@ class FoodRatingController extends AbstractController
 					$manager->persist($commentaire);
 					$manager->flush();
 				}
+				$this->addFlash('noteSucces', 'Notation pris en compte');
 				return $this->redirectToRoute('produit_v2', [
 					"id" => $id,
 					"categorie" => $categorie
 				]);
 			}
+			$this->addFlash('noteEchec', 'Notation non enregistrée');
 		
 			return $this->redirectToRoute('produit_v2', [
 				"id" => $id,
@@ -420,6 +422,7 @@ class FoodRatingController extends AbstractController
 			]);
 		}
 		else {
+			$this->addFlash('noteEchec', 'Notation non enregistrée');
 			return $this->redirectToRoute('produit_v2', [
 				"id" => $id,
 				"categorie" => $categorie
@@ -485,6 +488,7 @@ class FoodRatingController extends AbstractController
 					$manager->persist($newCommentaire);
 					$manager->flush();
 				}
+				$this->addFlash('noteSucces', 'Notation modifiée');
 				return $this->redirectToRoute('produit_v2', [
 					"id" => $id,
 					"categorie" => $categorie
@@ -531,18 +535,20 @@ class FoodRatingController extends AbstractController
 					$manager->persist($newCommentaire);
 					$manager->flush();
 				}
+				$this->addFlash('noteSucces', 'Notation modifiée');
 				return $this->redirectToRoute('produit_v2', [
 					"id" => $id,
 					"categorie" => $categorie
 				]);
 			}
-
+			$this->addFlash('noteEchec', 'Modification échouée');
 			return $this->redirectToRoute('produit_v2', [
 				"id" => $id,
 				"categorie" => $categorie
 			]);
 		}
 		else {
+			$this->addFlash('noteEchec', 'Modification échouée');
 			return $this->redirectToRoute('produit_v2', [
 				"id" => $id,
 				"categorie" => $categorie
@@ -591,13 +597,14 @@ class FoodRatingController extends AbstractController
 			}
 
 			$manager->flush();
-
+			$this->addFlash('noteSucces', 'Suppression réussie');
 			return $this->redirectToRoute('produit_v2', [
 				"id" => $id,
 				"categorie" => $categorie
 			]);
 		}
 		else {
+			$this->addFlash('noteEchec', 'Suppression échouée');
 			return $this->redirectToRoute('produit_v2', [
 				"id" => $id,
 				"categorie" => $categorie
@@ -679,9 +686,11 @@ class FoodRatingController extends AbstractController
     public function espace(?UserInterface $user) {
 		if ($user) {
 			if ($this->container->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
+				$this->addFlash('connexion', 'Connexion réussie '. $user->getUsername());
 				return $this->redirectToRoute('compte_admin');
 			}
 			else {
+				$this->addFlash('connexion', 'Connexion réussie '. $user->getUsername());
 				return $this->redirectToRoute('compte_client');
 			}
 		}
