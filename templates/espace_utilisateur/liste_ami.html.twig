@@ -1,0 +1,116 @@
+{% extends 'base.html.twig' %}
+{% block stylesheets %}
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.16/dist/summernote.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.16/dist/summernote-bs4.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+{% endblock %}
+{% block body %}
+    <script src="https://bootswatch.com/_vendor/jquery/dist/jquery.min.js"></script>
+    <script>
+        function gestionTexte(element, fleche){
+			var  elementF = document.getElementById(element);
+			var flecheF = document.getElementById(fleche);
+			if (elementF.style.display == "none"){
+				elementF.style.display = "block";
+				flecheF.innerHTML = "▲";
+			}
+			else {
+				elementF.style.display = "none";
+				flecheF.innerHTML = "▼";
+			}
+		}
+    </script>
+    <div class="card bg-light mb-3" style="max-width: 20rem;">
+        <div class="card-header">Tableau de bord de {{ app.user.username }}</div>
+            <div class="card-body">
+                <h4 class="card-title">Table des matières</h4>
+                <p class="card-text">
+                    <ul>
+                        <li>Produits <i id="flecheF1" onclick="gestionTexte('element1', 'flecheF1')" style="cursor:pointer;">▼</i>
+                            <div id="element1" style="display:none">
+                                <ul>
+                                    <li><a class="text-secondary"href="{{ path("produit_visite") }}">Les produits visités</a></li>
+                                    <li><a class="text-secondary"href="{{ path("produit_notes") }}">Les produits notés</a></li>
+                                    <li><a class="text-secondary"href="{{ path("produit_commentaires") }}">Les produits commentés</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li>Forum <i id="flecheF2" onclick="gestionTexte('element2', 'flecheF2')" style="cursor:pointer;">▼</i>
+                            <div id="element2" style="display:none">
+                                <ul>
+                                    <li><a class="text-secondary"href="{{ path("forum_visite") }}">Les sujets visités</a></li>
+                                    <li><a class="text-secondary"href="{{ path("forum_discussion") }}">Mes sujets</a></li>
+                                    <li><a class="text-secondary"href="{{ path("forum_participation") }}">Participations aux sujets</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li>Amis <i id="flecheF3" onclick="gestionTexte('element3', 'flecheF3')" style="cursor:pointer;">▼</i>
+                            <div id="element3" style="display:block">
+                                <ul>
+                                    <li><a class="text-secondary"href="{{ path("liste_utilisateur") }}">Liste des utilisateurs</a></li>
+                                    <li><a class="text-succes"href="#">Liste d'amis</a></li>
+                                    <li><a class="text-secondary"href="{{ path("demandes") }}">Demandes en attentes</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        {% if listeAmis1 is not empty %}
+            <h3>Amis</h3>
+            {% for l1 in listeAmis1 %}
+                {% if l1.utilisateur1 == app.user %}
+                    {% if l1.utilisateur2.imagebase64 is not null %}
+                        <img class="float-left" src="data:image/png;image/jpg;image/gif;base64, {{ l1.utilisateur2.imagebase64 }}" style="width: 100px; height: 100px; border-radius : 75px;" data-toggle="dropdown" data-placement="bottom" title="{{ l1.utilisateur2.username }}" alt="photo de profil"/>
+                    {% else %}
+                        <i class="fas fa-user-circle fa-6x align-self-center float-left"></i>
+                    {% endif %}
+                    <h4>{{ l1.utilisateur2.username }}</h4><br/>
+                {% elseif l1.utilisateur2 == app.user %}
+                    {% if l1.utilisateur1.imagebase64 is not null %}
+                        <img class="float-left" src="data:image/png;image/jpg;image/gif;base64, {{ l1.utilisateur1.imagebase64 }}" style="width: 100px; height: 100px; border-radius : 75px;" data-toggle="dropdown" data-placement="bottom" title="{{ l1.utilisateur1.username }}" alt="photo de profil"/>
+                    {% else %}
+                        <i class="fas fa-user-circle fa-6x align-self-center float-left"></i>
+                    {% endif %}
+                    <h4>{{ l1.utilisateur1.username }}</h4><br/>
+                {% endif %}
+                </script>
+                <div class="form-group float-right">
+                    <a href="{{ path("affiche_message", {"id" : l1.id }) }}" type="button" class="btn btn-info">Messages <i class="fa fa-envelope"></i></a>
+                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModalSupprAmi{{ l1.id }}">Supprimer <i class="fas fa-trash-alt"></i></button>
+                </div><br>
+                <div class="modal" id="myModalSupprAmi{{ l1.id }}">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title"><i class="fa fa-exclamation-circle text-danger"></i> Supprimer un ami</h5>
+                            </div>
+                            <div class="modal-body">
+                                {% if l1.utilisateur1 == app.user %}
+                                    <p>Etes-vous sûr de vouloir supprimer <b>{{ l1.utilisateur2.username }}</b> de votre liste d'ami ?</p>
+                                {% elseif l1.utilisateur2 == app.user %}
+                                    <p>Etes-vous sûr de vouloir supprimer <b>{{ l1.utilisateur1.username }}</b> de votre liste d'ami ?</p>
+                                {% endif %}
+                            </div>
+                            <div class="modal-footer">
+                                <form action="{{ path("supprimer_amis", {"id" : l1.id}) }}">
+                                    <button type="submit" class="btn btn-primary">Oui <i class="fa fa-check"></i></button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Non <i class="fa fa-times"></i></button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr class="my-5 border-info" />
+            {% endfor %}
+        {% else %}
+            <h3 class="text-secondary">Vous n'avez pas encore d'ami</h3>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block javascripts %}  
+{% endblock %}

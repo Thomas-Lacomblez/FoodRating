@@ -33,37 +33,117 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ path("liste_categorie") }}">Catégories</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ path("test") }}">test 3</a>
-                    </li>
+                    {% if app.user %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path("compte_client") }}">Tableau de bord</a>
+                        </li>
+                    {% endif %}
                 </ul>
                 <form class="form-inline my-2 my-lg-0" action="{{ path('resultat') }}" method="get">
                     <input class="form-control mr-sm-2" type="text" id="recherche" name="recherche" placeholder="Recherche" required>
-                    <button class="btn btn-warning my-2 my-sm-0 mr-2" type="submit">Rechercher</button>
+                    <button class="btn btn-warning my-2 my-sm-0 mr-2" type="submit">Rechercher <i class="fa fa-search"></i></button>
                 </form>
+                {% if app.user %}
+                    <form class="form-inline my-2 my-lg-0" action=" {{ path('resultat_user') }}" method="get">
+                        <input class="form-control mr-sm-2" type="text" id="recherche_utilisateur" name="recherche_utilisateur" placeholder="Rechercher un utilisateur" required>
+                        <button class="btn btn-secondary my-2 my-sm-0 mr-2" type="submit">Rechercher <i class="fa fa-search"></i></button>
+                    </form>
+                {% endif %}
                 
                 {% if app.user %}
                     {% if app.user.imagebase64 is not null %}
                         <div class="dropdown" style="cursor: pointer;">
                             <img src="data:image/png;image/jpg;image/gif;base64, {{ app.user.imagebase64 }}" style="width: 50px; height: 50px; border-radius : 75px;" data-toggle="dropdown" data-placement="bottom" title="{{ app.user.username }}" alt="photo de profil"/>
-                            <div class="dropdown-menu" style="margin-left: -125px;">
-                                <a href="{{ path('user_show') }}" class="dropdown-item">Votre compte</a>
-                                <a href="{{ path("logout_security") }}" class="dropdown-item">Déconnexion <i class="fas fa-sign-out-alt"></i></a>
-                                <a href="{{ path("desinscription") }}" class="dropdown-item">Supprimer le compte <i class="fas fa-radiation-alt"></i></a>
+                            <div class="dropdown-menu" style="margin-left: -155px;">
+                                <a href="{{ path('user_show') }}" class="dropdown-item">Votre compte <i class="fa fa-cog"></i></a>
+                                <button type="button" class="dropdown-item" data-toggle="modal" data-target="#myModalDeco">Déconnexion <i class="fas fa-sign-out-alt"></i></button>
+                                <button type="button" class="dropdown-item" data-toggle="modal" data-target="#myModalDesinscription">Supprimer le compte <i class="fas fa-radiation-alt"></i></button>
+                            </div>
+                        </div>
+                        <div class="modal" id="myModalDeco">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title"><i class="fa fa-exclamation-circle text-danger"></i> Déconnexion</h5>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Etes-vous sûr de vouloir vous déconnecter ?</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <form action="{{ path("logout_security") }}">
+                                            <button type="submit" class="btn btn-primary">Oui <i class="fa fa-check"></i></button>
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Non <i class="fa fa-times"></i></button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal" id="myModalDesinscription">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title"><i class="fa fa-exclamation-circle text-danger"></i> Désinscription</h5>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Etes-vous sûr de vouloir vous désinscrire ?</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <form action="{{ path("desinscription") }}">
+                                            <button type="submit" class="btn btn-primary">Oui <i class="fa fa-check"></i></button>
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Non <i class="fa fa-times"></i></button>
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     {% else %}
                         <div class="dropdown" style="cursor: pointer;">
                             <i class="fas fa-user-circle fa-3x pt-1 dropdown-toggle text-light ml-3" data-toggle="dropdown" data-placement="bottom" title="{{ app.user.username }}"></i>
-                            <div class="dropdown-menu" style="margin-left: -125px;">
-                                <a href="{{ path('user_show') }}" class="dropdown-item">Votre compte</a>
-                                <a href="{{ path("logout_security") }}" class="dropdown-item">Déconnexion <i class="fas fa-sign-out-alt"></i></a>
-                                <a href="{{ path("desinscription") }}" class="dropdown-item">Supprimer le compte <i class="fas fa-radiation-alt"></i></a>
+                            <div class="dropdown-menu" style="margin-left: -155px;">
+                                <a href="{{ path('user_show') }}" class="dropdown-item">Votre compte <i class="fa fa-cog"></i></a>
+                                <button type="button" class="dropdown-item" data-toggle="modal" data-target="#myModalDeco">Déconnexion <i class="fas fa-sign-out-alt"></i></button>
+                                <button type="button" class="dropdown-item" data-toggle="modal" data-target="#myModalDesinscription">Supprimer le compte <i class="fas fa-radiation-alt"></i></button>
+                            </div>
+                        </div>
+                        <div class="modal" id="myModalDeco">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title"><i class="fa fa-exclamation-circle text-danger"></i> Déconnexion</h5>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Etes-vous sûr de vouloir vous déconnecter ?</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <form action="{{ path("logout_security") }}">
+                                            <button type="submit" class="btn btn-primary">Oui <i class="fa fa-check"></i></button>
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Non <i class="fa fa-times"></i></button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal" id="myModalDesinscription">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title"><i class="fa fa-exclamation-circle text-danger"></i> Désinscription</h5>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Etes-vous sûr de vouloir vous désinscrire ?</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <form action="{{ path("desinscription") }}">
+                                            <button type="submit" class="btn btn-primary">Oui <i class="fa fa-check"></i></button>
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Non <i class="fa fa-times"></i></button>
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     {% endif %}
                 {% else %}
-                    <a type="button" style="margin-bottom: 5px; margin-top: 5px;" class="btn btn-warning" href="/connexion">Mon compte</a>
+                    <a type="button" style="margin-bottom: 5px; margin-top: 5px;" class="btn btn-warning" href="/connexion">Mon compte <i class="fa fa-user"></i></a>
                 {% endif %}
             </div>
         </nav>
@@ -87,6 +167,10 @@
         <script>
             $("#recherche").autocomplete({
                 source: "{{ path('recherche') }}",
+                minLength: 3
+            });
+            $("#recherche_utilisateur").autocomplete({
+                source: "{{ path('recherche_user') }}",
                 minLength: 3
             });
             $(function() {

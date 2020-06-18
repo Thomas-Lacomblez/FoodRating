@@ -4,7 +4,11 @@
 
 {% block body %}
 
-<a href="{{ path("createDisc") }}" class="btn btn-primary float-right">Créer un nouveau sujet</a>
+{% for message in app.flashes('suppr_disc') %}
+    {{ message }}
+{% endfor %}
+
+<a href="{{ path("createDisc") }}" class="btn btn-primary float-right">Créer un nouveau sujet <i class="fa fa-plus"></i></a>
 <h6 class="border-bottom border-gray pb-2 mt-3 mb-0">Recent updates</h6>
 
 <table class="table table-sm table-striped table-hover mt-2">
@@ -21,7 +25,11 @@
 		{% for d in discussions %}
         <tr>
         	<td class="font-weight-bold"> <a href="{{ path("readDisc", {"id": d.idDiscussion}) }}">{{ d.titre }}</a> </td>
-        	<td> {{ d.id_utilisateur.username }} </td>
+        	{% if d.id_utilisateur is not null %}
+        	    <td> {{ d.id_utilisateur.username }} </td>
+            {% else %}
+                <td> Utilisateur Supprimé </td>
+            {% endif %}
         	<td class="text-muted"> {{ d.creation | date("d/m/Y") }} </td>
         </tr>
         {% endfor %}

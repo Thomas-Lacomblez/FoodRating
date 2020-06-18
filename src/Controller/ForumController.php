@@ -2,25 +2,27 @@
 
 namespace App\Controller;
 
+use App\Entity\Reponse;
 use App\Entity\Discussion;
+use App\Entity\Utilisateurs;
 use App\Form\DiscussionType;
-use Doctrine\ORM\EntityManagerInterface;
-use App\Repository\DiscussionRepository;
 use App\Repository\ReponseRepository;
+use App\Repository\DiscussionRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use App\Repository\UtilisateursRepository;
+use Knp\Component\Pager\PaginatorInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Knp\Component\Pager\PaginatorInterface;
-use App\Entity\Utilisateurs;
-use App\Repository\UtilisateursRepository;
-use App\Entity\Reponse;
 
 class ForumController extends AbstractController
 {
     /**
      * @Route("/forum", name="forum")
      */
-    public function accueil( DiscussionRepository $repo, PaginatorInterface $paginator, Request $request )
+    public function accueil(DiscussionRepository $repo, PaginatorInterface $paginator, Request $request )
     {
     	if (count($repo->findAll()) == 0) {
     		return $this->render("forum/no_result.html.twig");
@@ -78,7 +80,55 @@ class ForumController extends AbstractController
     /**
      * @Route("/forum/{id}", name="readDisc")
      */
-    public function afficheDiscussion(Request $request, Discussion $discussion, ReponseRepository $repo, PaginatorInterface $paginator) {
+    public function afficheDiscussion($id, Request $request, Discussion $discussion, ReponseRepository $repo, PaginatorInterface $paginator, ?UserInterface $user) {
+        function multi_in_array($value, $array) {
+    		foreach ($array AS $item) {
+        		if (!is_array($item)) {
+            		if ($item == $value) {
+                		return true;
+            		}
+            		continue;
+       			}
+        		if (in_array($value, $item)) {
+            		return true;
+        		}
+        		else if (multi_in_array($value, $item)) {
+            		return true;
+        		}
+    		}
+    		return false;
+        }
+        
+        if($user && !$this->container->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
+            $filesystem = new Filesystem();
+			if(!$filesystem->exists('csv/'. $user->getId())) {
+				$filesystem->mkdir('csv/'. $user->getId(), 0700);
+			}
+			if(!$filesystem->exists('csv/'. $user->getId().'/forum.csv')) {
+				$filesystem->touch('csv/'. $user->getId().'/forum.csv');
+				$csv = fopen('csv/'. $user->getId().'/forum.csv', 'w');
+				fputcsv($csv, array("id"), ";");
+				fclose($csv);
+			}
+			$stream = fopen('csv/'. $user->getId().'/forum.csv', 'r');
+			$ajoutCsv = array($id);
+			$tabCsv = array();
+
+			while (($result = fgetcsv($stream, 100, ";")) !== false) {
+    			$tabCsv [] = $result;
+			}
+
+			if (count(file('csv/'. $user->getId().'/forum.csv')) == 1) {
+				$csvModif = fopen('csv/'. $user->getId().'/forum.csv', 'a+');
+				fputcsv($csvModif, $ajoutCsv, ";");
+				fclose($csvModif);
+			}
+			elseif (!multi_in_array($ajoutCsv[0], $tabCsv)) {
+				$csvModif = fopen('csv/'. $user->getId().'/forum.csv', 'a+');
+				fputcsv($csvModif, $ajoutCsv, ";");
+				fclose($csvModif);
+			}
+        }
     	$reponses = $repo->findBy(
     			['idDiscussion' => $discussion->getIdDiscussion()],
     			['createdAt' => 'asc']

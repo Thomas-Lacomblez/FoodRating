@@ -1,0 +1,89 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des sujets{% endblock %}
+
+{% block body %}
+    <script src="https://bootswatch.com/_vendor/jquery/dist/jquery.min.js"></script>
+    <script>
+        function gestionTexte(element, fleche){
+			var  elementF = document.getElementById(element);
+			var flecheF = document.getElementById(fleche);
+			if (elementF.style.display == "none"){
+				elementF.style.display = "block";
+				flecheF.innerHTML = "▲";
+			}
+			else {
+				elementF.style.display = "none";
+				flecheF.innerHTML = "▼";
+			}
+		}
+    </script>
+    <div class="card bg-light mb-3 float-left" style="max-width: 20rem;">
+        <div class="card-header">Tableau de bord de {{ app.user.username }}</div>
+            <div class="card-body">
+                <h4 class="card-title">Table des matières</h4>
+                <p class="card-text">
+                    <ul>
+                        <li>Produits <i id="flecheF1" onclick="gestionTexte('element1', 'flecheF1')" style="cursor:pointer;">▼</i>
+                            <div id="element1" style="display:none">
+                                <ul>
+                                    <li><a class="text-secondary"href="{{ path("produit_visite") }}">Les produits visités</a></li>
+                                    <li><a class="text-secondary"href="{{ path("produit_notes") }}">Les produits notés</a></li>
+                                    <li><a class="text-secondary"href="{{ path("produit_commentaires") }}">Les produits commentés</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li>Forum <i id="flecheF2" onclick="gestionTexte('element2', 'flecheF2')" style="cursor:pointer;">▼</i>
+                            <div id="element2" style="display:block">
+                                <ul>
+                                    <li><a class="text-secondary"href="{{ path("forum_visite") }}">Les sujets visités</a></li>
+                                    <li><a class="text-secondary"href="{{ path("forum_discussion") }}">Mes sujets</a></li>
+                                    <li><a class="text-succes"href="#">Participations aux sujets</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li>Amis <i id="flecheF3" onclick="gestionTexte('element3', 'flecheF3')" style="cursor:pointer;">▼</i>
+                            <div id="element3" style="display:none">
+                                <ul>
+                                    <li><a class="text-secondary"href="{{ path("liste_utilisateur") }}">Liste des utilisateurs</a></li>
+                                    <li><a class="text-secondary"href="{{ path("liste_amis") }}">Liste d'amis</a></li>
+                                    <li><a class="text-secondary"href="{{ path("demandes") }}">Demandes en attentes</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        {% if participation is defined %}
+            
+            <table class="table table-sm table-striped table-hover mt-5 mx-auto" style="width: 70%">
+                <thead class="thead-light">
+                    <tr>
+                        <th class="w-75">Titre</th>
+                        <th>Utilisateur</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                
+                <tbody>
+                
+                    {% for p in participation %}
+                        <tr>
+                            <td class="font-weight-bold"> <a href="{{ path("readDisc", {"id": p.idDiscussion.idDiscussion}) }}">{{ p.idDiscussion.titre }}</a> </td>
+                            <td> {{ p.idDiscussion.id_utilisateur.username }} </td>
+                            <td class="text-muted"> {{ p.idDiscussion.creation | date("d/m/Y") }} </td>
+                        </tr>
+                    {% endfor %}
+                
+                </tbody>
+            </table>
+
+            <div class="mt-3">{{ knp_pagination_render(participation) }}</div>
+        {% else %} 
+            <h1>Aucun Sujet</h1>
+        {% endif %}
+    </div>
+{% endblock %}

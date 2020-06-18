@@ -1,17 +1,13 @@
 {% extends 'base.html.twig' %}
 
-{% block title %} Votre compte {% endblock %}
-
 {% block body %}
     <h2>Votre compte : <b>{{ app.user.username }}</b></h2>
 
     Pseudo : {{ app.user.username }} <br>
     Email : {{ app.user.email }} <br>
-    
     {% if image is defined %}
         Photo : <img src="data:image/png;image/jpg;image/gif;base64,{{ image }}" style="max-width: 150px; max-height: 150px;" alt="photo de profil">
     {% endif %}
-    
     <hr class="border-primary mt-5 mb-3"/>
     <a href="{{ path('modifier_donnees') }}" class="btn btn-info mt-1">Modifier les données</a>
 {% endblock %}

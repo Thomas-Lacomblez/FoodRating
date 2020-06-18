@@ -7,7 +7,10 @@ use App\Form\InscriptionType;
 use App\Form\DonneesModifType;
 use App\Form\MotDePasseModifType;
 
+use App\Repository\NotesRepository;
 use App\Repository\UtilisateursRepository;
+use Symfony\Component\Filesystem\Filesystem;
+use App\Repository\MoyenneProduitsRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\HttpFoundation\Response;
@@ -231,13 +234,48 @@ class SecurityController extends AbstractController
     /**
      * @Route("/client/info_compte/modifier_donnees/desinscription", name="desinscription")
      */
-     public function desinscription() {
+     public function desinscription(MoyenneProduitsRepository $repoM, NotesRepository $repoN) {
 
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
         $user = $this->getUser();
 
         $manager = $this->getDoctrine()->getManager();
+        $notesUser = $repoN->findBy(["utilisateur" => $user]);
+        $tabProduitMoyenne = array();
+        $idProduitNotesSupprimees = array();
+
+        $filesystem = new Filesystem();
+		if($filesystem->exists('csv/'. $user->getId())) {
+			$filesystem->remove('csv/'. $user->getId());
+		}
+        
+        if($notesUser != null) {
+            for($note = 0; $note < sizeof($notesUser); $note++) {
+                $produitMoyenne = $repoM->findBy(["produit_id" => $notesUser[$note]->getProduitId()]);
+                echo sizeof($notesUser). " ".sizeof($produitMoyenne) ;
+                dump($produitMoyenne);
+                $tabProduitMoyenne [] = $produitMoyenne[0]->getProduitId();
+                $idProduitNotesSupprimees [] = $notesUser[$note]->getProduitId();
+                $manager->remove($notesUser[$note]);
+                $manager->flush();
+            }
+
+            for($i = 0; $i < sizeof($idProduitNotesSupprimees); $i++) {
+                if($idProduitNotesSupprimees[$i] == $tabProduitMoyenne[$i]) {
+                    $notes = $repoN->findBy(["produit_id" => $idProduitNotesSupprimees[$i]]);
+                    $moyennes = $repoM->findBy(["produit_id" => $tabProduitMoyenne[$i]]);
+                    $saveNote = array();
+                    for ($m = 0; $m < sizeof($notes); $m++) {
+                        $saveNote[] = $notes[$m]->getNbEtoiles();
+                    }
+                    $moyenneNote = round((array_sum($saveNote)/count($saveNote)), 2);
+                    $moyennes[0]->setMoyenne($moyenneNote);
+                    $manager->flush();
+                }
+            }
+        }
+
         $manager->remove($user);
         $manager->flush();
         $session = $this->get('session');

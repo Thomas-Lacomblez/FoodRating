@@ -48,7 +48,7 @@
                         <div id="carousel_meilleurs_produits" class="carousel slide" data-interval="false" data-ride="carousel">
                         	<ol class="carousel-indicators" style="top: 95%;">
                         		{% for p in meilleursProduit %}
-                        		<li class="bg-primary" data-target="#carousel_meilleurs_produits" {% if loop.first %} data-slide-to="0" class="active" {% else %} data-slide-to="{{ loop.index0 }}" {% endif %}></li>
+                        		    <li class="bg-primary" data-target="#carousel_meilleurs_produits" {% if loop.first %} data-slide-to="0" class="active" {% else %} data-slide-to="{{ loop.index0 }}" {% endif %}></li>
                         	    {% endfor %}
                         	</ol>
 
@@ -97,12 +97,49 @@
             </div>
             <div class="jumbotron col-sm-6">
                 <h1 class="display-5">Les meilleurs commentaires !</h1>
-                <p class="lead">Affichage des 5 meilleurs commentaires en fonctions des produits</p>
-                <hr class="my-4">
-                <p>Voir plus avec le bouton "plus de commentaire"</p>
                 <p class="lead">
-                    <a class="btn btn-primary btn-lg" href="#" role="button">Plus de commentaire</a>
+                     {% if meilleursCommentaires is not empty %}
+                        <div id="carousel_meilleurs_commentaires" class="carousel slide" data-interval="false" data-ride="carousel">
+                        	<ol class="carousel-indicators" style="top: 95%;">
+                        		{% for c in meilleursCommentaires %}
+                        		    <li class="bg-primary" data-target="#carousel_meilleurs_commentaires" {% if loop.first %} data-slide-to="0" class="active" {% else %} data-slide-to="{{ loop.index0 }}" {% endif %}></li>
+                        	    {% endfor %}
+                        	</ol>
+
+                            {% set indice = 0 %}
+                            <div class="carousel-inner w-75 mx-auto" style="height: 310px;">
+                                {% for c in meilleursCommentaires %}
+
+                                    {% if loop.first %}
+                                        <div class="carousel-item active">
+                                    {% else %}
+                                        <div class="carousel-item">
+                                    {% endif %}
+                                            {% if c.utilisateur.imagebase64 is defined and c.utilisateur.imagebase64 is not empty %}
+                                                <img src="data:image/png;image/jpg;image/gif;base64, {{ c.utilisateur.imagebase64 }}" style="width: 50px; height: 50px; border-radius : 75px;">
+                                            {% else %}
+                                                <i class="fas fa-user-circle fa-3x align-self-center align-middle"></i>
+                                            {% endif %}
+                                            {{ c.utilisateur.username }} - Produit : {{ commentairesProduit[indice].product_name ?? 'Non renseigné' | capitalize }}
+                                            <hr class="my-5 border-secondary" />
+                                            {{ c.message | raw}}
+                                        </div>
+                                        {% set indice = indice + 1 %}
+                                {% endfor %}
+                            </div>
+
+                            <a class="carousel-control-prev" href="#carousel_meilleurs_commentaires" role="button" data-slide="prev">
+                                <i class="fas fa-angle-left fa-3x text-primary"></i>
+                            </a>
+                            <a class="carousel-control-next" href="#carousel_meilleurs_commentaires" role="button" data-slide="next">
+                                <i class="fas fa-angle-right fa-3x text-primary"></i>
+                            </a>
+                        </div>
+                    {% else %}
+                        Non renseigné
+                    {% endif %}
                 </p>
+                <hr class="my-4">
             </div>
         </div>
     </div>
