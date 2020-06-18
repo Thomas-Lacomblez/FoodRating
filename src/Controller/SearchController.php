@@ -4,13 +4,14 @@ namespace App\Controller;
 
 use App\Entity\Notes;
 use OpenFoodFacts\Api;
+use App\Repository\CategoriesRepository;
 use Knp\Component\Pager\PaginatorInterface;
+use App\Repository\MoyenneProduitsRepository;
 use Symfony\Component\HttpFoundation\Request;
+use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use App\Repository\CategoriesRepository;
 
 class SearchController extends AbstractController
 {
@@ -41,7 +42,7 @@ class SearchController extends AbstractController
     /**
 	 * @Route("/resultat", name="resultat")
 	 */
-	public function resultat(Request $request, PaginatorInterface $paginator, CategoriesRepository $repoC) {
+	public function resultat(Request $request, PaginatorInterface $paginator, CategoriesRepository $repoC, MoyenneProduitsRepository $repo) {
 	
 		$api = new Api("food", "fr");
     	$mot = $request->get('recherche');
@@ -51,16 +52,24 @@ class SearchController extends AbstractController
 		$donnees = array();
 		$manager = $this->getDoctrine()->getManager();
 		$notesProduits = $manager->getRepository(Notes::class)->findAll();
-				
+		$moyennesProduits = $repo->findAll();
+		
     	for ($i = 1 ; $i < $compteur/20 + 1 ; $i++){
 			foreach ($recherche as $key => $prd) {
 				$data = $prd->getData();
-				$categorie = explode(",", $data["categories"])[0];
 				
-				if (strpos($data["categories_tags"][0], "en:") !== false && strpos($categorie, ":") === false) {
-					$categorie = $this->transfoCategorieURL($categorie);
+				if (empty($data["categories"]) || empty($data["categories_tags"][0])) {
+					$categorie = "unknown";
 				} else {
-					$categorie = substr($repoC->find($data["categories_tags"][0])->getUrl(), 40);
+					$categorie = explode(",", $data["categories"])[0];
+					
+					if (strpos($data["categories_tags"][0], "en:") !== false && strpos($categorie, ":") === false) {
+						$categorie = $this->transfoCategorieURL($categorie);
+					} else {
+						$row = $repoC->find($data["categories_tags"][0]);
+						if (! is_null($row))
+							$categorie = substr($row->getUrl(), 40);
+					}
 				}
 				
 				$data["categorie_url"] = $categorie;
@@ -81,12 +90,31 @@ class SearchController extends AbstractController
 		$produits->setCustomParameters([
 				"align" => "center"
 		]);
-						
-		if (count($produits) == 1) {
+
+
+				
+		if (count($produits) == 1 && $moyennesProduits != null) {
 			return $this->redirectToRoute('produit_v2', [
 					"id" => $produits[0]->getData()["id"] ?? $produits[0]->getData()["code"],
 					"categorie" => $produits[0]->getData()["categorie_url"],
-					"from_search" => " "
+					"from_search" => " ",
+					"moyennesProduits" => $moyennesProduits
+			]);
+		}
+
+		else if(count($produits) == 1 && $moyennesProduits == null) {
+			return $this->redirectToRoute('produit_v2', [
+				"id" => $produits[0]->getData()["id"] ?? $produits[0]->getData()["code"],
+				"categorie" => $produits[0]->getData()["categorie_url"],
+				"from_search" => " "
+			]);
+		}
+		else if(count($produits) != 1 && $moyennesProduits != null) {
+			return $this->render("food_rating/liste_produit.html.twig", [
+				"produits" => $produits,
+				"notes" => $notesProduits,
+				"from_search" => " ",
+				"moyennesProduits" => $moyennesProduits
 			]);
 		}
 		

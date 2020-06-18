@@ -111,6 +111,9 @@
     "knplabs/knp-paginator-bundle": {
         "version": "v5.1.2"
     },
+    "laminas/laminas-zendframework-bridge": {
+        "version": "1.0.4"
+    },
     "league/csv": {
         "version": "9.0.0"
     },
@@ -398,6 +401,9 @@
     "symfony/polyfill-php73": {
         "version": "v1.15.0"
     },
+    "symfony/polyfill-php80": {
+        "version": "v1.17.0"
+    },
     "symfony/process": {
         "version": "v4.4.6"
     },
@@ -564,6 +570,9 @@
     },
     "twig/twig": {
         "version": "v2.12.5"
+    },
+    "webimpress/safe-writer": {
+        "version": "2.0.1"
     },
     "webmozart/assert": {
         "version": "1.7.0"

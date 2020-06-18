@@ -84,7 +84,8 @@ class ForumController extends AbstractController
     			['createdAt' => 'asc']
     	);
     	
-    	$contenu = array_merge(array($discussion), (array) $reponses);
+        $contenu = array_merge(array($discussion), (array) $reponses);
+        dump($contenu);
     	$contenu = $paginator->paginate(
     			$contenu,
     			$request->query->getInt("page", 1),

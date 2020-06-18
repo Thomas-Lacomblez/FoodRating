@@ -5,13 +5,15 @@ namespace App\Controller;
 use App\Entity\Utilisateurs;
 use App\Form\InscriptionType;
 use App\Form\DonneesModifType;
-use App\Repository\UtilisateursRepository;
+use App\Form\MotDePasseModifType;
 
+use App\Repository\UtilisateursRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
@@ -25,7 +27,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 class SecurityController extends AbstractController
 {
     private $router;
-    
+
     public function __construct(UrlGeneratorInterface $router)
     {
         $this->router = $router;
@@ -45,11 +47,31 @@ class SecurityController extends AbstractController
         $lastUsername = $authenticationUtils->getLastUsername();
 
         return $this->render('security/connexion.html.twig', [
-            'last_username' => $lastUsername, 
+            'last_username' => $lastUsername,
             'error' => $error
             ]);
     }
 
+    /**
+     * @Route("/inscription_admin", name="inscription_admin")
+     * A utiliser une fois
+     */
+
+    public function formInscriptionAdmin(Request $request, UserPasswordEncoderInterface $encoder) {
+
+        $admin = new Utilisateurs();
+        $manager = $this->getDoctrine()->getManager();
+        $password = "admin";
+        $hash = $encoder->encodePassword($admin, $password);
+        $admin->setUsername("admin")
+              ->setEmail("admin@foodrating.fr")
+              ->setPassword($hash)
+              ->setRoles(['ROLE_ADMIN']);
+        $manager->persist($admin);
+        $manager->flush();
+
+        return $this->render('food_rating/accueil.html.twig');
+    }
     /**
      * @Route("/inscription", name="inscription")
      */
@@ -62,14 +84,14 @@ class SecurityController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $hash = $encoder->encodePassword($user, $user->getPassword());
-          
+
             $user->setPassword($hash);
             $vkey = md5(time().$user->getUsername());
             $user->setVkey($vkey);
             $manager = $this->getDoctrine()->getManager();
             $manager->persist($user);
             $manager->flush();
-        
+
             $email = new TemplatedEmail();
             $email->from( $emailAdmin );
             $email->to( $user->getEmail() );
@@ -77,12 +99,12 @@ class SecurityController extends AbstractController
             //$signedUrl = $this->generateUrl('verify', array('vkey' => $vkey, UrlGeneratorInterface::ABSOLUTE_URL));
             $signedUrl = $this->router->generate('verify', [
                 'vkey' => $vkey,
-            ], UrlGeneratorInterface::ABSOLUTE_URL 
+            ], UrlGeneratorInterface::ABSOLUTE_URL
             );
-    
+
             echo $signedUrl;
             $email->context( ['signedUrl' => $signedUrl] );
-            
+
             $mailer->send( $email );
 
             //return $this->redirectToRoute('login_security');
@@ -97,31 +119,26 @@ class SecurityController extends AbstractController
      * @Route("/verify/{vkey}", name="verify")
      */
     public function verifyUserEmail(Request $request, UtilisateursRepository $repoUser, $vkey) {
-        
+
         try {
             $entityManager = $this->getDoctrine()->getManager();
             $user = $entityManager->getRepository(Utilisateurs::class)->findOneBy( ['vkey' => $vkey] );
-        
+
             if (!$user) {
                 throw $this->createNotFoundException(
                     'No User found. Retry later or contact your administrator'
                 );
             }
-            //dump($user);
+
             echo $user->getUsername();
             $user->setVerified(True);
             $entityManager->flush();
-            /*if(isUpdate) {
-                    $this->addFlash('success', 'Your e-mail address has been verified.');
-                }
-            else {
-                    $this->addFlash('UserUpdateError', 'an error occurred while verifing your account, please retry later or contact your administrator.');
-                }
-            }
-            else {
-                $this->addFlash('UserNotFound', 'This account invalid or already verified');
-            }*/
-        } 
+            $this->addFlash('success', 'Your e-mail address has been verified.');
+        }
+        catch (Exception $e) {
+            $this->addFlash('UserUpdateError', $e->getMessage());
+            return $this->redirectToRoute('inscription');
+        }
         catch (NotFoundException $e) {
             $this->addFlash('UserNotFound', $e->getReason());
 
@@ -134,10 +151,9 @@ class SecurityController extends AbstractController
     }
 
     /**
-     * @Route("/compte/info_compte/modifier_donnees", name="modifier_donnees")
+     * @Route("/client/info_compte/modifier_donnees", name="modifier_donnees")
      */
-
-    public function formModifierDonnees(Request $request, UserPasswordEncoderInterface $encoder) {
+    public function formModifierDonnees(Request $request) {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
         $user = $this->getUser();
@@ -161,7 +177,7 @@ class SecurityController extends AbstractController
                 ->text("vos donnez ont été modifier avec succès, si vous n'avez pas fait cette modification vous êtes peut-être la cible d'un piratage de votre compte, si c'est le cas nous vous conseillons de changer votre mot de passe le plus rapidement possible, si vous rencontrez un quelconque problème vous pouvez contacter un administrateur par le biais du formulaire de contact, à l'adresse suivant :" . $contactUrl);
             $mailer->send($email);
             $manager->flush();
-           
+
             return $this->redirectToRoute('espace');
 
         }
@@ -169,11 +185,52 @@ class SecurityController extends AbstractController
             'formModifierDonnees' => $form->createView()
         ]);
     }
+    /**
+     * @Route("/client/info_compte/modifier_donnees/modifier_mdp", name="modifier_mdp")
+     */
+    public function modifierMotDePasse(Request $request, UserPasswordEncoderInterface $encoder) {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        $user = $this->getUser();
+
+        $manager = $this->getDoctrine()->getManager();
+        $userModif = $manager->getRepository(Utilisateurs::class)->find($user->getId());
+
+        $form = $this->createForm(MotDePasseModifType::class, $userModif);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $hash = $encoder->encodePassword($user, $user->getPassword());
+            $user->setPassword($hash);
+            $manager->flush();
+            return $this->redirectToRoute('modifier_donnees');
+        }
+        return $this->render('security/modifier_mdp.html.twig', [
+            'formModifierMdp' => $form->createView(),
+        ]);
+    }
 
     /**
-     * @Route("/compte/info_compte/modifier_donnees/desinscription", name="desinscription")
+     * @Route("/client/info_compte/modifier_donnees/supprimer_photo", name="supprimer_photo")
      */
+    public function supprimerPhoto(Request $request) {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
+        $user = $this->getUser();
+
+        $manager = $this->getDoctrine()->getManager();
+        $userModif = $manager->getRepository(Utilisateurs::class)->find($user->getId());
+
+        if($userModif->getImageBase64() != null) {
+            $user->setImageBase64(null);
+            $manager->flush();
+        }
+        return $this->redirectToRoute('modifier_donnees');
+    }
+
+    /**
+     * @Route("/client/info_compte/modifier_donnees/desinscription", name="desinscription")
+     */
      public function desinscription() {
 
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
@@ -206,5 +263,5 @@ class SecurityController extends AbstractController
         return $conn->query($query)->fetchAll();
     }
 
-    
+
 }

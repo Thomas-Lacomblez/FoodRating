@@ -53,16 +53,6 @@ class Utilisateurs implements UserInterface
     public $password_confirmation;
 
     /**
-     * @ORM\Column(type="blob", nullable=true)
-     */
-    private $image;
-
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
-    private $tailleImage;
-
-    /**
      * @ORM\OneToMany(targetEntity=Notes::class, mappedBy="utilisateur")
      */
     private $notes;
@@ -87,12 +77,27 @@ class Utilisateurs implements UserInterface
      */
     private $verified = false;
 
+    /**
+     * @ORM\Column(type="array")
+     */
+    private $roles = [];
+
+    /**
+     * @ORM\OneToMany(targetEntity=Aime::class, mappedBy="idUtilisateur", orphanRemoval=true)
+     */
+    private $aimes;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $image_base64;
 
     public function __construct()
     {
         $this->notes = new ArrayCollection();
         $this->commentaires = new ArrayCollection();
         $this->reponses = new ArrayCollection();
+        $this->aimes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -144,30 +149,13 @@ class Utilisateurs implements UserInterface
 
     }
 
-    public function getRoles() {
-        return ['ROLE_USER'];
+    public function getRoles(): ?array {
+        return $this->roles;
     }
 
-    public function getImage()
+    public function setRoles(array $roles): self
     {
-        return $this->image;
-    }
-
-    public function setImage($image): self
-    {
-        $this->image = $image;
-
-        return $this;
-    }
-
-    public function getTailleImage(): ?int
-    {
-        return $this->tailleImage;
-    }
-
-    public function setTailleImage(?int $tailleImage): self
-    {
-        $this->tailleImage = $tailleImage;
+        $this->roles = $roles;
 
         return $this;
     }
@@ -287,5 +275,44 @@ class Utilisateurs implements UserInterface
         }
 
         return $this;
+    }
+
+    /**
+     * @return Collection|Aime[]
+     */
+    public function getAimes(): Collection
+    {
+        return $this->aimes;
+    }
+
+    public function addAime(Aime $aime): self
+    {
+        if (!$this->aimes->contains($aime)) {
+            $this->aimes[] = $aime;
+            $aime->setIdUtilisateur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAime(Aime $aime): self
+    {
+        if ($this->aimes->contains($aime)) {
+            $this->aimes->removeElement($aime);
+            // set the owning side to null (unless already changed)
+            if ($aime->getIdUtilisateur() === $this) {
+                $aime->setIdUtilisateur(null);
+            }
+        }
+	}
+
+    public function getImageBase64(): ?string
+    {
+        return $this->image_base64;
+    }
+
+    public function setImageBase64(?string $image_base64): self
+    {
+        $this->image_base64 = $image_base64;
     }
 }

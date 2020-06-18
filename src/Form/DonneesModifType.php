@@ -5,7 +5,9 @@ namespace App\Form;
 use App\Entity\Utilisateurs;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 
 class DonneesModifType extends AbstractType
@@ -15,8 +17,22 @@ class DonneesModifType extends AbstractType
         $builder
             ->add('username')
             ->add('email')
-            ->add('password', PasswordType::class)
-            ->add('password_confirmation', PasswordType::class)
+            ->add('imagebase64', FileType::class, [
+                'label' => 'Photo de profil',
+                'mapped' => false,
+                'required' => false,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '1024k',
+                        'mimeTypes' => [
+                            'image/jpeg',
+                            'image/gif',
+                            'image/png'
+                        ],
+                        'mimeTypesMessage' => 'Sélectionnez une image JPEG, PNG ou GIF',
+                    ])
+                ],
+            ])
         ;
     }
 

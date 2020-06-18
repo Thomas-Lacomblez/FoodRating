@@ -47,5 +47,4 @@ class UtilisateursRepository extends ServiceEntityRepository
         ;
     }
     */
-
 }

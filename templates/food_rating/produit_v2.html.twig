@@ -1,38 +1,48 @@
 {% extends "base.html.twig" %}
 
-{% block title %} {{ produit.product_name | capitalize }} {% endblock %}
+{% block title %} {{ produit.product_name ?? "Non renseigné" | capitalize }} {% endblock %}
 
 {% block body %}
 <script src="https://bootswatch.com/_vendor/jquery/dist/jquery.min.js"></script>
+
+<style>
+.no-hover:hover {
+	text-decoration: none;
+}
+</style>
+
+{# Partie supérieur de la page (image + infos) #}
 <div class="media pb-5">
 	<img src="{{ produit.image_url ?? produit.image_front_url ?? produit.selected_images.front.display.fr ?? "/images/image_vide.png" }}" class="align-self-center mr-3" alt="" />
 	<div class="media-body">
-	
-		{# Pour garder la catégorie "principale" #}
-		{% if produit.categories is defined %}
-			{% set cat = produit.categories | split(",") %}
+		{% if produit.categories is defined and produit.categories is not empty %}
+			{% set cat = produit.categories | split (",") %}
 		{% else %}
 			{% set cat = ["Non renseignée"] %}
 		{% endif %}
 		
-		<p> Nom : {{ produit.product_name | capitalize }} <br>
-		{% if produit.brands_tags is defined %}
-			Marque : {{ produit.brands ?? produit.brands_tags[0] }} <br>
+		<p>Nom : {{ produit.product_name ?? "Non renseigné" | capitalize }} <br />
+		{% if produit.brands_tags is defined and produit.brands_tags is not empty %}
+			Marque : {{ produit.brands ?? produit.brands_tags[0] }} <br />
 		{% else %}
-			Marque : Non renseignée <br>
+			Marque : Non renseignée <br />
 		{% endif %}
+		
 		Catégorie : {{ cat[0] }}</p>
 	</div>
 </div>
+
+{# Partie INGREDIENTS #}
 <h3>Ingrédients</h3>
-{% if produit.ingredients_text is defined %}
-	<p> {{ produit.ingredients_text }} </p>
+{% if produit.ingredients_text is defined and produit.ingredients_text is defined %}
+	<p>{{ produit.ingredients_text }}</p>
 {% else %}
 	<p>Non renseignés</p>
 {% endif %}
 
 <a type="button" target="_blank" class="btn btn-danger" href="{{ path("debug", {"id": produit.id ?? produit.code}) }}">Debug <i class="fas fa-exclamation-triangle"></i></a>
 
+{# Partie NOTE et PRODUITS SIMILAIRES #}
 <div class="row pt-5">
 	<div class="col">
 		<h3>Note</h3>
@@ -44,288 +54,277 @@
 					{% if moyenneNote != 0 %}
 						Moyenne : {{ moyenneNote }}</p>
 					{% else %}
-						Pas de Note
+						Pas de Note</p>
 					{% endif %}
 					<p>(Nombre de votes : {{ nombreVote }})</p></center>
 				</div>
+				
 				<div class="col">
+					{% for etoile in pourcentageEtoiles %}
 					<span class="fa-stack my-1">
 						<i class="fas fa-star fa-stack-2x text-warning"></i>
-						<span class="fa-stack-1x font-weight-bold">1</span>
+						<span class="fa-stack-1x font-weight-bold">{{ loop.index }}</span>
 					</span>
 					<div class="progress" style="background-color: #ebebf5">
-						<div class="progress-bar bg-warning" style="width: {{ pourcentageEtoile1 }}%;"></div>
+						<div class="progress-bar bg-warning" style="width: {{ etoile }}%;"></div>
 					</div>
-					
-					<span class="fa-stack my-1">
-						<i class="fas fa-star fa-stack-2x text-warning"></i>
-						<span class="fa-stack-1x font-weight-bold">2</span>
-					</span>
-					<div class="progress" style="background-color: #ebebf5">
-						<div class="progress-bar bg-warning" style="width: {{ pourcentageEtoile2 }}%;"></div>
-					</div>
-					
-					<span class="fa-stack my-1">
-						<i class="fas fa-star fa-stack-2x text-warning"></i>
-						<span class="fa-stack-1x font-weight-bold">3</span>
-					</span>
-					<div class="progress" style="background-color: #ebebf5">
-						<div class="progress-bar bg-warning" style="width: {{ pourcentageEtoile3 }}%;"></div>
-					</div>
-					
-					<span class="fa-stack my-1">
-						<i class="fas fa-star fa-stack-2x text-warning"></i>
-						<span class="fa-stack-1x font-weight-bold">4</span>
-					</span>
-					<div class="progress" style="background-color: #ebebf5">
-						<div class="progress-bar bg-warning" style="width: {{ pourcentageEtoile4 }}%;"></div>
-					</div>
-					
-					<span class="fa-stack my-1">
-						<i class="fas fa-star fa-stack-2x text-warning"></i>
-						<span class="fa-stack-1x font-weight-bold">5</span>
-					</span>
-					<div class="progress" style="background-color: #ebebf5">
-						<div class="progress-bar bg-warning" style="width: {{ pourcentageEtoile5 }}%;"></div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="col">
-		<h3>Produits similaires</h3>
-		<div id="similaire" class="carousel slide" data-ride="carousel">
-        
-          <!-- Indicators -->
-          <ul class="carousel-indicators">
-          	{% for s in similaires | slice(0,10) %}
-          		{% if loop.first %}
-          			<li class="bg-primary" data-target="#similaire" data-slide-to="0" class="active"></li>
-          		{% else %}
-          			<li class="bg-primary" data-target="#similaire" data-slide-to="{{ loop.index0 }}"></li>
-          		{% endif %}
-          	{% endfor %}
-          </ul>
-          
-          <div class="carousel-inner w-75 mx-auto" style="height: 310px;">
-          {% for s in similaires | slice(0,10) %}
-          
-            {# Pour garder la catégorie "principale" #}
-            {% if s.categories is defined %}
-    			{% set catSimilaire = s.categories | split(",") %}
-    		{% else %}
-    			{% set catSimilaire = ["Non renseignée"] %}
-    		{% endif %}
-          
-          	{% if loop.first %}
-          		<div class="carousel-item active">
-          	{% else %}
-          		<div class="carousel-item">
-          	{% endif %}
-          	
-              	<a href="{{ path("produit_v2", {"id" : s.id ?? s.code, "categorie": categorie}) }}">
-              		<img class="d-block mx-auto img-thumbnail" style="height: 200px;" src="{{ s.image_url ?? s.image_front_url ?? s.selected_images.front.display.fr ?? "/images/image_vide.png" }}" alt="Image du produit : {{ s.product_name }}" />
-              	</a>
-              	<div class="carousel-caption d-none d-md-block" style="position: initial;">
-                	<h5>{{ s.brands ?? s.brands_tags[0] ?? "Non renseigné" }}</h5>
-                	<a href="{{ path("produit_v2", {"id" : s.id ?? s.code, "categorie": categorie}) }}">{{ s.product_name | capitalize }}</a>
-                </div>
-          	</div>
-          
-          {% endfor %}
-          </div>
-       
-          <!-- Left and right controls -->
-          <a class="carousel-control-prev" href="#similaire" role="button" data-slide="prev">
-            <i class="fas fa-angle-left fa-3x text-primary"></i>
-          </a>
-          <a class="carousel-control-next" href="#similaire" role="button" data-slide="next">
-            <i class="fas fa-angle-right fa-3x text-primary"></i>
-          </a>
-        
-        </div>
-	</div>
-</div>
-<h3 class="my-4">Noter</h3>
-{% if app.user %}
-	<script>
-		$(document).ready(function(){
-
-			function ExtractId(id) {
-				var id=id.split('_');
-				var id=id[1];
-				return id;
-			}
-			
-			$('.etoile').on('click', function(e){
-				var id = ExtractId($(this).attr('id')); 
-				var nbStars=$('.etoile').length; 
-				var i;
-				for (i = 1; i <= nbStars; i++) {
-					if(i <= id) {
-						$('#etoile_' + i).addClass('text-warning');
-					}	
-					else if(i > id){
-						$('#etoile_' + i).removeClass('text-warning');
-					}
-					if(i==id) {
-						$('#note').attr({value:i});
-					}
-				}
-			});
-		});
-		{% if note is defined and app.user.id == note.utilisateur.id %}
-			$(document).ready( function() {
-				var nbStars=$('.etoile').length; 
-				var i;
-				for (i = 1; i <= {{ note.nbEtoiles }}; i++) {
-					$('#etoile_' + i).addClass('text-warning');
-				}
-			});
-		{% endif %}
-	</script>
-	{% if produit.categories is defined %}
-		{% set cat = produit.categories | split(",") %}
-	{% else %}
-		{% set cat = ["Non renseignée"] %}
-	{% endif %}
-
-	<div class="row">
-		{% if note is defined and app.user.id == note.utilisateur.id %}
-			<form id="formulaire" action="{{ path("modifier_notation", {"id" : produit.id ?? produit.code, "categorie" : categorie }) }}" method="post">
-				<div class="form-group">
-					<label>Note : </label>
-					<i class="fas fa-star fa-3x etoile" id="etoile_1" title="Pas du tout satisfait" style="cursor: pointer;"></i>
-					<i class="fas fa-star fa-3x etoile" id="etoile_2" title="Pas satisfait" style="cursor: pointer;"></i>
-					<i class="fas fa-star fa-3x etoile" id="etoile_3"title="Moyennement satisfait" style="cursor: pointer;"></i>
-					<i class="fas fa-star fa-3x etoile" id="etoile_4"title="Satisfait" style="cursor: pointer;"></i>
-					<i class="fas fa-star fa-3x etoile" id="etoile_5" title="Très satisfait" style="cursor: pointer;"></i><br>
-					<input type="hidden" name="note" id="note" value="">
-				</div>
-				<div class="form-group">
-					<label for="commentaire">Commentaire</label>
-					{% if commentaire is defined %}
-						<textarea class="form-control" name="commentaire" id="commentaire" rows="3">{{ commentaire.message }}</textarea>
-					{% else %}
-						<textarea class="form-control" name="commentaire" id="commentaire" rows="3"></textarea>
-					{% endif %}
-				</div>
-				<div class="form-group">
-					<input type="submit" class="btn btn-info" value="Modifier">
-					<a type="button" href="{{ path("supprimer_notation", {"id" : produit.id ?? produit.code, "categorie" : categorie }) }}" class= "btn btn-danger">Supprimer</a>
-				</div>
-			</form>
-			<!--<div id="loader"></div>-->
-		{% else %}
-			<form id="formulaire" action="{{ path("notation", {"id" : produit.id ?? produit.code, "categorie" : categorie }) }}" method="post">
-				<div class="form-group">
-					<label>Note : </label>
-					<i class="fas fa-star fa-3x etoile" id="etoile_1" title="Pas du tout satisfait" style="cursor: pointer;"></i>
-					<i class="fas fa-star fa-3x etoile" id="etoile_2" title="Pas satisfait" style="cursor: pointer;"></i>
-					<i class="fas fa-star fa-3x etoile" id="etoile_3"title="Moyennement satisfait" style="cursor: pointer;"></i>
-					<i class="fas fa-star fa-3x etoile" id="etoile_4"title="Satisfait" style="cursor: pointer;"></i>
-					<i class="fas fa-star fa-3x etoile" id="etoile_5" title="Très satisfait" style="cursor: pointer;"></i>
-					<input type="hidden" name="note" id="note" value="">
-				</div>
-				<div class="form-group">
-					<label for="commentaire">Commentaire</label>
-					<textarea class="form-control" name="commentaire" id="commentaire" rows="3"></textarea>
-				</div>
-				<div class="form-group">
-					<input type="submit" class="btn btn-primary" value="Noter">
-				</div>
-			</form>
-			<!--<div id="loader"></div>-->
-		{% endif %}
-		<!--<script>
-            /* attach a submit handler to the form */
-            $("#formulaire").submit(function(event) {
-
-                /* stop form from submitting normally */
-                event.preventDefault();
-
-                /* get some values from elements on the page: */
-                var $form = $(this),
-                    url = $form.attr('action');
-
-                /* Send the data using post */
-                var posting = $.post(url);
-            });
-        </script>-->
-		<!--<script>
-			$(document).ready(function(){
-				$(function(){
-					$('#formulaire').submit(function(e){
-					e.preventDefault();
-					var formulaire = $(this);
-					var post_url = formulaire.attr('action');
-					var post_data = formulaire.serialize();
-					$('#loader', formulaire).html('<img src="https://thumbs.gfycat.com/ElasticHalfAbyssiniancat-size_restricted.gif"/>');
-
-					$.ajax({
-						type: 'POST',
-						url: post_url,
-						data: post_data,
-						success: function(msg) {
-							formulaire.fadeOut(800, function(){
-								formulaire.html(msg).fadeIn().delay(2000);
-							});
-						}
-					});
-					});
-				});
-			});
-		</script>-->
-	</div>
-{% else %}
-	<div class="row">
-		<div class="col">
-			<p>Pour noter un produit, merci de vous connecter !</p>
-			<a type="button" class="btn btn-info" href="/connexion">Mon compte</a>
-		</div>
-	</div>
-{% endif %}
-
-<hr class="my-5 border-primary" />
-<h3 class="mb-3">Commentaires et Notes</h3>
-
-{% if notesProduit is defined %}
-	<div class="card-columns">
-		{% for n in notesProduit %}
-			<script>
-				$(document).ready(function() {
-					var nbStars=$('.etoile_affichage').length;
-					var i;
-					for (i = 1; i <= {{ n.nbEtoiles }}; i++) { $('#etoileAffichage{{ n.id }}_' + i).addClass('text-warning'); }
-				});
-			</script>
-			
-			<div class="card border-primary mb-3" style="max-width: 20rem;">
-				<div class="card-header">{{ n.utilisateur.username }}</div>
-				<div class="card-body">
-					<p class="card-title">
-						<i class="fas fa-star fa-2x etoile_affichage" id="etoileAffichage{{ n.id }}_1"></i>
-						<i class="fas fa-star fa-2x etoile_affichage" id="etoileAffichage{{ n.id }}_2"></i>
-						<i class="fas fa-star fa-2x etoile_affichage" id="etoileAffichage{{ n.id }}_3"></i>
-						<i class="fas fa-star fa-2x etoile_affichage" id="etoileAffichage{{ n.id }}_4"></i>
-						<i class="fas fa-star fa-2x etoile_affichage" id="etoileAffichage{{ n.id }}_5"></i>
-					</p>
-					
-					{% for c in commentairesProduit %}
-						{% if c.utilisateur.id == n.utilisateur.id %}
-							<p class="card-text">{{ c.message }}</p>
-						{% endif %}
 					{% endfor %}
 				</div>
-				<div class="card-footer">{{ n.createdAt | date("d/m/Y - H:i") }}</div>
 			</div>
-
-		{% endfor %}
+		</div>
 	</div>
 	
+	<div class="col">
+		<h3>Produits similaires</h3>
+		{% if similaires is not empty %}
+		<div class="carousel slide" id="similaire" data-ride="carousel">
+		
+    		<!-- Indicators -->
+            <ul class="carousel-indicators" style="top: 95%">
+            {% for s in similaires | slice(0,10) %}
+                {% if loop.first %}
+                <li class="bg-primary" data-target="#similaire" data-slide-to="0" class="active"></li>
+                {% else %}
+                <li class="bg-primary" data-target="#similaire" data-slide-to="{{ loop.index0 }}"></li>
+                {% endif %}
+            {% endfor %}
+            </ul>
+            
+            <div class="carousel-inner w-75 mx-auto" style="height: 310px;">
+            	{% for s in similaires | slice(0,10) %}
+            	<div {% if loop.first %} class="carousel-item active" {% else %} class="carousel-item" {% endif %}>
+            		<a href="{{ path("produit_v2", {"id" : s.id ?? s.code, "categorie": categorie}) }}">
+                  		<img class="d-block mx-auto img-thumbnail" style="height: 200px;" src="{{ s.image_url ?? s.image_front_url ?? s.selected_images.front.display.fr ?? "/images/image_vide.png" }}" alt="Image du produit : {{ s.product_name ?? "" }}" />
+                  	</a>
+                  	<div class="carousel-caption d-none d-md-block" style="position: initial;">
+                    	<h5>{{ s.brands ?? s.brands_tags[0] ?? "Non renseigné" }}</h5>
+                    	<a href="{{ path("produit_v2", {"id" : s.id ?? s.code, "categorie": categorie}) }}">{{ s.product_name ?? s.generic_name ?? "Non renseigné" | capitalize }}</a>
+                    </div>
+            	</div>
+            	{% endfor %}
+            </div>
+            
+            <!-- Left and right controls -->
+            <a class="carousel-control-prev" href="#similaire" role="button" data-slide="prev">
+            	<i class="fas fa-angle-left fa-3x text-primary"></i>
+            </a>
+            <a class="carousel-control-next" href="#similaire" role="button" data-slide="next">
+            	<i class="fas fa-angle-right fa-3x text-primary"></i>
+            </a>
+		</div>
+		{% else %}
+		<p>Aucun produit similaire.</p>
+		{% endif %}
+	</div>
+</div>
+
+{# Partie NOTER #}
+<h3 class="my-4">Noter</h3>
+<div class="row">
+	<div class="col">
+    	{% if app.user %}
+    	<script>
+    	$(document).ready(function(){
+    
+    		function ExtractId(id) {
+    			var id=id.split('_');
+    			var id=id[1];
+    			return id;
+    		}
+    		
+    		$('.etoile').on('click', function(e){
+    			var id = ExtractId($(this).attr('id')); 
+    			var nbStars=$('.etoile').length; 
+    			var i;
+    			for (i = 1; i <= nbStars; i++) {
+    				if(i <= id) {
+    					$('#etoile_' + i).addClass('text-warning');
+    				}	
+    				else if(i > id){
+    					$('#etoile_' + i).removeClass('text-warning');
+    				}
+    				if(i==id) {
+    					$('#note').attr({value:i});
+    				}
+    			}
+    		});
+    	});
+    	{% if note is defined and app.user.id == note.utilisateur.id %}
+    		$(document).ready( function() {
+    			var nbStars=$('.etoile').length; 
+    			var i;
+    			for (i = 1; i <= {{ note.nbEtoiles }}; i++) {
+    				$('#etoile_' + i).addClass('text-warning');
+    			}
+    		});
+    	{% endif %}
+    	</script>
+    	
+    	{% if produit.categories is defined and produit.categories is not empty %}
+    		{% set cat = produit.categories | split(",") %}
+    	{% else %}
+    		{% set cat = ["Non renseignée"] %}
+    	{% endif %}
+    	
+    	{% if note is defined and produit.categories is not empty %}
+    	<form action="{{ path("modifier_notation", {"id" : produit.id ?? produit.code, "categorie" : categorie}) }}" method="post">
+    		<div class="form-group">
+    			<label>Note :
+        			<i class="fas fa-star fa-3x etoile" id="etoile_1" title="Pas du tout satisfait" style="cursor: pointer;"></i>
+        			<i class="fas fa-star fa-3x etoile" id="etoile_2" title="Pas satisfait" style="cursor: pointer;"></i>
+        			<i class="fas fa-star fa-3x etoile" id="etoile_3"title="Moyennement satisfait" style="cursor: pointer;"></i>
+        			<i class="fas fa-star fa-3x etoile" id="etoile_4"title="Satisfait" style="cursor: pointer;"></i>
+        			<i class="fas fa-star fa-3x etoile" id="etoile_5" title="Très satisfait" style="cursor: pointer;"></i><br>
+        			<input type="hidden" name="note" id="note" value="">
+    			</label>
+    		</div>
+    		
+    		<div class="form-group">
+    			<label for="commentaire">Commentaire</label>
+    			{% if commentaire is defined %}
+    			<textarea class="form-control" name="commentaire" id="commentaire" rows="3">{{ commentaire.message }}</textarea>
+    			{% else %}
+    			<textarea class="form-control" name="commentaire" id="commentaire" rows="3"></textarea>
+    			{% endif %}
+    		</div>
+    		
+    		<div class="form-group">
+    			<input type="submit" class="btn btn-primary" value="Modifier" />
+    			<a href="{{ path("supprimer_notation", {"id" : produit.id ?? produit.code, "categorie" : categorie }) }}" class="btn btn-danger" role="button">
+    				Supprimer <i class="fas fa-trash-alt"></i>
+    			</a>
+    		</div>
+    	</form>
+    	
+    	{% else %}
+    
+    	<form id="formulaire" action="{{ path("notation", {"id" : produit.id ?? produit.code, "categorie" : categorie }) }}" method="post">
+    		<div class="form-group">
+    			<label>Note : </label>
+    			<i class="fas fa-star fa-3x etoile" id="etoile_1" title="Pas du tout satisfait" style="cursor: pointer;"></i>
+    			<i class="fas fa-star fa-3x etoile" id="etoile_2" title="Pas satisfait" style="cursor: pointer;"></i>
+    			<i class="fas fa-star fa-3x etoile" id="etoile_3"title="Moyennement satisfait" style="cursor: pointer;"></i>
+    			<i class="fas fa-star fa-3x etoile" id="etoile_4"title="Satisfait" style="cursor: pointer;"></i>
+    			<i class="fas fa-star fa-3x etoile" id="etoile_5" title="Très satisfait" style="cursor: pointer;"></i>
+    			<input type="hidden" name="note" id="note" value="">
+    		</div>
+    		<div class="form-group">
+    			<label for="commentaire">Commentaire</label>
+    			<textarea class="form-control" name="commentaire" id="commentaire" rows="3"></textarea>
+    		</div>
+    		<div class="form-group">
+    			<input type="submit" class="btn btn-primary" value="Noter">
+    		</div>
+    	</form>
+    	{% endif %}
+    	
+    	{% else %}
+    	<p>Pour noter un produit, merci de vous connecter !</p>
+    	<a type="button" class="btn btn-info" href="/connexion">Mon compte</a>
+    	{% endif %}
+	</div>
+</div>
+
+<hr class="my-5 border-primary" />
+
+{# Partie COMMENTAIRES et NOTES #}
+<h3 class="mb-3">Commentaires et Notes</h3>
+
+{% if notesProduit is defined and notesProduit is not empty %}
+<div class="card-columns">
+	{% for n in notesProduit %}
+	<script>
+		$(document).ready(function() {
+			var nbStars=$('.etoile_affichage').length;
+			var i;
+			for (i = 1; i <= {{ n.nbEtoiles }}; i++) { $('#etoileAffichage{{ n.id }}_' + i).addClass('text-warning'); }
+		});
+	</script>
+	<div class="card border-primary mb-3" style="max-width: 20rem;">
+		<div class="card-header">
+			{% if n.utilisateur.imagebase64 is defined %}
+				<img src="data:image/png;image/jpg;image/gif;base64, {{ n.utilisateur.imagebase64 }}" style="width: 50px; height: 50px; border-radius : 75px;">
+			{% else %}
+				<i class="fas fa-user-circle fa-3x align-self-center"></i>
+			{% endif %}
+		    {{ n.utilisateur.username }} 
+		</div>
+		
+		<div class="card-body">
+			<p class="card-title">
+				<i class="fas fa-star fa-2x etoile_affichage" id="etoileAffichage{{ n.id }}_1"></i>
+				<i class="fas fa-star fa-2x etoile_affichage" id="etoileAffichage{{ n.id }}_2"></i>
+				<i class="fas fa-star fa-2x etoile_affichage" id="etoileAffichage{{ n.id }}_3"></i>
+				<i class="fas fa-star fa-2x etoile_affichage" id="etoileAffichage{{ n.id }}_4"></i>
+				<i class="fas fa-star fa-2x etoile_affichage" id="etoileAffichage{{ n.id }}_5"></i>
+			</p>
+			
+			{% for c in commentairesProduit %}
+				{% if c.utilisateur.id == n.utilisateur.id %}
+				<p class="card-text">{{ c.message }}</p>
+				{% endif %}
+			{% endfor %}
+		</div>
+		
+		<div class="card-footer">
+			{{ n.createdAt | date("d/m/Y - H:i") }}
+			{% if commentairesProduit is defined %}
+				{% for c in commentairesProduit %}
+					{% if aimeCommentaire[c.id] is defined and aimeCommentaire[c.id] == app.user.id %}
+    				<div id="bouton-aime-{{ c.id }}" class="float-right">
+    					<span class="text-warning">
+        					<a class="no-hover">
+        						<i class="fas fa-thumbs-up" style="cursor: pointer;"></i>			
+        					</a>
+        					<p class="d-inline">{{ c.utile }}</p>
+        				</span>
+					</div>
+					{% else %}
+					<div id="bouton-aime-{{ c.id }}" class="float-right">
+						<span class="text-primary">
+        					<a class="no-hover">
+        						<i class="fas fa-thumbs-up" style="cursor: pointer;"></i>			
+        					</a>
+        					<p class="d-inline">{{ c.utile }}</p>
+        				</span>
+					</div>
+					{% endif %}
+					
+					<script>
+            		$( "div[id|='bouton-aime'] span" ).click(function() {
+            			let idCom = $(this).parent()[0].id.split("-");
+            			let url, val = 0;
+            
+            			if ($(this).hasClass("text-primary")) {
+            				url = "{{ path("commentaire_utile", {"id": produit.id ?? produit.code, "categorie": categorie, "utile": c.id}) }}";
+            				val++;
+            			} else {
+                			url = "{{ path("supprimer_vote", {"id": produit.id ?? produit.code, "categorie": categorie, "utile": c.id}) }}";
+                			val--;
+                    	}
+                    	
+    					$(this).toggleClass("text-primary").toggleClass("text-warning");
+
+            			$.ajax({
+        					method: "POST",
+        					url: url
+        				})
+        				.done(function() {
+            				let oldVal = parseInt($("div#bouton-aime-"+ idCom[2] +" span p").text(), 10);
+        					$("div#bouton-aime-"+ idCom[2] +" span p").text(val + oldVal);
+        				});
+            		});
+            		</script>
+				{% endfor %}
+			{% endif %}
+		</div>
+	</div>
+	{% endfor %}
+</div>
 {% else %}
-	<p>Pas de commentaires pour ce produit.</p>
+<p>Pas de commentaires pour ce produit.</p>
 {% endif %}
+
 <div class="flex-sm-wrap mt-5">
 
 	<!-- Utilisation du sélecteur de pages de KNP -->
