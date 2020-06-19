@@ -120,7 +120,36 @@ class FoodRatingController extends AbstractController
 				"commentairesProduit" => $sauvegardeProduitCom
 			]);
 		}
-    }
+	}
+	
+	/**
+     * @Route("/categories/signaler_utilisateur", name="signaler_utilisateur_produit")
+     */
+	public function signalerUtilisateur(Request $request, UtilisateursRepository $repoU){
+		$manager = $this->getDoctrine()->getManager();
+		if ($request->query->has("signaler_user")) {
+			$user = $repoU->findOneBy(["id" => $request->query->get("signaler_user")]);
+			if (!empty($user)){
+				$user->setNombreSignalement($user->getNombreSignalement() + 1);
+				$manager->persist($user);
+            	$manager->flush();
+				$this->addFlash(
+					'signal_notice',
+					'Vous avez signalé ' . $user->getUsername() . "."
+				);
+			}
+		}
+		if ($request->query->has("id") && $request->query->has("categorie")){
+			return $this->redirectToRoute("produit_v2", [
+				'id' => $request->query->get("id"),
+				'categorie' => $request->query->get("categorie")
+			]);
+		}
+		else {
+			return $this->redirectToRoute("food_rating");
+		}
+
+	}
     
     /**
      * @Route("/categories/{categorie}/produit_v2/{id}", name="produit_v2")

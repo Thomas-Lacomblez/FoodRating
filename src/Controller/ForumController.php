@@ -75,7 +75,34 @@ class ForumController extends AbstractController
                 'fromDisc' =>  $formDiscussion->createview()
         ]);
         
-    }
+	}
+	
+	/**
+     * @Route("/forum/signaler_utilisateur", name="signaler_utilisateur_forum")
+     */
+	public function signalerUtilisateur(Request $request, UtilisateursRepository $repoU){
+		$manager = $this->getDoctrine()->getManager();
+		if ($request->query->has("signaler_user")) {
+			$user = $repoU->findOneBy(["id" => $request->query->get("signaler_user")]);
+			if (!empty($user)){
+				$user->setNombreSignalement($user->getNombreSignalement() + 1);
+				$manager->persist($user);
+            	$manager->flush();
+				$this->addFlash(
+					'signal_notice',
+					'Vous avez signalé ' . $user->getUsername() . "."
+				);
+			}
+		}
+		if ($request->query->has("numerodiscussion")){
+			return $this->redirectToRoute("readDisc", ["id" => $request->query->getInt("numerodiscussion")]);
+		}
+		else {
+			return $this->redirectToRoute("forum");
+		}
+
+	}
+
 
     /**
      * @Route("/forum/{id}", name="readDisc")

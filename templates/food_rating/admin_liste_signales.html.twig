@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    
+    {% for message in app.flashes('notice') %}
+       {{ message }}
+	{% endfor %}
+
+    <table class="table table-sm table-striped table-hover mt-5 mx-auto" style="width: 80%">
+	<thead class="thead-light">
+		<th class="w-25">Pseudo</th>
+		<th class="w-50">E-Mail</th>
+        <th class="w-50">Signalements</th>
+        <th class="w=25"></th>
+	</thead>
+	<tbody class="text-center">
+		{% for u in utilisateurs %}
+    		<tr>
+    			<td class="align-middle">{{ u.username }}</td>
+    			<td class="align-middle">{{ u.email }}</td>
+                <td class="align-middle">{{ u.nombreSignalement }}</td>
+                <td class="align-middle"><a href="{{ path("suppression_user", {"uas" : u.email} ) }}" class="btn btn-secondary" onclick="return confirm('Voulez-vous vraiment supprimer {{ u.username }} ?')">Supprimer</a></td>
+            </tr>
+
+    	{% endfor %}
+	</tbody>
+    </table>
+
+{% endblock %}

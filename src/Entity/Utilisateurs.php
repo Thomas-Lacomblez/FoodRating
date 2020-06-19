@@ -127,6 +127,11 @@ class Utilisateurs implements UserInterface
      */
     private $reponsePriveesRecepteur;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $nombreSignalement = 0;
+
     public function __construct()
     {
         $this->notes = new ArrayCollection();
@@ -592,6 +597,18 @@ class Utilisateurs implements UserInterface
                 $reponsePriveesRecepteur->setRecepteurRep(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getNombreSignalement(): ?int
+    {
+        return $this->nombreSignalement;
+    }
+
+    public function setNombreSignalement(int $nombreSignalement): self
+    {
+        $this->nombreSignalement = $nombreSignalement;
 
         return $this;
     }
