@@ -228,6 +228,10 @@
 
 <hr class="my-5 border-primary" />
 
+{% for message in app.flashes('suppr_note') %}
+    {{ message }}
+{% endfor %}
+
 {# Partie COMMENTAIRES et NOTES #}
 <h3 class="mb-3">Commentaires et Notes</h3>
 
@@ -241,6 +245,16 @@
 					for (i = 1; i <= {{ n.nbEtoiles }}; i++) { $('#etoileAffichage{{ n.id }}_' + i).addClass('text-warning'); }
 				});
 			</script>
+
+			{% set message_user = "" %}
+			{% set id_commentaire_supprimer = "" %}
+			{% for c in commentairesProduit %}
+				{% if c.utilisateur.id == n.utilisateur.id %}
+					{% set message_user = c.message %}
+					{% set id_commentaire_supprimer = c.id %}
+				{% endif %}
+			{% endfor %}
+
 			<div class="card border-primary mb-3" style="max-width: 20rem;">
 				<div class="card-header">
 					{% if n.utilisateur.imagebase64 is defined and n.utilisateur.imagebase64 is not empty %}
@@ -249,6 +263,13 @@
 						<i class="fas fa-user-circle fa-3x align-self-center align-middle"></i>
 					{% endif %}
 					{{ n.utilisateur.username }} 
+					{% if app.user %}
+						{% if app.user.roles[0] == "ROLE_ADMIN" %}
+						<a href="{{ path("suppression_commentaire_et_note", {"nas" : n.id, "cas" : id_commentaire_supprimer, "id" : produit.id ?? produit.code, "categorie" : categorie} ) }}" onclick="return confirm('Voulez-vous vraiment supprimer cette note et commentaire ?')"><i class="fas fa-trash-alt text-danger float-right"></i></a>
+						{% elseif app.user.id != n.utilisateur.id %}
+						<a href="{{ path("signaler_utilisateur_produit", {"signaler_user" : n.utilisateur.id, "id" : produit.id ?? produit.code, "categorie" : categorie} ) }}" onclick="return confirm('Voulez-vous signaler cet utilisateur ?')"><i class="fa fa-flag text-danger float-right" title="signaler"></i></a>
+						{% endif %}
+					{% endif %}
 				</div>
 			
 				<div class="card-body">
@@ -259,12 +280,9 @@
 						<i class="fas fa-star fa-2x etoile_affichage" id="etoileAffichage{{ n.id }}_4"></i>
 						<i class="fas fa-star fa-2x etoile_affichage" id="etoileAffichage{{ n.id }}_5"></i>
 					</p>
-					
-					{% for c in commentairesProduit %}
-						{% if c.utilisateur.id == n.utilisateur.id %}
-						<p class="card-text">{{ c.message }}</p>
-						{% endif %}
-					{% endfor %}
+					{% if message_user != "" %}
+					<p class="card-text">{{ message_user }}</p>
+					{% endif %}
 				</div>
 			
 				<div class="card-footer">
@@ -332,12 +350,25 @@
 {% else %}
 	<p>Pas de commentaires pour ce produit.</p>
 {% endif %}
+{% for message in app.flashes('noteSucces') %}
+	<div class="alert alert-dismissible alert-success fixed-bottom ml-auto" style="width: 300px; heigth: 200px; margin-bottom: 65px;">
+		<button type="button" class="close" data-dismiss="alert">&times;</button>
+		<strong>{{ message }}</strong>
+	</div>
+{% endfor %}
 
+{% for message in app.flashes('noteEchec') %}
+	<div class="alert alert-dismissible alert-danger fixed-bottom ml-auto" style="width: 300px; heigth: 200px; margin-bottom: 65px;">
+		<button type="button" class="close" data-dismiss="alert">&times;</button>
+		<strong>{{ message }}</strong>
+	</div>
+{% endfor %}
 <div class="flex-sm-wrap mt-5">
 
 	<!-- Utilisation du sélecteur de pages de KNP -->
 	{{ knp_pagination_render(notesProduit) }}
 	
 </div>
+
 
 {% endblock %}

@@ -27,7 +27,7 @@
                         {{ form_row(formModifierMdp.password, {'label': "Mot de passe", 'attr': {'placeholder': "Entrez votre mot de passe"}}) }}
                         {{ form_row(formModifierMdp.password_confirmation, {'label': "Confirmation du mot de passe", 'attr': {'placeholder': "Retapez votre mot de passe"}}) }}
                          <div class="form-group">
-                            <button type="submit" class="btn btn-success" data-toggle="modal" data-target="#myModal">Modifier <i class="fa fa-wrench"></i></button>
+                            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#myModal">Modifier <i class="fa fa-wrench"></i></button>
                             <a href="{{ path('user_show') }}" class="btn btn-info">Retour <i class="fa fa-arrow-left"></i></a>
                         </div>
                         <div class="modal" id="myModal">

@@ -34,7 +34,7 @@
                             {{ form_row(formModifierDonnees.imagebase64, {'attr': {'placeholder': "Ajouter votre photo", 'accept': ".png, .jpg, .jpeg, .gif"}}) }}
                         {% endif %}
                         <div class="form-group">
-                            <button type="submit" class="btn btn-success" data-toggle="modal" data-target="#myModal">Modifier <i class="fa fa-wrench"></i></button>
+                            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#myModal">Modifier <i class="fa fa-wrench"></i></button>
                             <a href="{{ path('modifier_mdp') }}" class="btn btn-secondary">Modifier le mot de passe <i class="fa fa-wrench"></i></a>
                             <a href="{{ path('user_show') }}" class="btn btn-info">Retour <i class="fa fa-arrow-left"></i></a>
                         </div>

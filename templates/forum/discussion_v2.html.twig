@@ -15,6 +15,10 @@
     {{ message }}
 {% endfor %}
 
+{% for message in app.flashes('signal_notice') %}
+    {{ message }}
+{% endfor %}
+
 {% for c in contenu %}
 
 	{% if c.sujet is defined %}
@@ -23,7 +27,7 @@
 		<div class="media border border-primary rounded-lg pl-3 pt-3 pr-3 my-2">
         	<!-- <img src="img_avatar1.png" class="align-self-center mr-3" style="width:60px"> -->
 			{% if c.id_utilisateur is not null %}
-				{% if c.id_utilisateur.imagebase64 is defined and c.id_utilisateur.imagebase64 is not empty%}
+				{% if c.id_utilisateur.imagebase64 is defined and c.id_utilisateur.imagebase64 is not empty %}
 					<img src="data:image/png;image/jpg;image/gif;base64, {{ c.id_utilisateur.imagebase64 }}" style="width: 50px; height: 50px; border-radius : 75px;">
 				{% else %}
 					<i class="fas fa-user-circle fa-3x align-self-center"></i>
@@ -32,8 +36,12 @@
 				<i class="fas fa-user-circle fa-3x align-self-center"></i>
 			{% endif %}
         	<div class="media-body ml-3">
-				{% if app.user.roles[0] == "ROLE_ADMIN" %}
-					<a href="{{ path("suppression_discussion", {"das" : numero_discussion} ) }}" onclick="return confirm('Voulez-vous vraiment supprimer la discussion ?')"><i class="fas fa-trash-alt text-danger float-right"></i></a>
+				{% if app.user %}
+					{% if app.user.roles[0] == "ROLE_ADMIN" %}
+						<a href="{{ path("suppression_discussion", {"das" : numero_discussion} ) }}" onclick="return confirm('Voulez-vous vraiment supprimer la discussion ?')"><i class="fas fa-trash-alt text-danger float-right"></i></a>
+					{% elseif app.user.id != c.id_utilisateur.id %}
+						<a href="{{ path("signaler_utilisateur_forum", {"signaler_user" : c.id_utilisateur.id, "numerodiscussion" : numero_discussion} ) }}" onclick="return confirm('Voulez-vous signaler cet utilisateur ?')"><i class="fa fa-flag text-danger float-right" title="signaler"></i></a>
+					{% endif %}
 				{% endif %}
         		{% if c.id_utilisateur is not null %}
 					<h4>{{ c.id_utilisateur.username }}</h4>
@@ -56,8 +64,12 @@
 				<i class="fas fa-user-circle fa-3x align-self-center"></i>
 			{% endif %}
 			<div class="media-body ml-3">
-				{% if app.user.roles[0] == "ROLE_ADMIN" %}
-					<a href="{{ path("suppression_reponse", {"aas" : c.id, "numerodiscussion" : numero_discussion} ) }}" onclick="return confirm('Voulez-vous vraiment supprimer ce message ?')"><i class="fas fa-trash-alt text-danger float-right"></i></a>
+				{% if app.user %}
+					{% if app.user.roles[0] == "ROLE_ADMIN" %}
+						<a href="{{ path("suppression_reponse", {"aas" : c.id, "numerodiscussion" : numero_discussion} ) }}" onclick="return confirm('Voulez-vous vraiment supprimer ce message ?')"><i class="fas fa-trash-alt text-danger float-right"></i></a>
+					{% elseif app.user.id != c.idUtilisateur.id %}
+						<a href="{{ path("signaler_utilisateur_forum", {"signaler_user" : c.idUtilisateur.id, "numerodiscussion" : numero_discussion} ) }}" onclick="return confirm('Voulez-vous signaler cet utilisateur ?')"><i class="fa fa-flag text-danger float-right" title="signaler"></i></a>
+					{% endif %}
 				{% endif %}
 				{% if c.idUtilisateur is not null %}
 					<h4>{{ c.idUtilisateur.username }}</h4>

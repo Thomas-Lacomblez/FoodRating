@@ -99,7 +99,6 @@ class SecurityController extends AbstractController
             $email->from( $emailAdmin );
             $email->to( $user->getEmail() );
             $email->htmlTemplate( 'registration/confirmation_email.html.twig' );
-            //$signedUrl = $this->generateUrl('verify', array('vkey' => $vkey, UrlGeneratorInterface::ABSOLUTE_URL));
             $signedUrl = $this->router->generate('verify', [
                 'vkey' => $vkey,
             ], UrlGeneratorInterface::ABSOLUTE_URL
@@ -281,7 +280,6 @@ class SecurityController extends AbstractController
         $session = $this->get('session');
         $session = new Session();
         $session->invalidate();
-
         return $this->redirectToRoute('food_rating');
 
      }

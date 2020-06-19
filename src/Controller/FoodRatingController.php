@@ -121,8 +121,37 @@ class FoodRatingController extends AbstractController
 				"commentairesProduit" => $sauvegardeProduitCom
 			]);
 		}
-    }
+	}
 
+	/**
+     * @Route("/categories/signaler_utilisateur", name="signaler_utilisateur_produit")
+     */
+	public function signalerUtilisateur(Request $request, UtilisateursRepository $repoU){
+		$manager = $this->getDoctrine()->getManager();
+		if ($request->query->has("signaler_user")) {
+			$user = $repoU->findOneBy(["id" => $request->query->get("signaler_user")]);
+			if (!empty($user)){
+				$user->setNombreSignalement($user->getNombreSignalement() + 1);
+				$manager->persist($user);
+            	$manager->flush();
+				$this->addFlash(
+					'signal_notice',
+					'Vous avez signalé ' . $user->getUsername() . "."
+				);
+			}
+		}
+		if ($request->query->has("id") && $request->query->has("categorie")){
+			return $this->redirectToRoute("produit_v2", [
+				'id' => $request->query->get("id"),
+				'categorie' => $request->query->get("categorie")
+			]);
+		}
+		else {
+			return $this->redirectToRoute("food_rating");
+		}
+
+	}
+    
     /**
      * @Route("/categories/{categorie}/produit_v2/{id}", name="produit_v2")
      */
@@ -409,18 +438,21 @@ class FoodRatingController extends AbstractController
 					$manager->persist($commentaire);
 					$manager->flush();
 				}
+				$this->addFlash('noteSucces', 'Notation pris en compte');
 				return $this->redirectToRoute('produit_v2', [
 					"id" => $id,
 					"categorie" => $categorie
 				]);
 			}
-
+			$this->addFlash('noteEchec', 'Notation non enregistrée');
+		
 			return $this->redirectToRoute('produit_v2', [
 				"id" => $id,
 				"categorie" => $categorie
 			]);
 		}
 		else {
+			$this->addFlash('noteEchec', 'Notation non enregistrée');
 			return $this->redirectToRoute('produit_v2', [
 				"id" => $id,
 				"categorie" => $categorie
@@ -486,6 +518,7 @@ class FoodRatingController extends AbstractController
 					$manager->persist($newCommentaire);
 					$manager->flush();
 				}
+				$this->addFlash('noteSucces', 'Notation modifiée');
 				return $this->redirectToRoute('produit_v2', [
 					"id" => $id,
 					"categorie" => $categorie
@@ -532,18 +565,20 @@ class FoodRatingController extends AbstractController
 					$manager->persist($newCommentaire);
 					$manager->flush();
 				}
+				$this->addFlash('noteSucces', 'Notation modifiée');
 				return $this->redirectToRoute('produit_v2', [
 					"id" => $id,
 					"categorie" => $categorie
 				]);
 			}
-
+			$this->addFlash('noteEchec', 'Modification échouée');
 			return $this->redirectToRoute('produit_v2', [
 				"id" => $id,
 				"categorie" => $categorie
 			]);
 		}
 		else {
+			$this->addFlash('noteEchec', 'Modification échouée');
 			return $this->redirectToRoute('produit_v2', [
 				"id" => $id,
 				"categorie" => $categorie
@@ -592,13 +627,14 @@ class FoodRatingController extends AbstractController
 			}
 
 			$manager->flush();
-
+			$this->addFlash('noteSucces', 'Suppression réussie');
 			return $this->redirectToRoute('produit_v2', [
 				"id" => $id,
 				"categorie" => $categorie
 			]);
 		}
 		else {
+			$this->addFlash('noteEchec', 'Suppression échouée');
 			return $this->redirectToRoute('produit_v2', [
 				"id" => $id,
 				"categorie" => $categorie
@@ -680,9 +716,11 @@ class FoodRatingController extends AbstractController
     public function espace(?UserInterface $user) {
 		if ($user) {
 			if ($this->container->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
+				$this->addFlash('connexion', 'Connexion réussie '. $user->getUsername());
 				return $this->redirectToRoute('compte_admin');
 			}
 			else {
+				$this->addFlash('connexion', 'Connexion réussie '. $user->getUsername());
 				return $this->redirectToRoute('compte_client');
 			}
 		}
