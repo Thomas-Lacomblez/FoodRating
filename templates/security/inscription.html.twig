@@ -10,7 +10,17 @@
         <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
         <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
         <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
-        {% block stylesheets %}{% endblock %}
+        {% block stylesheets %}
+            <style>
+                body {
+                    background: linear-gradient(to left, #939393 -6%, #ececec 100%);
+                    background-attachment : fixed ;
+                    background-position : center ;
+                    background-repeat: no-repeat ;
+                    background-size :cover ;
+                }
+            </style>
+        {% endblock %}
     </head>
 
     {% block body %}
@@ -22,7 +32,8 @@
 	    });
 
         function ChargerPageConnexion() {
-            history.pushState({ path: this.path}, '', '/connexion');
+            //history.pushState({ path: this.path}, '', '/connexion');
+            window.location.href = "/connexion";
         }
         </script>
         {% if app.user %}
@@ -31,19 +42,19 @@
             <div id="formChange">
                 <div style="margin-top:10%;">
                     <div class="container">
-                        <ul class="nav nav-tabs col-sm-5 m-auto">
+                        <ul class="nav col-sm-5 m-auto">
                             <img src="/images/logo.png" alt="logo">
                             <li class="nav-item">
-                                <button class="nav-link" id="connexion" onclick="ChargerPageConnexion()">Connexion</button>
+                                <button class="nav-link btn btn-secondary" id="connexion" onclick="ChargerPageConnexion()">Connexion</button>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link active" href="#">Inscription</a>
+                                <a class="nav-link btn btn-primary active" href="#">Inscription</a>
                             </li>
                         </ul>
                         <div id="myTabContent" class="tab-content">
                             <div class="col-sm-5 m-auto form-group tab-pane fade active show">
                                 {% form_theme formInscription 'bootstrap_4_layout.html.twig' %}
-                                <fieldset>
+                                <div class="border border-info rounded pl-3 pr-3" style="background-color: white">
                                     <legend>Inscription sur FoodRating !</legend>
                                     {{ form_start(formInscription) }}
                     
@@ -73,7 +84,7 @@
                                         </div>
                                     </div>
                                     {{ form_end(formInscription) }}
-                                </fieldset>
+                                </div>
                             </div>
                         </div>
                     </div>

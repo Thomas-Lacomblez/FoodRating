@@ -729,39 +729,6 @@ class FoodRatingController extends AbstractController
 		}
 	}
 
-	/**
-	 * @Route("/client", name="compte_client")
-	 */
-	public function compteClient() {
-		return $this->render('food_rating/espace.html.twig');
-	}
-
-	/**
-	 * @Route("/admin", name="compte_admin")
-	 */
-	public function compteAdmin() {
-		$manager = $this->getDoctrine()->getManager();
-		$utilisateurs = $manager->getRepository(Utilisateurs::class)->findByRole('ROLE_USER');
-		dump($utilisateurs);
-
-		return $this->render("food_rating/espace_admin.html.twig", [
-			"utilisateurs" => $utilisateurs
-		]);
-	}
-
-    /**
-     * @Route("/client/info_compte", name="user_show")
-     */
-	public function show(UtilisateursRepository $repo, ?UserInterface $user) {
-		$utilisateur = $repo->findBy(["id" => $user->getId()]);
-		if ($utilisateur[0]->getImageBase64() != null) {
-			return $this->render('food_rating/info_compte.html.twig', [
-				"image" => $utilisateur[0]->getImageBase64()
-			]);
-		}
-        return $this->render('food_rating/info_compte.html.twig');
-    }
-
     /**
      * @Route("/categories", name="liste_categorie")
      */
@@ -890,7 +857,7 @@ class FoodRatingController extends AbstractController
      * @Route("/contact", name="contact")
      */
 	public function contact( MailerInterface $mailer, Request $request ) {
-		$emailAdmin = "Lacomblez.thomas@gmail.com";
+		$emailAdmin = "";
 		$formMessage = $this->createFormBuilder(null)
 			->add('Email', TextType::class)
 			->add('Sujet', TextType::class)

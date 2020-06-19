@@ -10,7 +10,17 @@
         <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
         <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
         <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
-        {% block stylesheets %}{% endblock %}
+        {% block stylesheets %}
+            <style>
+                body {
+                    background: linear-gradient(to left, #939393 -6%, #ececec 100%);
+                    background-attachment : fixed ;
+                    background-position : center ;
+                    background-repeat: no-repeat ;
+                    background-size :cover ;
+                }
+            </style>
+        {% endblock %}
     </head>
 
     {% block body %}
@@ -18,9 +28,8 @@
             <div class="container">
                 <div class="col-sm-5 m-auto form-group tab-pane fade active show">
                     <img src="/images/logo.png" alt="logo">
-                    <hr class="border-info" />
                     {% form_theme formModifierDonnees 'bootstrap_4_layout.html.twig' %}
-                    <fieldset>
+                    <div class="border border-info rounded pl-3 pr-3" style="background-color: white">
                         <legend>Modification des données sur FoodRating !</legend>
                         {{ form_start(formModifierDonnees) }}
 
@@ -56,7 +65,7 @@
                         </div>
                         
                         {{ form_end(formModifierDonnees) }}
-                    </fieldset>
+                    </div>
                 </div>
             </div>
         </div>

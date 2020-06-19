@@ -80,7 +80,7 @@ class SecurityController extends AbstractController
      */
 
     public function formInscription(Request $request, UserPasswordEncoderInterface $encoder, MailerInterface $mailer) {
-        $emailAdmin = "Lacomblez.thomas@gmail.com";
+        $emailAdmin = "";
         $user = new Utilisateurs();
         $manager = $this->getDoctrine()->getManager();
         $form = $this->createForm(InscriptionType::class, $user);
@@ -165,7 +165,7 @@ class SecurityController extends AbstractController
 
         $form = $this->createForm(DonneesModifType::class, $userModif);
         $form->handleRequest($request);
-        $emailAdmin = "Lacomblez.thomas@gmail.com";
+        $emailAdmin = "";
 
         if ($form->isSubmitted() && $form->isValid()) {
             $hash = $encoder->encodePassword($userModif, $userModif->getPassword());

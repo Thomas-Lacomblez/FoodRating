@@ -10,7 +10,17 @@
         <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
         <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
         <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
-        {% block stylesheets %}{% endblock %}
+        {% block stylesheets %}
+            <style>
+                body {
+                    background: linear-gradient(to left, #939393 -6%, #ececec 100%);
+                    background-attachment : fixed ;
+                    background-position : center ;
+                    background-repeat: no-repeat ;
+                    background-size :cover ;
+                }
+            </style>
+        {% endblock %}
     </head>
 
     {% block body %}
@@ -23,7 +33,7 @@
             
         function ChargerPageInscription() {
             //history.pushState({ path: this.path}, '', '/inscription');
-            window.location.href = "https://localhost:8000/inscription";
+            window.location.href = "/inscription";
         }
         </script>
         {% if app.user %}
@@ -45,13 +55,13 @@
             <div id="formChange">
                 <div style="margin-top:10%;">
                     <div class="container">
-                        <ul class="nav nav-tabs col-sm-5 m-auto">
+                        <ul class="nav col-sm-5 m-auto">
                             <img src="/images/logo.png" alt="logo">
                             <li class="nav-item">
-                                <a class="nav-link active" href="#">Connexion</a>
+                                <a class="nav-link btn btn-primary active" href="#">Connexion</a>
                             </li>
                             <li class="nav-item">
-                                <button class="nav-link" id="inscription" onclick="ChargerPageInscription()">Inscription</button>
+                                <button class="nav-link btn btn-secondary" id="inscription" onclick="ChargerPageInscription()">Inscription</button>
                             </li>
                         </ul>
                         <div id="myTabContent" class="tab-content">
@@ -59,25 +69,16 @@
                                 {% if error %}
                                     <div>{{ error.messageKey|trans(error.messageData, 'security') }}</div>
                                 {% endif %}
-                                <fieldset>
+                                <div class="border border-info rounded pl-3 pr-3" style="background-color: white">
                                     <form action="{{ path('login_security') }}" method="post">
                                         <legend>Connexion à l'espace personnel !</legend>
                                         <div class="form-group">
-<<<<<<< HEAD
                                             <label>Email</label>
                                             <input type="text" id="inputEmail" name="email" class="form-control" placeholder="Entrez votre email" value="{{ last_username }}" required/>
                                         </div>
                                         <div class="form-group">
                                             <label>Mot de passe</label>
                                             <input type="password" id="inputPassword" name="password" class="form-control" placeholder="Entrer votre mot de passe" required/>
-=======
-                                            <label>Email <i class="fa fa-envelope"></i></label>
-                                            <input type="text"  name="_username" class="form-control" placeholder="Entrez votre email" value="{{ last_username }}"/>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Mot de passe <i class="fa fa-key"></i></label>
-                                            <input type="password"  name="_password" class="form-control" placeholder="Entrer votre mot de passe"/>
->>>>>>> d48dc14b680a1c104f8c1a293142c596640b402b
                                         </div>
                                         <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
                                         <input type="hidden" name="go_to" value="{{ path('espace') }}" />
@@ -87,40 +88,11 @@
                                             <a href="/" class="btn btn-info">Retour <i class="fa fa-arrow-left"></i></a>
                                         </div>
                                     </form>
-                                </fieldset>
-                            </div>
-                        </div>
-
-                        <div id="myTabContent" class="tab-content">
-                            <div class="col-sm-5 m-auto form-group tab-pane fade active show">
-                                {% if formInscription is defined %}
-                                    {% form_theme formInscription 'bootstrap_4_layout.html.twig' %}
-                                    <fieldset>
-                                        <legend>Inscription sur FoodRating !</legend>
-                                        {{ form_start(formInscription) }}
-
-                                        {{ form_row(formInscription.username, {'label': "Pseudo", 'attr': {'placeholder': "Entrez votre pseudo"}}) }}
-                                        {{ form_row(formInscription.email, {'label': "Email", 'attr': {'placeholder': "Entrez votre email"}}) }}
-                                        {{ form_row(formInscription.password, {'label': "Mot de passe", 'attr': {'placeholder': "Entrez votre mot de passe"}}) }}
-                                        {{ form_row(formInscription.password_confirmation, {'label': "Confirmation du mot de passe", 'attr': {'placeholder': "Retapez votre mot de passe"}}) }}
-
-                                        <div class="form-group">
-                                            <button type="submit" class="btn btn-success">S'inscrire</button>
-                                            <a href="/" class="btn btn-info">Retour</a>
-                                        </div>
-                                        {{ form_end(formInscription) }}
-                                    </fieldset>
-                                {% endif %}
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                {% for message in app.flashes('inscription') %}
-                    <div class="alert alert-dismissible alert-success fixed-bottom ml-auto" style="width: 300px; heigth: 200px;">
-                        <button type="button" class="close" data-dismiss="alert">&times;</button>
-                        <strong>{{ message }}</strong>.
-                    </div>
-                {% endfor %}
             </div>
         {% endif %}
        
