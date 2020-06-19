@@ -842,7 +842,12 @@ class FoodRatingController extends AbstractController
 
 		return $this->redirectToRoute("compte_admin");
 	}
-
+	/**
+     * @Route("/mentions_legales", name="mentions_legales")
+     */
+	public function mentionsLegales() {
+		return $this->render("food_rating/mentions_legales.html.twig");
+	}
     /**
      * @Route("/debug/{id}", name="debug")
      */
