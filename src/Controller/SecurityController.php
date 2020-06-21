@@ -89,6 +89,7 @@ class SecurityController extends AbstractController
             $hash = $encoder->encodePassword($user, $user->getPassword());
 
             $user->setPassword($hash);
+            $user->setRoles(['ROLE_USER']);
             $vkey = md5(time().$user->getUsername());
             $user->setVkey($vkey);
             $manager = $this->getDoctrine()->getManager();
