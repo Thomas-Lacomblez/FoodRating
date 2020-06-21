@@ -37,13 +37,19 @@
                         <a class="nav-link" href="{{ path("mentions_legales") }}">Mentions Légales</a>
                     </li>
                     {% if app.user %}
+                        {% if app.user.roles[0] == "ROLE_ADMIN" %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path("compte_admin") }}">Tableau de bord</a>
+                        </li>
+                        {% else %}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ path("compte_client") }}">Tableau de bord</a>
                         </li>
+                        {% endif %}
                     {% endif %}
                 </ul>
                 <form class="form-inline my-2 my-lg-0" action="{{ path('resultat') }}" method="get">
-                    <input class="form-control mr-sm-2" type="text" id="recherche" name="recherche" placeholder="Recherche" required>
+                    <input class="form-control mr-sm-2" type="text" id="recherche" name="recherche" placeholder="Rechercher un produit" required>
                     <button class="btn btn-warning my-2 my-sm-0 mr-2" type="submit">Rechercher <i class="fa fa-search"></i></button>
                 </form>
                 {% if app.user %}
