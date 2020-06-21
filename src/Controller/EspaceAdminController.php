@@ -123,6 +123,36 @@ class EspaceAdminController extends AbstractController
 			"moyennesProduits" => $moyennesProduits
 		]);
 	}
+
+	/**
+	 * @Route("/admin/users/reset_signal", name="reset_signal_user")
+	 */
+	public function resetSignalUser(Request $request){
+		$manager = $this->getDoctrine()->getManager();
+		$pseudo = "";
+		if ($request->query->has("uar")){
+			$user = $manager->getRepository(Utilisateurs::class)->findOneBy(['email' => $request->query->get("uar")]);
+
+			// Dans le cas où l'admin envoie en paramètre URL une adresse qui n'existe pas
+			if (empty($user)){
+				$this->addFlash(
+					'notice',
+					"L'utilisateur que vous avez demandé de supprimer n'existe pas."
+				);
+			}
+			else {
+				$user->setNombreSignalement(0);
+				$manager->persist($user);
+				$manager->flush();
+				$pseudo = $user->getUsername();
+				$this->addFlash(
+					'notice',
+					'Les signalements de ' . $pseudo . " sont désormais à 0"
+				);
+			}
+		}
+		return $this->redirectToRoute("liste_utilisateurs_signales_admin");
+	}
     
 	/**
 	 * @Route("/admin/users/suppression", name="suppression_user")
