@@ -2,30 +2,31 @@
 
 namespace App\Controller;
 
+use App\Entity\Bannis;
 use App\Entity\Utilisateurs;
 use App\Form\InscriptionType;
 use App\Form\DonneesModifType;
-use App\Form\MotDePasseModifType;
 
+use App\Form\MotDePasseModifType;
 use App\Repository\NotesRepository;
 use App\Repository\UtilisateursRepository;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\Cookie;
 use App\Repository\MoyenneProduitsRepository;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Mailer\MailerInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
-use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
-use Symfony\Component\HttpFoundation\Cookie;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class SecurityController extends AbstractController
 {
@@ -35,6 +36,7 @@ class SecurityController extends AbstractController
     {
         $this->router = $router;
     }
+
     /**
      * @Route("/connexion", name="login_security")
      */
@@ -59,26 +61,28 @@ class SecurityController extends AbstractController
      * @Route("/inscription_admin", name="inscription_admin")
      * A utiliser une fois
      */
-
     public function formInscriptionAdmin(Request $request, UserPasswordEncoderInterface $encoder) {
 
         $admin = new Utilisateurs();
         $manager = $this->getDoctrine()->getManager();
         $password = "admin";
         $hash = $encoder->encodePassword($admin, $password);
+        $vkey = md5(time()."admin");
         $admin->setUsername("admin")
               ->setEmail("admin@foodrating.fr")
               ->setPassword($hash)
-              ->setRoles(['ROLE_ADMIN']);
+              ->setRoles(['ROLE_ADMIN'])
+              ->setVerified(1)
+              ->setVkey($vkey);
         $manager->persist($admin);
         $manager->flush();
 
         return $this->render('food_rating/accueil.html.twig');
     }
+
     /**
      * @Route("/inscription", name="inscription")
      */
-
     public function formInscription(Request $request, UserPasswordEncoderInterface $encoder, MailerInterface $mailer) {
         $emailAdmin = "";
         $user = new Utilisateurs();
@@ -86,6 +90,18 @@ class SecurityController extends AbstractController
         $form = $this->createForm(InscriptionType::class, $user);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+            $isBan = $manager->getRepository(Bannis::class)->findOneBy(['mail' => $user->getEmail()]);
+            if (!empty($isBan)){
+                $this->addFlash(
+					'notice',
+					"Cet e-mail a été banni de notre site !"
+				);
+
+                return $this->render('security/inscription.html.twig', [
+                    'formInscription' => $form->createView()
+                ]);
+            }
+
             $hash = $encoder->encodePassword($user, $user->getPassword());
 
             $user->setPassword($hash);

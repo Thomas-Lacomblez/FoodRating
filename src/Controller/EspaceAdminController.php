@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Notes;
+use App\Entity\Bannis;
 use OpenFoodFacts\Api;
 use App\Entity\Reponse;
 use App\Entity\Discussion;
@@ -218,6 +219,12 @@ class EspaceAdminController extends AbstractController
                     }
                 }
 
+				$mailban = $user->getEmail();
+				$banni = new Bannis();
+				$banni->setMail($mailban);
+				$manager->persist($banni);
+				$manager->flush();
+
 				$manager->remove($user);
 				$manager->flush();
 				$pseudo = $user->getUsername();
@@ -230,7 +237,10 @@ class EspaceAdminController extends AbstractController
 
 		$utilisateurs = $manager->getRepository(Utilisateurs::class)->findAll();
 
-		return $this->redirectToRoute("liste_utilisateurs_admin");
+		if ($request->query->has("signal")) 
+			return $this->redirectToRoute("liste_utilisateurs_signales_admin");
+		else 
+			return $this->redirectToRoute("liste_utilisateurs_admin");
 	}
 
 	/**
