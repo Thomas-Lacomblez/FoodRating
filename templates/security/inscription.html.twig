@@ -56,6 +56,9 @@
                                 {% form_theme formInscription 'bootstrap_4_layout.html.twig' %}
                                 <div class="border border-info rounded pl-3 pr-3" style="background-color: white">
                                     <legend>Inscription sur FoodRating !</legend>
+                                    {% for message in app.flashes('notice') %}
+                                        {{ message }}
+                                    {% endfor %}
                                     {{ form_start(formInscription) }}
                     
                                     {{ form_row(formInscription.username, {'label': "Pseudo", 'attr': {'placeholder': "Entrez votre pseudo"}}) }}
