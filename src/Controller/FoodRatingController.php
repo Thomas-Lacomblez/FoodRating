@@ -857,7 +857,7 @@ class FoodRatingController extends AbstractController
      * @Route("/contact", name="contact")
      */
 	public function contact( MailerInterface $mailer, Request $request ) {
-		$emailAdmin = "";
+		$emailAdmin = "Lacomblez.thomas@gmail.com";
 		$formMessage = $this->createFormBuilder(null)
 			->add('Email', TextType::class)
 			->add('Sujet', TextType::class)

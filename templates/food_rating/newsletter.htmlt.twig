@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}newsletter{% endblock %}
+
+{% block body %}
+
+    <div>
+        {{ form_start(form) }}
+            <div class="form-group">
+                {{ form_errors(form) }}
+                {{ form_row(form.Sujet) }}
+                {{ form_widget(form.Sujet) }}<br/>
+                {{ form_row(form.Message) }}
+                {{ form_widget(form.Message) }}
+            </div>
+            {{ form_widget(form.Envoyer) }}
+        {{ form_end(form) }}
+        {%for user in userAdresse %}
+            {{ user }},
+        {% endfor %}
+    </div>
+
+{% endblock %}

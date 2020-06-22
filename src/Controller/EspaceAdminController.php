@@ -18,6 +18,11 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Mime\Email;
+use Symfony\Component\Mime\Address;
+use Symfony\Component\Mailer\MailerInterface;
 
 class EspaceAdminController extends AbstractController
 {
@@ -266,7 +271,7 @@ class EspaceAdminController extends AbstractController
 		
 	}
 
-		/**
+	/**
 	 * @Route("/admin/suppression/commentaire_et_note", name="suppression_commentaire_et_note")
 	 */
 	public function suppressionCommentaireEtNote(Request $request, MoyenneProduitsRepository $repoM, NotesRepository $repoN){
@@ -331,6 +336,47 @@ class EspaceAdminController extends AbstractController
         
         return $str;
     }
+	 /**
+	 * @Route("/admin/newsletter", name="newsletter")
+	 */
+
+	public function newsletter(MailerInterface $mailer, UtilisateursRepository $repoU, Request $request ) {
+		$emailAdmin = "Lacomblez.thomas@gmail.com";
+		$userAdresse = array();
+		$formMessage = $this->createFormBuilder(null)
+			->add('Sujet', TextType::class)
+            ->add('Message', TextType::class)
+            ->add('Envoyer', SubmitType::class, ['label' => 'Envoyer'])
+			->getForm();
+
+		$formMessage->handleRequest($request);
+		
+		if($formMessage->isSubmitted() && $formMessage->isValid() ) {
+			//echo "dans if submit";
+			$data = $formMessage->getData();
+			$users = $repoU->createQueryBuilder('u')
+				->select("u")
+				->where("u.roles = :roles")
+				->setParameter(':roles','a:0:{}')
+				->getQuery()
+				->getResult();
+			//dump($userAdresse);
+			foreach($users as $user) {
+				//$userAdresse[] = $user->getEmail();
+				$email = (new Email())
+					->from($emailAdmin)
+					->to( $user->getEmail())
+					->subject($data["Sujet"])
+					->text($data["Message"]);
+				$mailer->send($email);
+			}
+		}
+		//
+		return $this->render("food_rating/newsletter.htmlt.twig", [
+			'form' => $formMessage->createView(),
+			"userAdresse" => $userAdresse
+		]);
+	}
 
 }
 

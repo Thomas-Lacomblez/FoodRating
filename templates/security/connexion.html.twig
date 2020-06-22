@@ -79,13 +79,15 @@
                                         <div class="form-group">
                                             <label>Mot de passe</label>
                                             <input type="password" id="inputPassword" name="password" class="form-control" placeholder="Entrer votre mot de passe" required/>
+                                            <a href="/reset-password">Mot de passe oublié ?</a>
                                         </div>
                                         <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
                                         <input type="hidden" name="go_to" value="{{ path('espace') }}" />
                                         <input type="hidden" name="back_to" value="{{ path('login_security') }}" />
+                                        <!--<br/>-->
                                         <div class="form-group">
                                             <button type="submit" class="btn btn-success">Connexion <i class="fa fa-rss"></i></button>
-                                            <a href="/" class="btn btn-info">Retour <i class="fa fa-arrow-left"></i></a>
+                                            <a href="{{ path('food_rating') }}" class="btn btn-info">Retour <i class="fa fa-arrow-left"></i></a>
                                         </div>
                                     </form>
                                 </div>
@@ -95,6 +97,5 @@
                 </div>
             </div>
         {% endif %}
-       
     {% endblock %}
 </html>

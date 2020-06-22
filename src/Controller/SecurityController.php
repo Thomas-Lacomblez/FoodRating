@@ -69,7 +69,8 @@ class SecurityController extends AbstractController
         $admin->setUsername("admin")
               ->setEmail("admin@foodrating.fr")
               ->setPassword($hash)
-              ->setRoles(['ROLE_ADMIN']);
+              ->setRoles(['ROLE_ADMIN'])
+              ->setVkey(0);
         $manager->persist($admin);
         $manager->flush();
 
@@ -80,7 +81,7 @@ class SecurityController extends AbstractController
      */
 
     public function formInscription(Request $request, UserPasswordEncoderInterface $encoder, MailerInterface $mailer) {
-        $emailAdmin = "";
+        $emailAdmin = "Lacomblez.thomas@gmail.com";
         $user = new Utilisateurs();
         $manager = $this->getDoctrine()->getManager();
         $form = $this->createForm(InscriptionType::class, $user);
@@ -104,7 +105,6 @@ class SecurityController extends AbstractController
             ], UrlGeneratorInterface::ABSOLUTE_URL
             );
 
-            echo $signedUrl;
             $email->context( ['signedUrl' => $signedUrl] );
 
             $mailer->send( $email );
@@ -131,8 +131,6 @@ class SecurityController extends AbstractController
                     'No User found. Retry later or contact your administrator'
                 );
             }
-
-            echo $user->getUsername();
             $user->setVerified(True);
             $entityManager->flush();
             $this->addFlash('success', 'Your e-mail address has been verified.');
@@ -169,7 +167,7 @@ class SecurityController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $hash = $encoder->encodePassword($userModif, $userModif->getPassword());
-            $contactUrl = $this->router->generate('contact', UrlGeneratorInterface::ABSOLUTE_URL 
+            $contactUrl = $this->router->generate('contact', UrlGeneratorInterface::ABSOLUTE_URL
             );
             $user->setPassword($hash);
             $email = (new Email())
@@ -248,7 +246,6 @@ class SecurityController extends AbstractController
 		if($filesystem->exists('csv/'. $user->getId())) {
 			$filesystem->remove('csv/'. $user->getId());
 		}
-        
         if($notesUser != null) {
             for($note = 0; $note < sizeof($notesUser); $note++) {
                 $produitMoyenne = $repoM->findBy(["produit_id" => $notesUser[$note]->getProduitId()]);
