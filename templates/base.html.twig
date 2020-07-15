@@ -49,13 +49,13 @@
                     {% endif %}
                 </ul>
                 <form class="form-inline my-2 my-lg-0" action="{{ path('resultat') }}" method="get">
-                    <input class="form-control mr-sm-2" type="text" id="recherche" name="recherche" placeholder="Rechercher un produit" required>
-                    <button class="btn btn-warning my-2 my-sm-0 mr-2" type="submit">Rechercher <i class="fa fa-search"></i></button>
+                    <input class="rounded-left form-control" type="text" id="recherche" name="recherche" placeholder="Produit ?" style="width: 60%;" required>
+                    <button class="btn btn-warning my-2 my-sm-0 rounded-right" type="submit"><i class="fa fa-search"></i></button>
                 </form>
                 {% if app.user %}
                     <form class="form-inline my-2 my-lg-0" action=" {{ path('resultat_user') }}" method="get">
-                        <input class="form-control mr-sm-2" type="text" id="recherche_utilisateur" name="recherche_utilisateur" placeholder="Rechercher un utilisateur" required>
-                        <button class="btn btn-secondary my-2 my-sm-0 mr-2" type="submit">Rechercher <i class="fa fa-search"></i></button>
+                        <input class="rounded-left form-control" type="text" id="recherche_utilisateur" name="recherche_utilisateur" placeholder="Utilisateur ?" style="width: 60%;" required>
+                        <button class="btn btn-secondary my-2 my-sm-0 rounded-right" type="submit"><i class="fa fa-search"></i></button>
                     </form>
                 {% endif %}
                 
@@ -107,7 +107,7 @@
                         </div>
                     {% else %}
                         <div class="dropdown" style="cursor: pointer;">
-                            <i class="fas fa-user-circle fa-3x pt-1 dropdown-toggle text-light ml-3" data-toggle="dropdown" data-placement="bottom" title="{{ app.user.username }}"></i>
+                            <i class="fas fa-user-circle fa-3x pt-1 dropdown-toggle text-light ml-2" data-toggle="dropdown" data-placement="bottom" title="{{ app.user.username }}"></i>
                             <div class="dropdown-menu" style="margin-left: -155px;">
                                 <a href="{{ path('user_show') }}" class="dropdown-item">Votre compte <i class="fa fa-cog"></i></a>
                                 <button type="button" class="dropdown-item" data-toggle="modal" data-target="#myModalDeco">Déconnexion <i class="fas fa-sign-out-alt"></i></button>

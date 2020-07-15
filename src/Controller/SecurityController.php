@@ -27,6 +27,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
+use Symfony\Component\Mime\Email;
 
 class SecurityController extends AbstractController
 {
@@ -77,14 +78,14 @@ class SecurityController extends AbstractController
         $manager->persist($admin);
         $manager->flush();
 
-        return $this->render('food_rating/accueil.html.twig');
+        return $this->render('food_rating/espace_admin.html.twig');
     }
 
     /**
      * @Route("/inscription", name="inscription")
      */
     public function formInscription(Request $request, UserPasswordEncoderInterface $encoder, MailerInterface $mailer) {
-        $emailAdmin = "Lacomblez.thomas@gmail.com";
+        $emailAdmin = "admin@foodrating.fr";
         $user = new Utilisateurs();
         $manager = $this->getDoctrine()->getManager();
         $form = $this->createForm(InscriptionType::class, $user);
@@ -144,12 +145,12 @@ class SecurityController extends AbstractController
 
             if (!$user) {
                 throw $this->createNotFoundException(
-                    'No User found. Retry later or contact your administrator'
+                    'Aucun utilisateur n\'a été trouvé. Veuillez réessayer plus tard ou contactez votre administrateur.'
                 );
             }
             $user->setVerified(True);
             $entityManager->flush();
-            $this->addFlash('success', 'Your e-mail address has been verified.');
+            $this->addFlash('success', 'Votre adresse mail a été vérifié.');
         }
         catch (Exception $e) {
             $this->addFlash('UserUpdateError', $e->getMessage());
@@ -169,7 +170,7 @@ class SecurityController extends AbstractController
     /**
      * @Route("/client/info_compte/modifier_donnees", name="modifier_donnees")
      */
-    public function formModifierDonnees(Request $request) {
+    public function formModifierDonnees(MailerInterface $mailer, Request $request) {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
         $user = $this->getUser();
@@ -179,22 +180,24 @@ class SecurityController extends AbstractController
 
         $form = $this->createForm(DonneesModifType::class, $userModif);
         $form->handleRequest($request);
-        $emailAdmin = "";
+        $emailAdmin = "admin@foodrating.fr";
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $hash = $encoder->encodePassword($userModif, $userModif->getPassword());
-            $contactUrl = $this->router->generate('contact', UrlGeneratorInterface::ABSOLUTE_URL
-            );
-            $user->setPassword($hash);
+        	$imageTest = $form->get('imagebase64')->getData();
+        	if($imageTest) {
+        		$blob = fopen($imageTest, 'rb');
+        		$userModif->setImageBase64(base64_encode(stream_get_contents($blob)));
+        	}
+        	
             $email = (new Email())
                 ->from($emailAdmin)
                 ->to($user->getEmail())
                 ->subject("Modification des information de votre compte")
-                ->text("vos donnez ont été modifier avec succès, si vous n'avez pas fait cette modification vous êtes peut-être la cible d'un piratage de votre compte, si c'est le cas nous vous conseillons de changer votre mot de passe le plus rapidement possible, si vous rencontrez un quelconque problème vous pouvez contacter un administrateur par le biais du formulaire de contact, à l'adresse suivant :" . $contactUrl);
+                ->text("Vos données ont été modifiées avec succès. Si vous n'avez pas fait cette modification, vous êtes peut-être la cible d'un piratage. Si c'est le cas, nous vous conseillons de changer votre mot de passe le plus rapidement possible. En cas de problème, vous pouvez contacter un administrateur par le biais du formulaire de contact, à l'adresse suivante :" . $emailAdmin);
             $mailer->send($email);
             $manager->flush();
 
-            return $this->redirectToRoute('espace');
+            return $this->redirectToRoute('user_show');
 
         }
         return $this->render('security/modifier_donnees.html.twig', [

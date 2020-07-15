@@ -2,6 +2,11 @@
 
 {% block title %}Messages{% endblock %}
 
+{% block stylesheets %}
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.16/dist/summernote.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.16/dist/summernote-bs4.min.css" rel="stylesheet">
+{% endblock %}
+
 {% block body %}
 {% if discussion is not null %}
     {% if discussion.envoyeurDisc == app.user %}
@@ -72,4 +77,14 @@
         <strong><i class="fa fa-exclamation-circle"></i> {{ message }}</strong>
     </div>
 {% endfor %}
+{% endblock %}
+
+{% block javascripts %}
+	<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.16/dist/summernote.min.js"></script> 
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.16/dist/summernote-bs4.min.js"></script>
+    <script>
+        $('#message').summernote({
+			height: 200
+        });
+    </script>
 {% endblock %}
